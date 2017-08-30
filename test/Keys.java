@@ -8,13 +8,13 @@ public class Keys {
         int x = 100;
         int y = 100;
         while(gui.isOpen()) {
-            if(gui.wasKeyPressed("w") || gui.wasKeyPressed("up"))
+            if(gui.isKeyPressed("w") || gui.isKeyPressed("up"))
                 y -= speed;
-            if(gui.wasKeyPressed("s") || gui.wasKeyPressed("down"))
+            if(gui.isKeyPressed("s") || gui.isKeyPressed("down"))
                 y += speed;
-            if(gui.wasKeyPressed("a") || gui.wasKeyPressed("left"))
+            if(gui.isKeyPressed("a") || gui.isKeyPressed("left"))
                 x -= speed;
-            if(gui.wasKeyPressed("d") || gui.wasKeyPressed("right"))
+            if(gui.isKeyPressed("d") || gui.isKeyPressed("right"))
                 x += speed;
             
             gui.setColor(0, 0, 0);
