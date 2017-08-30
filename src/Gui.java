@@ -1,11 +1,15 @@
 import static java.awt.Color.BLACK;
 import static java.awt.Color.WHITE;
 import static java.awt.image.BufferedImage.TYPE_INT_RGB;
+import static java.lang.Math.max;
+import static java.lang.Math.min;
 import static javax.swing.SwingUtilities.invokeAndWait;
 import static javax.swing.SwingUtilities.invokeLater;
 
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Toolkit;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
@@ -21,6 +25,8 @@ public class Gui {
     
     private BufferedImage canvas;
     private BufferedImage snapshot;
+    
+    private Graphics2D g;
     
     private long lastRefreshTime = 0;
     
@@ -42,6 +48,7 @@ public class Gui {
 
         canvas = newCanvas();
         snapshot = newCanvas();
+        g = canvas.createGraphics();
         
         Thread main = Thread.currentThread();
         new Thread(() -> {
@@ -87,6 +94,9 @@ public class Gui {
         canvas = newCanvas;
         clear(canvas);
         
+        g.dispose();
+        g = canvas.createGraphics();
+        
         while(true) {
             long sleepTime = (waitTime - (System.currentTimeMillis() - lastRefreshTime)) / 2;
             try {
@@ -99,7 +109,7 @@ public class Gui {
         
         frame.repaint();
     }
-    
+
     private static void clear(BufferedImage image) {
         int[] data = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
         for(int i = 0; i < data.length; i++)
@@ -116,11 +126,16 @@ public class Gui {
         return canvas;
     }
     
+    public void setColor(int red, int green, int blue) {
+        g.setColor(new Color(clamp(red), clamp(green), clamp(blue)));
+    }
+    
+    private static int clamp(int raw) {
+        return max(0, min(255, raw));
+    }
+    
     public void fillRect(int x, int y, int width, int height) {
-        Graphics g = canvas.getGraphics();
-        g.setColor(BLACK);
         g.fillRect(x, y, width, height);
-        g.dispose();
     }
     
     private void run(Runnable run) {

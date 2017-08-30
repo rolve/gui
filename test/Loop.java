@@ -1,3 +1,4 @@
+import static java.lang.Math.PI;
 import static java.lang.Math.cos;
 import static java.lang.Math.sin;
 
@@ -9,9 +10,11 @@ public class Loop {
 
         int t = 0;
         while(gui.isOpen()) {
-            int amplitude = (int) (sin(t/10.0) * 50 + 50);
-            gui.fillRect(amplitude, (int) (cos(t/10.0) * 50 + 50), amplitude + 10, amplitude + 10);
-            gui.refresh(10);
+            double time = t/10.0;
+            int amplitude = (int) (sin(time) * 50 + 50);
+            gui.setColor((int) (sin(time) * 255), (int) (sin(time/PI) * 255), 10);
+            gui.fillRect(amplitude, (int) (cos(time) * 50 + 50), amplitude + 10, amplitude + 10);
+            gui.refresh(20);
             t++;
         }
     }
