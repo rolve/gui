@@ -56,6 +56,8 @@ public class Gui {
     }
     
     public void open() {
+        canvas.copyData(snapshot.getRaster());
+        
         run(() -> {
             frame.pack();
             frame.setVisible(true);
