@@ -5,7 +5,7 @@ import static java.lang.Math.sin;
 public class Loop {
     
     public static void main(String[] args) {
-        Gui gui = new Gui("Simple", 500, 300);
+        Gui gui = new Gui("Loop", 500, 300);
         gui.open();
 
         int t = 0;

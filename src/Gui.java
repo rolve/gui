@@ -1,8 +1,9 @@
-import static java.awt.Color.BLACK;
 import static java.awt.Color.WHITE;
+import static java.awt.event.KeyEvent.getKeyText;
 import static java.awt.image.BufferedImage.TYPE_INT_RGB;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
+import static java.util.Collections.newSetFromMap;
 import static javax.swing.SwingUtilities.invokeAndWait;
 import static javax.swing.SwingUtilities.invokeLater;
 
@@ -11,9 +12,13 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Toolkit;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
 import java.lang.reflect.InvocationTargetException;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.swing.JFrame;
@@ -27,6 +32,8 @@ public class Gui {
     private BufferedImage snapshot;
     
     private Graphics2D g;
+    
+    private Set<String> pressedKeys = newSetFromMap(new ConcurrentHashMap<>());
     
     private long lastRefreshTime = 0;
     
@@ -44,6 +51,16 @@ public class Gui {
         panel.setSize(size);
         panel.setPreferredSize(size);
         panel.setBackground(WHITE);
+        frame.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                pressedKeys.add(getKeyText(e.getKeyCode()).toLowerCase());
+            }
+            @Override
+            public void keyReleased(KeyEvent e) {
+                pressedKeys.remove(getKeyText(e.getKeyCode()).toLowerCase());
+            }
+        });
         frame.setContentPane(panel);
 
         canvas = newCanvas();
@@ -126,6 +143,10 @@ public class Gui {
         return canvas;
     }
     
+    /*
+     * Painting
+     */
+    
     public void setColor(int red, int green, int blue) {
         g.setColor(new Color(clamp(red), clamp(green), clamp(blue)));
     }
@@ -136,6 +157,14 @@ public class Gui {
     
     public void fillRect(int x, int y, int width, int height) {
         g.fillRect(x, y, width, height);
+    }
+    
+    /*
+     * Keys
+     */
+    
+    public boolean wasKeyPressed(String keyCode) {
+        return pressedKeys.contains(keyCode.toLowerCase());
     }
     
     private void run(Runnable run) {
