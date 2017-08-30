@@ -4,8 +4,8 @@ import static java.lang.Math.sin;
 public class Simple {
     
     public static void main(String[] args) {
-        Gui gui = Gui.instance;
-        gui.open("Simple", 500, 300);
+        Gui gui = new Gui("Simple", 500, 300);
+        gui.open();
 
         int t = 0;
         while(gui.isOpen()) {

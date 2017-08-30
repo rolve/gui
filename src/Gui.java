@@ -15,16 +15,22 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 public class Gui {
-
-    public static final Gui instance = new Gui();
     
     private final JFrame frame;
     
     private BufferedImage canvas;
     private BufferedImage snapshot;
     
-    private Gui() {
+    public Gui(String title, int width, int height) {
         frame = createFrame();
+
+        initializeCanvas(new Dimension(width, height));
+        run(() -> {
+            frame.setTitle(title);
+            frame.setMinimumSize(new Dimension(200, 100));
+            frame.getContentPane().setSize(new Dimension(width, height));
+            frame.getContentPane().setPreferredSize(new Dimension(width, height));
+        });
         
         Thread main = Thread.currentThread();
         new Thread(() -> {
@@ -51,15 +57,16 @@ public class Gui {
         return frame;
     }
     
-    public void open(String title, int width, int height) {
-        canvas = new BufferedImage(width, height, TYPE_INT_RGB);
+    public void open() {
         run(() -> {
-            frame.setTitle(title);
-            frame.setMinimumSize(new Dimension(200, 100));
-            frame.getContentPane().setSize(new Dimension(width, height));
-            frame.getContentPane().setPreferredSize(new Dimension(width, height));
             frame.pack();
             frame.setVisible(true);
+        });
+    }
+    
+    public void close() {
+        run(() -> {
+            frame.setVisible(false);
         });
     }
     
