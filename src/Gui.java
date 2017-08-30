@@ -7,10 +7,11 @@ import static javax.swing.SwingUtilities.invokeLater;
 import java.awt.Canvas;
 import java.awt.Dimension;
 import java.awt.Graphics;
+import java.awt.Toolkit;
 import java.awt.image.BufferedImage;
+import java.awt.image.DataBufferInt;
 import java.lang.reflect.InvocationTargetException;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicReference;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -27,12 +28,14 @@ public class Gui {
     public Gui(String title, int width, int height) {
         frame = createFrame();
 
-        canvas = newCanvas(new Dimension(width, height));
+        Dimension size = new Dimension(width, height);
+        canvas = newCanvas();
+        snapshot = newCanvas();
         run(() -> {
             frame.setTitle(title);
             frame.setMinimumSize(new Dimension(200, 100));
-            frame.getContentPane().setSize(new Dimension(width, height));
-            frame.getContentPane().setPreferredSize(new Dimension(width, height));
+            frame.getContentPane().setSize(size);
+            frame.getContentPane().setPreferredSize(size);
         });
         
         Thread main = Thread.currentThread();
@@ -51,7 +54,6 @@ public class Gui {
         JFrame frame = new JFrame();
         JPanel panel = new JPanel() {
             public void paintComponent(Graphics g) {
-                super.paintComponent(g);
                 g.drawImage(snapshot, 0, 0, null);
             }
         };
@@ -68,9 +70,7 @@ public class Gui {
     }
     
     public void close() {
-        run(() -> {
-            frame.setVisible(false);
-        });
+        run(() -> frame.setVisible(false));
     }
     
     public boolean isOpen() {
@@ -87,9 +87,10 @@ public class Gui {
     }
     
     public void refresh(int waitTime) {
-        AtomicReference<Dimension> size = new AtomicReference<>();
-        run(() -> size.set(frame.getContentPane().getSize()));
-        BufferedImage newCanvas = newCanvas(size.get());
+        BufferedImage newCanvas = snapshot;
+        snapshot = canvas;
+        canvas = newCanvas;
+        clear(canvas);
         
         while(true) {
             long sleepTime = (waitTime - (System.currentTimeMillis() - lastRefreshTime)) / 2;
@@ -101,12 +102,17 @@ public class Gui {
         }
         lastRefreshTime = System.currentTimeMillis();
         
-        snapshot = canvas;
         frame.repaint();
-        canvas = newCanvas;
     }
     
-    private BufferedImage newCanvas(Dimension size) {
+    private static void clear(BufferedImage image) {
+        int[] data = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
+        for(int i = 0; i < data.length; i++)
+            data[i] = 0xFFFFFFFF;
+    }
+    
+    private BufferedImage newCanvas() {
+        Dimension size = Toolkit.getDefaultToolkit().getScreenSize();
         BufferedImage canvas = new BufferedImage(size.width, size.height, TYPE_INT_RGB);
         canvas.getGraphics().setColor(WHITE);
         canvas.getGraphics().fillRect(0, 0, size.width, size.height);
