@@ -4,7 +4,6 @@ import static java.awt.image.BufferedImage.TYPE_INT_RGB;
 import static javax.swing.SwingUtilities.invokeAndWait;
 import static javax.swing.SwingUtilities.invokeLater;
 
-import java.awt.Canvas;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Toolkit;
@@ -26,17 +25,23 @@ public class Gui {
     private long lastRefreshTime = 0;
     
     public Gui(String title, int width, int height) {
-        frame = createFrame();
-
+        frame = new JFrame();
+        frame.setTitle(title);
+        frame.setMinimumSize(new Dimension(200, 100));
+        
+        JPanel panel = new JPanel() {
+            public void paintComponent(Graphics g) {
+                g.drawImage(snapshot, 0, 0, null);
+            }
+        };
         Dimension size = new Dimension(width, height);
+        panel.setSize(size);
+        panel.setPreferredSize(size);
+        panel.setBackground(WHITE);
+        frame.setContentPane(panel);
+
         canvas = newCanvas();
         snapshot = newCanvas();
-        run(() -> {
-            frame.setTitle(title);
-            frame.setMinimumSize(new Dimension(200, 100));
-            frame.getContentPane().setSize(size);
-            frame.getContentPane().setPreferredSize(size);
-        });
         
         Thread main = Thread.currentThread();
         new Thread(() -> {
@@ -48,18 +53,6 @@ public class Gui {
             }
             invokeLater(() -> frame.dispose());
         }).start();
-    }
-    
-    private JFrame createFrame() {
-        JFrame frame = new JFrame();
-        JPanel panel = new JPanel() {
-            public void paintComponent(Graphics g) {
-                g.drawImage(snapshot, 0, 0, null);
-            }
-        };
-        panel.setBackground(WHITE);
-        frame.setContentPane(panel);
-        return frame;
     }
     
     public void open() {
@@ -114,15 +107,18 @@ public class Gui {
     private BufferedImage newCanvas() {
         Dimension size = Toolkit.getDefaultToolkit().getScreenSize();
         BufferedImage canvas = new BufferedImage(size.width, size.height, TYPE_INT_RGB);
-        canvas.getGraphics().setColor(WHITE);
-        canvas.getGraphics().fillRect(0, 0, size.width, size.height);
+        Graphics g = canvas.getGraphics();
+        g.setColor(WHITE);
+        g.fillRect(0, 0, size.width, size.height);
+        g.dispose();
         return canvas;
     }
     
     public void fillRect(int x, int y, int width, int height) {
-        Graphics graphics = canvas.getGraphics();
-        graphics.setColor(BLACK);
-        graphics.fillRect(x, y, width, height);
+        Graphics g = canvas.getGraphics();
+        g.setColor(BLACK);
+        g.fillRect(x, y, width, height);
+        g.dispose();
     }
     
     private void run(Runnable run) {
