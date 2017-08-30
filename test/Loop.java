@@ -7,7 +7,7 @@ public class Loop {
     public static void main(String[] args) {
         Gui gui = new Gui("Loop", 500, 300);
         gui.open();
-
+        
         int t = 0;
         while(gui.isOpen()) {
             double time = t/10.0;

@@ -17,7 +17,6 @@ public class Keys {
             if(gui.isKeyPressed("d") || gui.isKeyPressed("right"))
                 x += speed;
             
-            gui.setColor(0, 0, 0);
             gui.fillRect(x, y, 50, 50);
             gui.fillRect(500, 100, 50, 50);
             

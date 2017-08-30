@@ -9,6 +9,7 @@ public class Mouse {
     
     public static void main(String[] args) {
         Gui gui = new Gui("Keys", 700, 300);
+        gui.setColor(0, 128, 0);
         gui.open();
         
         System.out.println(MouseInfo.getNumberOfButtons());
@@ -26,7 +27,6 @@ public class Mouse {
             int yDiff = y - gui.getMouseY();
             x -= signum(xDiff) * ceil(abs(-xDiff / (double) size));
             y -= signum(yDiff) * ceil(abs(-yDiff / (double) size));
-            gui.setColor(0, 0, 0);
             gui.fillRect(x - size/2, y - size/2, size + 1, size + 1);            
             gui.refresh(20);
         }

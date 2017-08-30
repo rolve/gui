@@ -1,3 +1,4 @@
+import static java.awt.Color.BLACK;
 import static java.awt.Color.WHITE;
 import static java.awt.Toolkit.getDefaultToolkit;
 import static java.awt.event.KeyEvent.getKeyText;
@@ -11,7 +12,6 @@ import static javax.swing.SwingUtilities.invokeLater;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
-import java.awt.Graphics2D;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
@@ -35,7 +35,7 @@ public class Gui {
     private BufferedImage canvas;
     private BufferedImage snapshot;
     
-    private Graphics2D g;
+    private Color color = BLACK;
 
     private Set<String> pressedKeys = newSetFromMap(new ConcurrentHashMap<>());
     private volatile boolean leftMouseButtonClicked = false;
@@ -95,10 +95,9 @@ public class Gui {
             }
         });
         frame.setContentPane(panel);
-
+        
         canvas = newCanvas();
         snapshot = newCanvas();
-        g = canvas.createGraphics();
         
         Thread main = Thread.currentThread();
         new Thread(() -> {
@@ -145,9 +144,6 @@ public class Gui {
         }
         clear(canvas);
         
-        g.dispose();
-        g = canvas.createGraphics();
-        
         if(clearMouseButtons) {
             leftMouseButtonClicked = false;
             rightMouseButtonClicked = false;
@@ -166,7 +162,7 @@ public class Gui {
         
         frame.repaint();
     }
-
+    
     private static void clear(BufferedImage image) {
         int[] data = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
         for(int i = 0; i < data.length; i++)
@@ -188,7 +184,7 @@ public class Gui {
      */
     
     public void setColor(int red, int green, int blue) {
-        g.setColor(new Color(clamp(red), clamp(green), clamp(blue)));
+        color = new Color(clamp(red), clamp(green), clamp(blue));
     }
     
     private static int clamp(int raw) {
@@ -196,7 +192,10 @@ public class Gui {
     }
     
     public void fillRect(int x, int y, int width, int height) {
+        Graphics g = canvas.getGraphics();
+        g.setColor(color);
         g.fillRect(x, y, width, height);
+        g.dispose();
     }
     
     /*
