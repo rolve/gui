@@ -3,8 +3,8 @@ public class Keys {
     public static void main(String[] args) {
         Gui gui = new Gui("Keys", 700, 300);
         gui.open();
-
-        int speed = 1;
+        
+        int speed = 5;
         int x = 100;
         int y = 100;
         while(gui.isOpen()) {
@@ -21,7 +21,7 @@ public class Keys {
             gui.fillRect(x, y, 50, 50);
             gui.fillRect(500, 100, 50, 50);
             
-            gui.refresh(2);
+            gui.refresh(20);
         }
     }
 }

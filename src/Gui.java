@@ -1,4 +1,5 @@
 import static java.awt.Color.WHITE;
+import static java.awt.Toolkit.getDefaultToolkit;
 import static java.awt.event.KeyEvent.getKeyText;
 import static java.awt.image.BufferedImage.TYPE_INT_RGB;
 import static java.lang.Math.max;
@@ -11,15 +12,15 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.Toolkit;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -36,6 +37,7 @@ public class Gui {
     private Set<String> pressedKeys = newSetFromMap(new ConcurrentHashMap<>());
     
     private long lastRefreshTime = 0;
+    private volatile boolean open = false;
     
     public Gui(String title, int width, int height) {
         frame = new JFrame();
@@ -44,7 +46,9 @@ public class Gui {
         
         JPanel panel = new JPanel() {
             public void paintComponent(Graphics g) {
-                g.drawImage(snapshot, 0, 0, null);
+                synchronized(Gui.this) {
+                    g.drawImage(snapshot, 0, 0, null);
+                }
             }
         };
         Dimension size = new Dimension(width, height);
@@ -59,6 +63,12 @@ public class Gui {
             @Override
             public void keyReleased(KeyEvent e) {
                 pressedKeys.remove(getKeyText(e.getKeyCode()).toLowerCase());
+            }
+        });
+        frame.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                open = false;
             }
         });
         frame.setContentPane(panel);
@@ -81,6 +91,7 @@ public class Gui {
     
     public void open() {
         canvas.copyData(snapshot.getRaster());
+        open = true;
         
         run(() -> {
             frame.pack();
@@ -93,9 +104,7 @@ public class Gui {
     }
     
     public boolean isOpen() {
-        AtomicBoolean closed = new AtomicBoolean();
-        run(() -> closed.set(frame.isVisible()));
-        return closed.get();
+        return open;
     }
     
     public void waitUntilClosed() {
@@ -106,9 +115,11 @@ public class Gui {
     }
     
     public void refresh(int waitTime) {
-        BufferedImage newCanvas = snapshot;
-        snapshot = canvas;
-        canvas = newCanvas;
+        synchronized(this) {
+            BufferedImage newCanvas = snapshot;
+            snapshot = canvas;
+            canvas = newCanvas;
+        }
         clear(canvas);
         
         g.dispose();
@@ -134,7 +145,7 @@ public class Gui {
     }
     
     private BufferedImage newCanvas() {
-        Dimension size = Toolkit.getDefaultToolkit().getScreenSize();
+        Dimension size = getDefaultToolkit().getScreenSize();
         BufferedImage canvas = new BufferedImage(size.width, size.height, TYPE_INT_RGB);
         Graphics g = canvas.getGraphics();
         g.setColor(WHITE);
