@@ -20,10 +20,11 @@ public class Keys {
                 x -= speed;
             if(gui.isKeyPressed("d") || gui.isKeyPressed("right"))
                 x += speed;
-            if(gui.isKeyPressed("space"))
+            
+            if(gui.wasKeyTyped("space"))
                 color++;
             
-            gui.setColor((int) (sin(color/2.0) * 256), (int) (cos(color/3.0) * 256), 0);
+            gui.setColor((int) (sin(color) * 128 + 64), (int) (cos(color*1.5) * 128 + 64), (int) (sin(color/1.5) * 128 + 64));
             gui.fillRect(x, y, 50, 50);
             gui.fillRect(500, 100, 50, 50);
             

@@ -26,6 +26,7 @@ import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
@@ -44,10 +45,17 @@ public class Gui {
     private Color color = BLACK;
     private int fontSize = 11 * getDefaultToolkit().getScreenResolution() / 96;
     
+    private Set<String> typedKeys = newSetFromMap(new ConcurrentHashMap<>());
+    private Set<String> clearKeys = new HashSet<>();
     private Set<String> pressedKeys = newSetFromMap(new ConcurrentHashMap<>());
+    
     private volatile boolean leftMouseButtonClicked = false;
     private volatile boolean rightMouseButtonClicked = false;
-    private boolean clearMouseButtons = false;
+    private boolean clearLeftMouseButton = false;
+    private boolean clearRightMouseButton = false;
+    private volatile boolean leftMouseButtonPressed = false;
+    private volatile boolean rightMouseButtonPressed = false;
+    
     private volatile int mouseX = 0;
     private volatile int mouseY = 0;
     private volatile boolean open = false;
@@ -71,11 +79,21 @@ public class Gui {
         panel.setPreferredSize(size);
         panel.addMouseListener(new MouseAdapter() {
             @Override
-            public void mouseClicked(MouseEvent e) {
+            public void mousePressed(MouseEvent e) {
                 if(SwingUtilities.isLeftMouseButton(e))
+                    leftMouseButtonPressed = true;
+                else if(SwingUtilities.isRightMouseButton(e))
+                    rightMouseButtonPressed = true;
+            }
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                if(SwingUtilities.isLeftMouseButton(e)) {
+                    leftMouseButtonPressed = false;
                     leftMouseButtonClicked = true;
-                if(SwingUtilities.isRightMouseButton(e))
+                } else if(SwingUtilities.isRightMouseButton(e)) {
+                    rightMouseButtonPressed = false;
                     rightMouseButtonClicked = true;
+                }
             }
         });
         panel.addMouseMotionListener(new MouseAdapter() {
@@ -88,11 +106,15 @@ public class Gui {
         frame.addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
-                pressedKeys.add(getKeyText(e.getKeyCode()).toLowerCase());
+                pressedKeys.add(keyText(e));
             }
             @Override
             public void keyReleased(KeyEvent e) {
-                pressedKeys.remove(getKeyText(e.getKeyCode()).toLowerCase());
+                pressedKeys.remove(keyText(e));
+                typedKeys.add(keyText(e));
+            }
+            private String keyText(KeyEvent e) {
+                return getKeyText(e.getKeyCode()).toLowerCase();
             }
         });
         frame.addWindowListener(new WindowAdapter() {
@@ -150,12 +172,17 @@ public class Gui {
             canvas = newCanvas;
         }
         clear(canvas);
-        
-        if(clearMouseButtons) {
+
+        if(clearLeftMouseButton) {
             leftMouseButtonClicked = false;
-            rightMouseButtonClicked = false;
-            clearMouseButtons = false;
+            clearLeftMouseButton = false;
         }
+        if(clearRightMouseButton) {
+            rightMouseButtonClicked = false;
+            clearRightMouseButton = false;
+        }
+        typedKeys.removeAll(clearKeys);
+        clearKeys.clear();
         
         while(true) {
             long sleepTime = (waitTime - (System.currentTimeMillis() - lastRefreshTime)) / 2;
@@ -243,15 +270,30 @@ public class Gui {
         return pressedKeys.contains(keyCode.toLowerCase());
     }
     
+    public boolean wasKeyTyped(String keyCode) {
+        String lower = keyCode.toLowerCase();
+        if(typedKeys.contains(lower))
+            clearKeys.add(lower);
+        return typedKeys.contains(lower);
+    }
+    
+    public boolean isLeftMouseButtonPressed() {
+        return leftMouseButtonPressed;
+    }
+    
+    public boolean isRightMouseButtonPressed() {
+        return rightMouseButtonPressed;
+    }
+    
     public boolean wasLeftMouseButtonClicked() {
         if(leftMouseButtonClicked)
-            clearMouseButtons = true;
+            clearLeftMouseButton = true;
         return leftMouseButtonClicked;
     }
     
     public boolean wasRightMouseButtonClicked() {
         if(rightMouseButtonClicked)
-            clearMouseButtons = true;
+            clearRightMouseButton = true;
         return rightMouseButtonClicked;
     }
     

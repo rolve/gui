@@ -3,8 +3,6 @@ import static java.lang.Math.ceil;
 import static java.lang.Math.max;
 import static java.lang.Math.signum;
 
-import java.awt.Toolkit;
-
 public class Mouse {
     
     public static void main(String[] args) {
@@ -12,15 +10,13 @@ public class Mouse {
         gui.setColor(0, 128, 0);
         gui.open();
         
-        System.out.println(Toolkit.getDefaultToolkit().getScreenResolution());
-        
         int x = 50;
         int y = 50;
         int size = 16;
         while(gui.isOpen()) {
             if(gui.wasLeftMouseButtonClicked())
                 size *= 2;
-            if(gui.wasRightMouseButtonClicked())
+            if(gui.isRightMouseButtonPressed())
                 size = max(size / 2, 1);
             
             int xDiff = x - gui.getMouseX();
