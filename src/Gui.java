@@ -1,5 +1,7 @@
 import static java.awt.Color.BLACK;
 import static java.awt.Color.WHITE;
+import static java.awt.RenderingHints.KEY_ANTIALIASING;
+import static java.awt.RenderingHints.VALUE_ANTIALIAS_ON;
 import static java.awt.Toolkit.getDefaultToolkit;
 import static java.awt.event.KeyEvent.getKeyText;
 import static java.awt.image.BufferedImage.TYPE_INT_RGB;
@@ -12,6 +14,8 @@ import static javax.swing.SwingUtilities.invokeLater;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints.Key;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
@@ -21,8 +25,10 @@ import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
 import java.lang.reflect.InvocationTargetException;
+import java.util.HashMap;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Consumer;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -36,7 +42,8 @@ public class Gui {
     private BufferedImage snapshot;
     
     private Color color = BLACK;
-
+    private int fontSize = 11 * getDefaultToolkit().getScreenResolution() / 96;
+    
     private Set<String> pressedKeys = newSetFromMap(new ConcurrentHashMap<>());
     private volatile boolean leftMouseButtonClicked = false;
     private volatile boolean rightMouseButtonClicked = false;
@@ -191,10 +198,40 @@ public class Gui {
         return max(0, min(255, raw));
     }
     
+    public void setFontSize(int size) {
+        fontSize = size;
+    }
+    
+    public void drawRect(int x, int y, int width, int height) {
+        withGraphics(g -> g.drawRect(x, y, width, height));
+    }
+    
+    public void drawOval(int x, int y, int width, int height) {
+        withGraphics(g -> g.drawOval(x, y, width, height));
+    }
+    
+    public void drawLine(int x1, int y1, int x2, int y2) {
+        withGraphics(g -> g.drawLine(x1, y1, x2, y2));
+    }
+    
+    public void drawString(String string, int x, int y) {
+        withGraphics(g -> g.drawString(string, x, y));
+    }
+    
     public void fillRect(int x, int y, int width, int height) {
-        Graphics g = canvas.getGraphics();
+        withGraphics(g -> g.fillRect(x, y, width, height));
+    }
+    
+    public void fillOval(int x, int y, int width, int height) {
+        withGraphics(g -> g.fillOval(x, y, width, height));
+    }
+    
+    private void withGraphics(Consumer<Graphics2D> command) {
+        Graphics2D g = canvas.createGraphics();
+        g.addRenderingHints(new HashMap<Key, Object>() {{ put(KEY_ANTIALIASING, VALUE_ANTIALIAS_ON); }});
         g.setColor(color);
-        g.fillRect(x, y, width, height);
+        g.setFont(frame.getFont().deriveFont((float) fontSize));
+        command.accept(g);
         g.dispose();
     }
     
