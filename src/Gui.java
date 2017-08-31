@@ -243,6 +243,10 @@ public class Gui {
         fontSize = size;
     }
     
+    public int getFontSize() {
+        return fontSize;
+    }
+    
     public void drawRect(int x, int y, int width, int height) {
         withGraphics(g -> g.drawRect(x, y, width, height));
     }

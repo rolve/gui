@@ -16,7 +16,7 @@ public class Bill {
     public static void main(String[] args) {
         Gui gui = new Gui("Bill", width, height);
         gui.setResizable(false);
-        gui.setColor(255, 255, 255);
+        gui.setFontSize((int) (gui.getFontSize() * 1.5));
         gui.open();
         
         int t = 0;
@@ -31,6 +31,7 @@ public class Bill {
         int coinY = randomY();
         
         int score = 0;
+        int highscore = 0;
         int lives = 3;
         
         while(gui.isOpen()) {
@@ -44,7 +45,7 @@ public class Bill {
                 vx += acc;
             
             if(gui.wasKeyTyped("space"))
-                lives = 0;
+                lives = -1;
 
             if(x < billSize/2 || x + billSize/2 >= width) {
                 vx = -vx;
@@ -65,7 +66,8 @@ public class Bill {
                 coinY = randomY();
             }
             
-            if(lives < 1) {
+            if(lives < 0) {
+                highscore = max(highscore, score);
                 score = 0;
                 lives = 3;
                 x = width/2;
@@ -77,7 +79,11 @@ public class Bill {
             gui.drawImage("background.png", 0, 0);
             gui.drawImage("coin" + coinSprite + ".png", coinX - coinWidth/2, coinY - coinHeight/25);
             gui.drawImage("bill.png", (int) (x - billSize/2), (int) (y - billSize/2), atan2(vy, vx));
-            gui.drawString("Score: " + score + "  Lives: " + lives, 10, 20);
+
+            gui.setColor(255, 255, 255);
+            gui.drawString("Score: " + score + "  Lives: " + lives, 10, 30);
+            gui.setColor(200, 200, 0);
+            gui.drawString("Highscore: " + highscore, 10, 60);
             
             gui.refresh(20);
             t++;
