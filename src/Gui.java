@@ -5,10 +5,13 @@ import static java.awt.RenderingHints.VALUE_ANTIALIAS_ON;
 import static java.awt.Toolkit.getDefaultToolkit;
 import static java.awt.event.KeyEvent.getKeyText;
 import static java.awt.geom.AffineTransform.getRotateInstance;
+import static java.awt.geom.AffineTransform.getScaleInstance;
 import static java.awt.image.AffineTransformOp.TYPE_BICUBIC;
+import static java.awt.image.AffineTransformOp.TYPE_NEAREST_NEIGHBOR;
 import static java.awt.image.BufferedImage.TYPE_INT_RGB;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
+import static java.lang.Math.round;
 import static java.util.Collections.newSetFromMap;
 import static javax.swing.SwingUtilities.invokeAndWait;
 import static javax.swing.SwingUtilities.invokeLater;
@@ -45,13 +48,17 @@ import javax.swing.SwingUtilities;
 
 public class Gui {
     
+    private static final int MIN_WIDTH = 200;
+    private static final int MIN_HEIGHT = 100;
+    
     private final JFrame frame;
+    private final int scale = (int) round(getDefaultToolkit().getScreenResolution() / 96.0);
     
     private BufferedImage canvas;
     private BufferedImage snapshot;
     
     private Color color = BLACK;
-    private int fontSize = 11 * getDefaultToolkit().getScreenResolution() / 96;
+    private int fontSize = 11;
     
     private Map<String, BufferedImage> images = new HashMap<>();
     
@@ -68,6 +75,7 @@ public class Gui {
     
     private volatile int mouseX = 0;
     private volatile int mouseY = 0;
+    
     private volatile boolean open = false;
     
     private long lastRefreshTime = 0;
@@ -75,7 +83,7 @@ public class Gui {
     public Gui(String title, int width, int height) {
         frame = new JFrame();
         frame.setTitle(title);
-        frame.setMinimumSize(new Dimension(200, 100));
+        frame.setMinimumSize(new Dimension(toNative(MIN_WIDTH), toNative(MIN_HEIGHT)));
         
         JPanel panel = new JPanel() {
             public void paintComponent(Graphics g) {
@@ -84,7 +92,7 @@ public class Gui {
                 }
             }
         };
-        Dimension size = new Dimension(width, height);
+        Dimension size = new Dimension(toNative(width), toNative(height));
         panel.setSize(size);
         panel.setPreferredSize(size);
         panel.addMouseListener(new MouseAdapter() {
@@ -109,8 +117,8 @@ public class Gui {
         panel.addMouseMotionListener(new MouseAdapter() {
             @Override
             public void mouseMoved(MouseEvent e) {
-                mouseX = e.getX();
-                mouseY = e.getY();
+                mouseX = toUser(e.getX());
+                mouseY = toUser(e.getY());
             }
         });
         frame.addKeyListener(new KeyAdapter() {
@@ -248,29 +256,29 @@ public class Gui {
     }
     
     public void drawRect(int x, int y, int width, int height) {
-        withGraphics(g -> g.drawRect(x, y, width, height));
+        withGraphics(g -> g.drawRect(toNative(x), toNative(y), toNative(width), toNative(height)));
     }
     
     public void drawOval(int x, int y, int width, int height) {
-        withGraphics(g -> g.drawOval(x, y, width, height));
+        withGraphics(g -> g.drawOval(toNative(x), toNative(y), toNative(width), toNative(height)));
     }
     
     public void drawLine(int x1, int y1, int x2, int y2) {
-        withGraphics(g -> g.drawLine(x1, y1, x2, y2));
+        withGraphics(g -> g.drawLine(toNative(x1), toNative(y1), toNative(x2), toNative(y2)));
     }
     
     public void drawString(String string, int x, int y) {
-        withGraphics(g -> g.drawString(string, x, y));
+        withGraphics(g -> g.drawString(string, toNative(x), toNative(y)));
     }
     
     public void drawImage(String path, int x, int y) {
-        withGraphics(g -> g.drawImage(getImage(path), x, y, null));
+        withGraphics(g -> g.drawImage(getImage(path), toNative(x), toNative(y), null));
     }
     
     public void drawImage(String path, int x, int y, double angle) {
         BufferedImage image = getImage(path);
         AffineTransform rotation = getRotateInstance(angle, image.getWidth()/2, image.getHeight()/2);
-        withGraphics(g -> g.drawImage(image, new AffineTransformOp(rotation, TYPE_BICUBIC), x, y));
+        withGraphics(g -> g.drawImage(image, new AffineTransformOp(rotation, TYPE_BICUBIC), toNative(x), toNative(y)));
     }
     
     private BufferedImage getImage(String path) throws Error {
@@ -279,7 +287,9 @@ public class Gui {
                 BufferedImage image = ImageIO.read(new File(path));
                 if(image == null)
                     throw new Error("could not load image \"" + path + "\"");
-                images.put(path, image);
+                AffineTransformOp op = new AffineTransformOp(getScaleInstance(scale, scale), TYPE_NEAREST_NEIGHBOR);
+                BufferedImage scaled = op.filter(image, null);
+                images.put(path, scaled);
             } catch (IOException e) {
                 throw new Error("could not load image \"" + path + "\"", e);
             }
@@ -288,18 +298,18 @@ public class Gui {
     }
     
     public void fillRect(int x, int y, int width, int height) {
-        withGraphics(g -> g.fillRect(x, y, width, height));
+        withGraphics(g -> g.fillRect(toNative(x), toNative(y), toNative(width), toNative(height)));
     }
     
     public void fillOval(int x, int y, int width, int height) {
-        withGraphics(g -> g.fillOval(x, y, width, height));
+        withGraphics(g -> g.fillOval(toNative(x), toNative(y), toNative(width), toNative(height)));
     }
     
     private void withGraphics(Consumer<Graphics2D> command) {
         Graphics2D g = canvas.createGraphics();
         g.addRenderingHints(new HashMap<Key, Object>() {{ put(KEY_ANTIALIASING, VALUE_ANTIALIAS_ON); }});
         g.setColor(color);
-        g.setFont(g.getFont().deriveFont((float) fontSize));
+        g.setFont(frame.getFont().deriveFont((float) toNative(fontSize)));
         command.accept(g);
         g.dispose();
     }
@@ -353,5 +363,15 @@ public class Gui {
         } catch (InvocationTargetException e) {
             throw new Error(e);
         } catch (InterruptedException e) {}
+    }
+    
+    /** Converts the given number of "user space" pixels to native pixels (for high-DPI displays). */
+    private int toNative(int pixels) {
+        return pixels * scale;
+    }
+    
+    /** Converts the given number of native pixels to "user space" pixels (for high-DPI displays). */
+    private int toUser(int pixels) {
+        return pixels / scale;
     }
 }

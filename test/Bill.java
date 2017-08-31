@@ -81,9 +81,9 @@ public class Bill {
             gui.drawImage("bill.png", (int) (x - billSize/2), (int) (y - billSize/2), atan2(vy, vx));
 
             gui.setColor(255, 255, 255);
-            gui.drawString("Score: " + score + "  Lives: " + lives, 10, 30);
+            gui.drawString("Score: " + score + "  Lives: " + lives, 10, 25);
             gui.setColor(200, 200, 0);
-            gui.drawString("Highscore: " + highscore, 10, 60);
+            gui.drawString("Highscore: " + highscore, 10, 45);
             
             gui.refresh(20);
             t++;
