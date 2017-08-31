@@ -1,20 +1,38 @@
 import static java.lang.Math.atan2;
+import static java.lang.Math.max;
+
+import java.util.Random;
 
 public class Bill {
+    
+    private static final int width = 658;
+    private static final int height = 432;
+    private static final int billSize = 64;
+    private static final int coinWidth = 16;
+    private static final int coinHeight = 25;
+    
+    private static Random random = new Random();
+    
     public static void main(String[] args) {
-        int width = 658;
-        int height = 432;
-        int billSize = 64;
-        
         Gui gui = new Gui("Bill", width, height);
         gui.setResizable(false);
+        gui.setColor(255, 255, 255);
         gui.open();
         
-        double x = 100;
-        double y = 100;
+        int t = 0;
+        
+        double x = width/2;
+        double y = height/2;
         double vx = 0;
         double vy = 0;
-        double acc = 0.25;
+        double acc = 0.15;
+        
+        int coinX = randomX();
+        int coinY = randomY();
+        
+        int score = 0;
+        int lives = 3;
+        
         while(gui.isOpen()) {
             if(gui.isKeyPressed("w") || gui.isKeyPressed("up"))
                 vy -= acc;
@@ -25,23 +43,52 @@ public class Bill {
             if(gui.isKeyPressed("d") || gui.isKeyPressed("right"))
                 vx += acc;
             
-            if(gui.wasKeyTyped("space")) {
-                x = y = 100;
-                vx = vy = 0;
-            }
+            if(gui.wasKeyTyped("space"))
+                lives = 0;
 
-            if(x < 0 || x + billSize >= width)
+            if(x < billSize/2 || x + billSize/2 >= width) {
                 vx = -vx;
-            if(y < 0 || y + billSize >= height)
+                lives--;
+            }
+            if(y < billSize/2 || y + billSize/2 >= height) {
                 vy = -vy;
+                lives--;
+            }
             
             x += vx;
             y += vy;
             
+            double coinDist = (x - coinX) * (x - coinX) + (y - coinY) * (y - coinY);
+            if(coinDist < (billSize + coinWidth) * (billSize + coinWidth) / 4) {
+                score++;
+                coinX = randomX();
+                coinY = randomY();
+            }
+            
+            if(lives < 1) {
+                score = 0;
+                lives = 3;
+                x = width/2;
+                y = height/2;
+                vx = vy = 0;
+            }
+            
+            int coinSprite = max(0, t / 3 % 40 - 35);
             gui.drawImage("background.png", 0, 0);
-            gui.drawImage("bill.png", (int) x, (int) y, atan2(vy, vx));
+            gui.drawImage("coin" + coinSprite + ".png", coinX - coinWidth/2, coinY - coinHeight/25);
+            gui.drawImage("bill.png", (int) (x - billSize/2), (int) (y - billSize/2), atan2(vy, vx));
+            gui.drawString("Score: " + score + "  Lives: " + lives, 10, 20);
             
             gui.refresh(20);
+            t++;
         }
+    }
+    
+    private static int randomX() {
+        return random.nextInt(width - 2 * billSize) + billSize;
+    }
+    
+    private static int randomY() {
+        return random.nextInt(height - 2 * billSize) + billSize;
     }
 }
