@@ -4,6 +4,8 @@ import static java.awt.RenderingHints.KEY_ANTIALIASING;
 import static java.awt.RenderingHints.VALUE_ANTIALIAS_ON;
 import static java.awt.Toolkit.getDefaultToolkit;
 import static java.awt.event.KeyEvent.getKeyText;
+import static java.awt.geom.AffineTransform.getRotateInstance;
+import static java.awt.image.AffineTransformOp.TYPE_BICUBIC;
 import static java.awt.image.BufferedImage.TYPE_INT_RGB;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
@@ -22,15 +24,21 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.awt.geom.AffineTransform;
+import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
+import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 
+import javax.imageio.ImageIO;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
@@ -44,6 +52,8 @@ public class Gui {
     
     private Color color = BLACK;
     private int fontSize = 11 * getDefaultToolkit().getScreenResolution() / 96;
+    
+    private Map<String, BufferedImage> images = new HashMap<>();
     
     private Set<String> typedKeys = newSetFromMap(new ConcurrentHashMap<>());
     private Set<String> clearKeys = new HashSet<>();
@@ -247,6 +257,30 @@ public class Gui {
     
     public void drawString(String string, int x, int y) {
         withGraphics(g -> g.drawString(string, x, y));
+    }
+    
+    public void drawImage(String path, int x, int y) {
+        withGraphics(g -> g.drawImage(getImage(path), x, y, null));
+    }
+    
+    public void drawImage(String path, int x, int y, double angle) {
+        BufferedImage image = getImage(path);
+        AffineTransform rotation = getRotateInstance(angle, image.getWidth()/2, image.getHeight()/2);
+        withGraphics(g -> g.drawImage(image, new AffineTransformOp(rotation, TYPE_BICUBIC), x, y));
+    }
+    
+    private BufferedImage getImage(String path) throws Error {
+        if(!images.containsKey(path)) {
+            try {
+                BufferedImage image = ImageIO.read(new File(path));
+                if(image == null)
+                    throw new Error("could not load image \"" + path + "\"");
+                images.put(path, image);
+            } catch (IOException e) {
+                throw new Error("could not load image \"" + path + "\"", e);
+            }
+        }
+        return images.get(path);
     }
     
     public void fillRect(int x, int y, int width, int height) {
