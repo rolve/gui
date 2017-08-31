@@ -213,6 +213,10 @@ public class Gui {
         return canvas;
     }
     
+    public void setResizable(boolean resizable) {
+        run(() -> frame.setResizable(resizable));
+    }
+    
     /*
      * Painting
      */
