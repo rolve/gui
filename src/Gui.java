@@ -299,7 +299,7 @@ public class Gui {
         Graphics2D g = canvas.createGraphics();
         g.addRenderingHints(new HashMap<Key, Object>() {{ put(KEY_ANTIALIASING, VALUE_ANTIALIAS_ON); }});
         g.setColor(color);
-        g.setFont(frame.getFont().deriveFont((float) fontSize));
+        g.setFont(g.getFont().deriveFont((float) fontSize));
         command.accept(g);
         g.dispose();
     }
