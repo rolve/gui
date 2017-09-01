@@ -4,7 +4,6 @@ import static java.awt.RenderingHints.KEY_ANTIALIASING;
 import static java.awt.RenderingHints.VALUE_ANTIALIAS_ON;
 import static java.awt.Toolkit.getDefaultToolkit;
 import static java.awt.event.KeyEvent.getKeyText;
-import static java.awt.geom.AffineTransform.getRotateInstance;
 import static java.awt.geom.AffineTransform.getScaleInstance;
 import static java.awt.image.AffineTransformOp.TYPE_BICUBIC;
 import static java.awt.image.AffineTransformOp.TYPE_NEAREST_NEIGHBOR;
@@ -275,10 +274,18 @@ public class Gui {
         withGraphics(g -> g.drawImage(getImage(path), toNative(x), toNative(y), null));
     }
     
-    public void drawImage(String path, int x, int y, double angle) {
+    public void drawImage(String path, int x, int y, double scale) {
         BufferedImage image = getImage(path);
-        AffineTransform rotation = getRotateInstance(angle, image.getWidth()/2, image.getHeight()/2);
-        withGraphics(g -> g.drawImage(image, new AffineTransformOp(rotation, TYPE_BICUBIC), toNative(x), toNative(y)));
+        AffineTransform transform = getScaleInstance(scale, scale);
+        withGraphics(g -> g.drawImage(image, new AffineTransformOp(transform, TYPE_BICUBIC), toNative(x), toNative(y)));
+    }
+    
+    public void drawImage(String path, int x, int y, double scale, double angle) {
+        BufferedImage image = getImage(path);
+        AffineTransform transform = new AffineTransform();
+        transform.scale(scale, scale);
+        transform.rotate(angle, image.getWidth()/2, image.getHeight()/2);
+        withGraphics(g -> g.drawImage(image, new AffineTransformOp(transform, TYPE_BICUBIC), toNative(x), toNative(y)));
     }
     
     private BufferedImage getImage(String path) throws Error {

@@ -1,5 +1,6 @@
 import static java.lang.Math.atan2;
 import static java.lang.Math.max;
+import static java.lang.Math.sin;
 
 import java.util.Random;
 
@@ -78,8 +79,8 @@ public class Bill {
             int coinSprite = max(0, t / 3 % 40 - 35);
             gui.drawImage("background.png", 0, 0);
             gui.drawImage("coin" + coinSprite + ".png", coinX - coinWidth/2, coinY - coinHeight/25);
-            gui.drawImage("bill.png", (int) (x - billSize/2), (int) (y - billSize/2), atan2(vy, vx));
-
+            gui.drawImage("bill.png", (int) (x - billSize/2), (int) (y - billSize/2), 1, atan2(vy, vx));
+            
             gui.setColor(255, 255, 255);
             gui.drawString("Score: " + score + "  Lives: " + lives, 10, 25);
             gui.setColor(200, 200, 0);
