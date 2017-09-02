@@ -38,6 +38,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
 import javax.imageio.ImageIO;
@@ -51,7 +52,9 @@ public class Gui {
     private static final int MIN_HEIGHT = 100;
     
     private final JFrame frame;
-    private final int scale = (int) round(getDefaultToolkit().getScreenResolution() / 96.0);
+    private final JPanel panel;
+    private final int interpolation;
+    private final int pixelScale = (int) round(getDefaultToolkit().getScreenResolution() / 96.0);
     
     private BufferedImage canvas;
     private BufferedImage snapshot;
@@ -60,6 +63,7 @@ public class Gui {
     private int fontSize = 11;
     
     private Map<String, BufferedImage> images = new HashMap<>();
+    private Map<String, BufferedImage> scaledImages = new HashMap<>();
     
     private Set<String> typedKeys = newSetFromMap(new ConcurrentHashMap<>());
     private Set<String> clearKeys = new HashSet<>();
@@ -80,11 +84,17 @@ public class Gui {
     private long lastRefreshTime = 0;
     
     public Gui(String title, int width, int height) {
+        this(title, width, height, false);
+    }
+    
+    public Gui(String title, int width, int height, boolean smoothInterpolation) {
+        this.interpolation = smoothInterpolation ? TYPE_BICUBIC : TYPE_NEAREST_NEIGHBOR;
+        
         frame = new JFrame();
         frame.setTitle(title);
         frame.setMinimumSize(new Dimension(toNative(MIN_WIDTH), toNative(MIN_HEIGHT)));
         
-        JPanel panel = new JPanel() {
+        panel = new JPanel() {
             public void paintComponent(Graphics g) {
                 synchronized(Gui.this) {
                     g.drawImage(snapshot, 0, 0, null);
@@ -234,6 +244,18 @@ public class Gui {
         run(() -> frame.setResizable(resizable));
     }
     
+    public int getWidth() {
+        AtomicInteger width = new AtomicInteger();
+        run(() -> width.set(panel.getWidth()));
+        return toUser(width.get());
+    }
+    
+    public int getHeight() {
+        AtomicInteger height = new AtomicInteger();
+        run(() -> height.set(panel.getHeight()));
+        return toUser(height.get());
+    }
+    
     /*
      * Painting
      */
@@ -271,37 +293,47 @@ public class Gui {
     }
     
     public void drawImage(String path, int x, int y) {
-        withGraphics(g -> g.drawImage(getImage(path), toNative(x), toNative(y), null));
+        ensureLoaded(path);
+        withGraphics(g -> g.drawImage(scaledImages.get(path), toNative(x), toNative(y), null));
     }
     
     public void drawImage(String path, int x, int y, double scale) {
-        BufferedImage image = getImage(path);
-        AffineTransform transform = getScaleInstance(scale, scale);
-        withGraphics(g -> g.drawImage(image, new AffineTransformOp(transform, TYPE_BICUBIC), toNative(x), toNative(y)));
+        ensureLoaded(path);
+        BufferedImage image = images.get(path);
+        AffineTransform transform = getScaleInstance(scale * pixelScale, scale * pixelScale);
+        withGraphics(g -> g.drawImage(image, new AffineTransformOp(transform, interpolation), toNative(x), toNative(y)));
     }
     
     public void drawImage(String path, int x, int y, double scale, double angle) {
-        BufferedImage image = getImage(path);
+        ensureLoaded(path);
+        BufferedImage image = images.get(path);
         AffineTransform transform = new AffineTransform();
-        transform.scale(scale, scale);
+        transform.scale(scale * pixelScale, scale * pixelScale);
         transform.rotate(angle, image.getWidth()/2, image.getHeight()/2);
-        withGraphics(g -> g.drawImage(image, new AffineTransformOp(transform, TYPE_BICUBIC), toNative(x), toNative(y)));
+        withGraphics(g -> g.drawImage(image, new AffineTransformOp(transform, interpolation), toNative(x), toNative(y)));
     }
     
-    private BufferedImage getImage(String path) throws Error {
-        if(!images.containsKey(path)) {
+    private BufferedImage ensureLoaded(String imagePath) throws Error {
+        if(!images.containsKey(imagePath)) {
             try {
-                BufferedImage image = ImageIO.read(new File(path));
+                BufferedImage image = ImageIO.read(new File(imagePath));
                 if(image == null)
-                    throw new Error("could not load image \"" + path + "\"");
-                AffineTransformOp op = new AffineTransformOp(getScaleInstance(scale, scale), TYPE_NEAREST_NEIGHBOR);
-                BufferedImage scaled = op.filter(image, null);
-                images.put(path, scaled);
+                    throw new Error("could not load image \"" + imagePath + "\"");
+                images.put(imagePath, image);
+                
+                BufferedImage scaled;
+                if(pixelScale == 1)
+                    scaled = image;
+                else {
+                    AffineTransformOp op = new AffineTransformOp(getScaleInstance(pixelScale, pixelScale), interpolation);
+                    scaled = op.filter(image, null);
+                }
+                scaledImages.put(imagePath, scaled);
             } catch (IOException e) {
-                throw new Error("could not load image \"" + path + "\"", e);
+                throw new Error("could not load image \"" + imagePath + "\"", e);
             }
         }
-        return images.get(path);
+        return images.get(imagePath);
     }
     
     public void fillRect(int x, int y, int width, int height) {
@@ -374,11 +406,11 @@ public class Gui {
     
     /** Converts the given number of "user space" pixels to native pixels (for high-DPI displays). */
     private int toNative(int pixels) {
-        return pixels * scale;
+        return pixels * pixelScale;
     }
     
     /** Converts the given number of native pixels to "user space" pixels (for high-DPI displays). */
     private int toUser(int pixels) {
-        return pixels / scale;
+        return pixels / pixelScale;
     }
 }
