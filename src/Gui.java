@@ -1,4 +1,3 @@
-import static java.awt.Color.BLACK;
 import static java.awt.Color.WHITE;
 import static java.awt.Font.BOLD;
 import static java.awt.Font.PLAIN;
@@ -10,14 +9,11 @@ import static java.awt.geom.AffineTransform.getScaleInstance;
 import static java.awt.image.AffineTransformOp.TYPE_BICUBIC;
 import static java.awt.image.AffineTransformOp.TYPE_NEAREST_NEIGHBOR;
 import static java.awt.image.BufferedImage.TYPE_INT_RGB;
-import static java.lang.Math.max;
-import static java.lang.Math.min;
 import static java.lang.Math.round;
 import static java.util.Collections.newSetFromMap;
 import static javax.swing.SwingUtilities.invokeAndWait;
 import static javax.swing.SwingUtilities.invokeLater;
 
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -61,7 +57,7 @@ public class Gui {
     private BufferedImage canvas;
     private BufferedImage snapshot;
     
-    private Color color = BLACK;
+    private Color color = new Color(0, 0, 0);
     private int fontSize = 11;
     private boolean bold = false;
     
@@ -264,11 +260,15 @@ public class Gui {
      */
     
     public void setColor(int red, int green, int blue) {
-        color = new Color(clamp(red), clamp(green), clamp(blue));
+        color = new Color(red, green, blue);
     }
     
-    private static int clamp(int raw) {
-        return max(0, min(255, raw));
+    public void setColor(Color color) {
+        this.color = color;
+    }
+    
+    public Color getColor() {
+        return color;
     }
     
     public void setFontSize(int fontSize) {
@@ -367,7 +367,7 @@ public class Gui {
     private void withGraphics(Consumer<Graphics2D> command) {
         Graphics2D g = canvas.createGraphics();
         g.addRenderingHints(new HashMap<Key, Object>() {{ put(KEY_ANTIALIASING, VALUE_ANTIALIAS_ON); }});
-        g.setColor(color);
+        g.setColor(new java.awt.Color(color.r, color.g, color.b));
         g.setFont(g.getFont().deriveFont(bold ? BOLD : PLAIN, toNative(fontSize)));
         command.accept(g);
         g.dispose();
