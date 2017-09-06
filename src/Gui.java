@@ -1,5 +1,7 @@
 import static java.awt.Color.BLACK;
 import static java.awt.Color.WHITE;
+import static java.awt.Font.BOLD;
+import static java.awt.Font.PLAIN;
 import static java.awt.RenderingHints.KEY_ANTIALIASING;
 import static java.awt.RenderingHints.VALUE_ANTIALIAS_ON;
 import static java.awt.Toolkit.getDefaultToolkit;
@@ -61,6 +63,7 @@ public class Gui {
     
     private Color color = BLACK;
     private int fontSize = 11;
+    private boolean bold = false;
     
     private Map<String, BufferedImage> images = new HashMap<>();
     private Map<String, BufferedImage> scaledImages = new HashMap<>();
@@ -268,12 +271,16 @@ public class Gui {
         return max(0, min(255, raw));
     }
     
-    public void setFontSize(int size) {
-        fontSize = size;
+    public void setFontSize(int fontSize) {
+        this.fontSize = fontSize;
     }
     
     public int getFontSize() {
         return fontSize;
+    }
+    
+    public void setBold(boolean bold) {
+        this.bold = bold;
     }
     
     public void drawRect(int x, int y, int width, int height) {
@@ -282,6 +289,10 @@ public class Gui {
     
     public void drawOval(int x, int y, int width, int height) {
         withGraphics(g -> g.drawOval(toNative(x), toNative(y), toNative(width), toNative(height)));
+    }
+    
+    public void drawCircle(int centerX, int centerY, int radius) {
+        drawOval(centerX - radius, centerY - radius, radius * 2, radius * 2);
     }
     
     public void drawLine(int x1, int y1, int x2, int y2) {
@@ -336,6 +347,11 @@ public class Gui {
         return images.get(imagePath);
     }
     
+    public void fill() {
+        Dimension size = getDefaultToolkit().getScreenSize();
+        withGraphics(g -> g.fillRect(0, 0, size.width, size.height));
+    }
+    
     public void fillRect(int x, int y, int width, int height) {
         withGraphics(g -> g.fillRect(toNative(x), toNative(y), toNative(width), toNative(height)));
     }
@@ -344,11 +360,15 @@ public class Gui {
         withGraphics(g -> g.fillOval(toNative(x), toNative(y), toNative(width), toNative(height)));
     }
     
+    public void fillCircle(int centerX, int centerY, int radius) {
+        fillOval(centerX - radius, centerY - radius, radius * 2, radius * 2);
+    }
+    
     private void withGraphics(Consumer<Graphics2D> command) {
         Graphics2D g = canvas.createGraphics();
         g.addRenderingHints(new HashMap<Key, Object>() {{ put(KEY_ANTIALIASING, VALUE_ANTIALIAS_ON); }});
         g.setColor(color);
-        g.setFont(frame.getFont().deriveFont((float) toNative(fontSize)));
+        g.setFont(frame.getFont().deriveFont(bold ? BOLD : PLAIN, toNative(fontSize)));
         command.accept(g);
         g.dispose();
     }

@@ -1,6 +1,5 @@
 import static java.lang.Math.atan2;
 import static java.lang.Math.max;
-import static java.lang.Math.sin;
 
 import java.util.Random;
 
