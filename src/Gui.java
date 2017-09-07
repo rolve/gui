@@ -308,11 +308,18 @@ public class Gui {
         withGraphics(g -> g.drawImage(scaledImages.get(path), toNative(x), toNative(y), null));
     }
     
-    public void drawImage(String path, int x, int y, double scale) {
+    public void drawImageCentered(String path, int x, int y) {
         ensureLoaded(path);
-        BufferedImage image = images.get(path);
-        AffineTransform transform = getScaleInstance(scale * pixelScale, scale * pixelScale);
-        withGraphics(g -> g.drawImage(image, new AffineTransformOp(transform, interpolation), toNative(x), toNative(y)));
+        BufferedImage img = scaledImages.get(path);
+        withGraphics(g -> g.drawImage(img, toNative(x) - img.getWidth()/2, toNative(y) - img.getHeight()/2, null));
+    }
+    
+    public void drawImage(String path, int x, int y, double scale) {
+        drawImage(path, x, y, scale, 0);
+    }
+    
+    public void drawImageCentered(String path, int x, int y, double scale) {
+        drawImageCentered(path, x, y, scale, 0);
     }
     
     public void drawImage(String path, int x, int y, double scale, double angle) {
@@ -322,6 +329,18 @@ public class Gui {
         transform.scale(scale * pixelScale, scale * pixelScale);
         transform.rotate(angle, image.getWidth()/2, image.getHeight()/2);
         withGraphics(g -> g.drawImage(image, new AffineTransformOp(transform, interpolation), toNative(x), toNative(y)));
+    }
+    
+    public void drawImageCentered(String path, int x, int y, double scale, double angle) {
+        ensureLoaded(path);
+        BufferedImage image = images.get(path);
+        AffineTransform transform = new AffineTransform();
+        transform.scale(scale * pixelScale, scale * pixelScale);
+        transform.rotate(angle, image.getWidth()/2, image.getHeight()/2);
+        withGraphics(g -> g.drawImage(image,
+                new AffineTransformOp(transform, interpolation),
+                (int) (toNative(x) - image.getWidth()/2 * pixelScale*scale),
+                (int) (toNative(y) - image.getHeight()/2 * pixelScale*scale)));
     }
     
     private BufferedImage ensureLoaded(String imagePath) throws Error {

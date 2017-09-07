@@ -8,8 +8,7 @@ public class Bill {
     private static final int width = 658;
     private static final int height = 432;
     private static final int billSize = 64;
-    private static final int coinWidth = 16;
-    private static final int coinHeight = 25;
+    private static final int coinSize = 16;
     
     private static Random random = new Random();
     
@@ -60,7 +59,7 @@ public class Bill {
             y += vy;
             
             double coinDist = (x - coinX) * (x - coinX) + (y - coinY) * (y - coinY);
-            if(coinDist < (billSize + coinWidth) * (billSize + coinWidth) / 4) {
+            if(coinDist < (billSize + coinSize) * (billSize + coinSize) / 4) {
                 score++;
                 coinX = randomX();
                 coinY = randomY();
@@ -77,8 +76,8 @@ public class Bill {
             
             int coinSprite = max(0, t / 3 % 40 - 35);
             gui.drawImage("background.png", 0, 0);
-            gui.drawImage("coin" + coinSprite + ".png", coinX - coinWidth/2, coinY - coinHeight/25);
-            gui.drawImage("bill.png", (int) (x - billSize/2), (int) (y - billSize/2), 1, atan2(vy, vx));
+            gui.drawImageCentered("coin" + coinSprite + ".png", coinX, coinY);
+            gui.drawImageCentered("bill.png", (int) x, (int) y, 1, atan2(vy, vx));
             
             gui.setColor(255, 255, 255);
             gui.drawString("Score: " + score + "  Lives: " + lives, 10, 25);
