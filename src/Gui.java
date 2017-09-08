@@ -11,13 +11,13 @@ import static java.awt.image.AffineTransformOp.TYPE_NEAREST_NEIGHBOR;
 import static java.awt.image.BufferedImage.TYPE_INT_RGB;
 import static java.lang.Math.round;
 import static java.util.Collections.newSetFromMap;
+import static java.util.Collections.singletonMap;
 import static javax.swing.SwingUtilities.invokeAndWait;
 import static javax.swing.SwingUtilities.invokeLater;
 
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.RenderingHints.Key;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
@@ -385,7 +385,7 @@ public class Gui {
     
     private void withGraphics(Consumer<Graphics2D> command) {
         Graphics2D g = canvas.createGraphics();
-        g.addRenderingHints(new HashMap<Key, Object>() {{ put(KEY_ANTIALIASING, VALUE_ANTIALIAS_ON); }});
+        g.addRenderingHints(singletonMap(KEY_ANTIALIASING, VALUE_ANTIALIAS_ON));
         g.setColor(new java.awt.Color(color.r, color.g, color.b));
         g.setFont(g.getFont().deriveFont(bold ? BOLD : PLAIN, toNative(fontSize)));
         command.accept(g);
