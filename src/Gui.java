@@ -172,6 +172,7 @@ public class Gui {
         
         run(() -> {
             frame.pack();
+            frame.setLocationRelativeTo(null); // center
             frame.setVisible(true);
         });
     }
