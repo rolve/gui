@@ -18,6 +18,8 @@ import static javax.swing.SwingUtilities.invokeLater;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
@@ -36,7 +38,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
 import javax.imageio.ImageIO;
@@ -79,6 +80,8 @@ public class Gui {
     private volatile int mouseY = 0;
     
     private volatile boolean open = false;
+    private volatile int width;
+    private volatile int height;
     
     private long lastRefreshTime = 0;
     
@@ -88,6 +91,8 @@ public class Gui {
     
     public Gui(String title, int width, int height, boolean smoothInterpolation) {
         this.interpolation = smoothInterpolation ? TYPE_BICUBIC : TYPE_NEAREST_NEIGHBOR;
+        this.width = width;
+        this.height = height;
         
         frame = new JFrame();
         frame.setTitle(title);
@@ -127,6 +132,13 @@ public class Gui {
             public void mouseMoved(MouseEvent e) {
                 mouseX = toUser(e.getX());
                 mouseY = toUser(e.getY());
+            }
+        });
+        panel.addComponentListener(new ComponentAdapter() {
+            @Override
+            public void componentResized(ComponentEvent e) {
+                Gui.this.width = panel.getWidth();
+                Gui.this.height = panel.getHeight();
             }
         });
         frame.addKeyListener(new KeyAdapter() {
@@ -245,15 +257,11 @@ public class Gui {
     }
     
     public int getWidth() {
-        AtomicInteger width = new AtomicInteger();
-        run(() -> width.set(panel.getWidth()));
-        return toUser(width.get());
+        return width;
     }
     
     public int getHeight() {
-        AtomicInteger height = new AtomicInteger();
-        run(() -> height.set(panel.getHeight()));
-        return toUser(height.get());
+        return height;
     }
     
     /*
