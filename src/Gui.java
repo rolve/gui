@@ -15,6 +15,7 @@ import static java.util.Collections.singletonMap;
 import static javax.swing.SwingUtilities.invokeAndWait;
 import static javax.swing.SwingUtilities.invokeLater;
 
+import java.awt.BasicStroke;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -59,6 +60,7 @@ public class Gui {
     private BufferedImage snapshot;
     
     private Color color = new Color(0, 0, 0);
+    private int strokeWidth = 1;
     private int fontSize = 11;
     private boolean bold = false;
     
@@ -280,6 +282,14 @@ public class Gui {
         return color;
     }
     
+    public void setStrokeWidth(int strokeWidth) {
+        this.strokeWidth = strokeWidth;
+    }
+    
+    public int getStrokeWidth() {
+        return strokeWidth;
+    }
+    
     public void setFontSize(int fontSize) {
         this.fontSize = fontSize;
     }
@@ -396,6 +406,7 @@ public class Gui {
         Graphics2D g = canvas.createGraphics();
         g.addRenderingHints(singletonMap(KEY_ANTIALIASING, VALUE_ANTIALIAS_ON));
         g.setColor(new java.awt.Color(color.r, color.g, color.b));
+        g.setStroke(new BasicStroke(strokeWidth));
         g.setFont(g.getFont().deriveFont(bold ? BOLD : PLAIN, toNative(fontSize)));
         command.accept(g);
         g.dispose();
