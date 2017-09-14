@@ -137,6 +137,11 @@ public class Gui {
                 mouseX = toUser(e.getX());
                 mouseY = toUser(e.getY());
             }
+            @Override
+            public void mouseDragged(MouseEvent e) {
+                mouseX = toUser(e.getX());
+                mouseY = toUser(e.getY());
+            }
         });
         panel.addComponentListener(new ComponentAdapter() {
             @Override
