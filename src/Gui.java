@@ -1,3 +1,5 @@
+import static java.awt.BasicStroke.CAP_ROUND;
+import static java.awt.BasicStroke.JOIN_ROUND;
 import static java.awt.Color.WHITE;
 import static java.awt.Font.BOLD;
 import static java.awt.Font.PLAIN;
@@ -407,7 +409,7 @@ public class Gui {
         Graphics2D g = canvas.createGraphics();
         g.addRenderingHints(singletonMap(KEY_ANTIALIASING, VALUE_ANTIALIAS_ON));
         g.setColor(new java.awt.Color(color.r, color.g, color.b));
-        g.setStroke(new BasicStroke(toNative(strokeWidth)));
+        g.setStroke(new BasicStroke(toNative(strokeWidth), CAP_ROUND, JOIN_ROUND));
         g.setFont(g.getFont().deriveFont(bold ? BOLD : PLAIN, toNative(fontSize)));
         command.accept(g);
         g.dispose();
