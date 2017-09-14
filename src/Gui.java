@@ -406,7 +406,7 @@ public class Gui {
         Graphics2D g = canvas.createGraphics();
         g.addRenderingHints(singletonMap(KEY_ANTIALIASING, VALUE_ANTIALIAS_ON));
         g.setColor(new java.awt.Color(color.r, color.g, color.b));
-        g.setStroke(new BasicStroke(strokeWidth));
+        g.setStroke(new BasicStroke(toNative(strokeWidth)));
         g.setFont(g.getFont().deriveFont(bold ? BOLD : PLAIN, toNative(fontSize)));
         command.accept(g);
         g.dispose();
