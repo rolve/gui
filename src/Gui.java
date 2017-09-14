@@ -228,7 +228,8 @@ public class Gui {
             try {
                 if(sleepTime > 1)
                     Thread.sleep(sleepTime);
-                break;
+                else
+                	break;
             } catch (InterruptedException e) {}
         }
         lastRefreshTime = System.currentTimeMillis();
