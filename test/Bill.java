@@ -13,10 +13,10 @@ public class Bill {
     private static Random random = new Random();
     
     public static void main(String[] args) {
-        Gui gui = new Gui("Bill", width, height);
-        gui.setResizable(false);
-        gui.setFontSize((int) (gui.getFontSize() * 1.5));
-        gui.open();
+        Window window = new Window("Bill", width, height);
+        window.setResizable(false);
+        window.setFontSize((int) (window.getFontSize() * 1.5));
+        window.open();
         
         int t = 0;
         
@@ -33,17 +33,17 @@ public class Bill {
         int highscore = 0;
         int lives = 3;
         
-        while(gui.isOpen()) {
-            if(gui.isKeyPressed("w") || gui.isKeyPressed("up"))
+        while(window.isOpen()) {
+            if(window.isKeyPressed("w") || window.isKeyPressed("up"))
                 vy -= acc;
-            if(gui.isKeyPressed("s") || gui.isKeyPressed("down"))
+            if(window.isKeyPressed("s") || window.isKeyPressed("down"))
                 vy += acc;
-            if(gui.isKeyPressed("a") || gui.isKeyPressed("left"))
+            if(window.isKeyPressed("a") || window.isKeyPressed("left"))
                 vx -= acc;
-            if(gui.isKeyPressed("d") || gui.isKeyPressed("right"))
+            if(window.isKeyPressed("d") || window.isKeyPressed("right"))
                 vx += acc;
             
-            if(gui.wasKeyTyped("space"))
+            if(window.wasKeyTyped("space"))
                 lives = -1;
 
             if(x < billSize/2 || x + billSize/2 >= width) {
@@ -75,16 +75,16 @@ public class Bill {
             }
             
             int coinSprite = max(0, t / 3 % 40 - 35);
-            gui.drawImage("background.png", 0, 0);
-            gui.drawImageCentered("coin" + coinSprite + ".png", coinX, coinY);
-            gui.drawImageCentered("bill.png", (int) x, (int) y, 1, atan2(vy, vx));
+            window.drawImage("background.png", 0, 0);
+            window.drawImageCentered("coin" + coinSprite + ".png", coinX, coinY);
+            window.drawImageCentered("bill.png", (int) x, (int) y, 1, atan2(vy, vx));
             
-            gui.setColor(255, 255, 255);
-            gui.drawString("Score: " + score + "  Lives: " + lives, 10, 25);
-            gui.setColor(200, 200, 0);
-            gui.drawString("Highscore: " + highscore, 10, 45);
+            window.setColor(255, 255, 255);
+            window.drawString("Score: " + score + "  Lives: " + lives, 10, 25);
+            window.setColor(200, 200, 0);
+            window.drawString("Highscore: " + highscore, 10, 45);
             
-            gui.refresh(20);
+            window.refresh(20);
             t++;
         }
     }

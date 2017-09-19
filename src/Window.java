@@ -48,7 +48,7 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
-public class Gui {
+public class Window {
     
     private static final int MIN_WIDTH = 200;
     private static final int MIN_HEIGHT = 100;
@@ -89,11 +89,11 @@ public class Gui {
     
     private long lastRefreshTime = 0;
     
-    public Gui(String title, int width, int height) {
+    public Window(String title, int width, int height) {
         this(title, width, height, false);
     }
     
-    public Gui(String title, int width, int height, boolean smoothInterpolation) {
+    public Window(String title, int width, int height, boolean smoothInterpolation) {
         this.interpolation = smoothInterpolation ? TYPE_BICUBIC : TYPE_NEAREST_NEIGHBOR;
         this.width = width;
         this.height = height;
@@ -104,7 +104,7 @@ public class Gui {
         
         panel = new JPanel() {
             public void paintComponent(Graphics g) {
-                synchronized(Gui.this) {
+                synchronized(Window.this) {
                     g.drawImage(snapshot, 0, 0, null);
                 }
             }
@@ -146,8 +146,8 @@ public class Gui {
         panel.addComponentListener(new ComponentAdapter() {
             @Override
             public void componentResized(ComponentEvent e) {
-                Gui.this.width = panel.getWidth();
-                Gui.this.height = panel.getHeight();
+                Window.this.width = panel.getWidth();
+                Window.this.height = panel.getHeight();
             }
         });
         frame.addKeyListener(new KeyAdapter() {

@@ -6,27 +6,27 @@ import static java.lang.Math.signum;
 public class Mouse {
     
     public static void main(String[] args) {
-        Gui gui = new Gui("Keys", 700, 300);
-        gui.setColor(0, 128, 0);
-        gui.open();
+        Window window = new Window("Keys", 700, 300);
+        window.setColor(0, 128, 0);
+        window.open();
         
         int x = 50;
         int y = 50;
         int size = 16;
-        while(gui.isOpen()) {
-            if(gui.wasLeftMouseButtonClicked())
+        while(window.isOpen()) {
+            if(window.wasLeftMouseButtonClicked())
                 size *= 2;
-            if(gui.isRightMouseButtonPressed())
+            if(window.isRightMouseButtonPressed())
                 size = max(size / 2, 1);
             
-            int xDiff = x - gui.getMouseX();
-            int yDiff = y - gui.getMouseY();
+            int xDiff = x - window.getMouseX();
+            int yDiff = y - window.getMouseY();
             x -= signum(xDiff) * ceil(abs(-xDiff / (double) size));
             y -= signum(yDiff) * ceil(abs(-yDiff / (double) size));
-            gui.drawLine(gui.getMouseX(), gui.getMouseY(), x, y);
-            gui.fillOval(x - size/2, y - size/2, size + 1, size + 1);
-            gui.drawString(x + ", " + y, x, y - size/2 - size/10 - 2);
-            gui.refresh(20);
+            window.drawLine(window.getMouseX(), window.getMouseY(), x, y);
+            window.fillOval(x - size/2, y - size/2, size + 1, size + 1);
+            window.drawString(x + ", " + y, x, y - size/2 - size/10 - 2);
+            window.refresh(20);
         }
     }
 }
