@@ -10,7 +10,7 @@ public class Bill {
     private static final int billSize = 64;
     private static final int coinSize = 16;
     
-    private static Random random = new Random();
+    private static Random random = new Random(42);
     
     public static void main(String[] args) {
         Window window = new Window("Bill", width, height);
