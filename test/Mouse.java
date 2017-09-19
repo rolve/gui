@@ -7,6 +7,7 @@ public class Mouse {
     
     public static void main(String[] args) {
         Window window = new Window("Keys", 700, 300);
+        window.setResizable(true);
         window.setColor(0, 128, 0);
         window.open();
         

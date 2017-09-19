@@ -14,7 +14,6 @@ public class Bill {
     
     public static void main(String[] args) {
         Window window = new Window("Bill", width, height);
-        window.setResizable(false);
         window.setFontSize((int) (window.getFontSize() * 1.5));
         window.open();
         

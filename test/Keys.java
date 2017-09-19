@@ -5,6 +5,7 @@ public class Keys {
     
     public static void main(String[] args) {
         Window window = new Window("Keys", 700, 300);
+        window.setResizable(true);
         window.open();
         
         int speed = 5;

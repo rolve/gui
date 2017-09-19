@@ -100,6 +100,7 @@ public class Window {
         
         frame = new JFrame();
         frame.setTitle(title);
+        frame.setResizable(false);
         frame.setMinimumSize(new Dimension(toNative(MIN_WIDTH), toNative(MIN_HEIGHT)));
         
         panel = new JPanel() {
