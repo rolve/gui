@@ -50,6 +50,36 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
+/**
+ * A class for creating simple GUIs (graphical user interfaces). Every instance represents
+ * a separate Window. The programmer can display content in the window by drawing on a canvas
+ * using <code>draw...()</code> and <code>fill...()</code> methods. Note that the content of the
+ * canvas is not displayed immediately, but only after a call to {@link #open()} or {@link #refresh(int)}.
+ * <p>
+ * There are two ways to use this class. The first way is for displaying static content.
+ * First, draw the content using the various <code>draw...()</code> or <code>fill...()</code>
+ * methods, then, open the window with {@link #open()}, and finally, call {@link #waitUntilClosed()}:
+ * <pre>
+ * Window window = new Window("Pixels", width, height);
+ * window.drawString(x, y, "Hello World!");
+ * window.open();
+ * window.waitUntilClosed();
+ * </pre>
+ * The second way is for displaying dynamic and possibly interactive content. First,
+ * open the window and then, draw and call {@link #refresh(int)} in a loop:
+ * <pre>
+ * Window window = new Window("Pixels", width, height);
+ * window.open();
+ * while(window.isOpen()) {
+ *     window.drawString(x, y, "Hello World!");
+ *     window.refresh(20);
+ * }
+ * </pre>
+ * All methods of this class use a pixel-based coordinate system with the origin in the
+ * upper-left corner of the window. The x-axis extends to the right while the y-axis extends
+ * to the bottom of the window. Note that, on high-DPI monitors, one pixel in the window
+ * coordinate system may correspond to multiple actual pixels on the monitor.
+ */
 public class Window {
     
     private static final int MIN_WIDTH = 200;
@@ -91,10 +121,18 @@ public class Window {
     
     private long lastRefreshTime = 0;
     
+    /**
+     * Create a new window with the specified title, width, and height.
+     */
     public Window(String title, int width, int height) {
         this(title, width, height, false);
     }
     
+    /**
+     * Create a new window with the specified title, width, and height. If
+     * <code>smoothInterpolation</code> is <code>true</code>, images are drawn
+     * with higher quality, but at the expense of performance.
+     */
     public Window(String title, int width, int height, boolean smoothInterpolation) {
         this.interpolation = smoothInterpolation ? TYPE_BICUBIC : TYPE_NEAREST_NEIGHBOR;
         this.width = width;
@@ -190,6 +228,9 @@ public class Window {
         }).start();
     }
     
+    /**
+     * Opens the window and displays the current content of the canvas.
+     */
     public void open() {
         canvas.copyData(snapshot.getRaster());
         open = true;
@@ -201,14 +242,27 @@ public class Window {
         });
     }
     
+    /**
+     * Closes the window.
+     */
     public void close() {
         run(() -> frame.setVisible(false));
     }
     
+    /**
+     * Returns <code>true</code> if the window is currently open, <code>false</code>
+     * otherwise. Note that the window can be closed either by the programmer
+     * (by calling {@link #close()}) or by the user.
+     */
     public boolean isOpen() {
         return open;
     }
     
+    /**
+     * This method returns only once the window is closed by the user (or if it
+     * was not open in the first place). More precisely, this method returns, as
+     * soon as {@link #isOpen()} returns <code>true</code>.
+     */
     public void waitUntilClosed() {
         while(isOpen())
             try {
@@ -216,6 +270,22 @@ public class Window {
             } catch (InterruptedException e) {}
     }
     
+    /**
+     * Displays the current content of the canvas and then clears the canvas for
+     * the next iteration. To achieve a constant time interval between iterations,
+     * this method does not return until the given <code>waitTime</code> (in milliseconds)
+     * has elapsed since the last call to {@link #refresh(int)}. For example, to
+     * get a frame rate of 50 frames per second, use a <code>waitTime</code> of
+     * <code>1000 / 50 = 20</code> milliseconds:
+     * <pre>
+     * while(window.isOpen()) {
+     *     ...
+     *     window.refresh(20);
+     * }
+     * </pre>
+     * In addition, this method also clears the <code>was...Pressed()</code> and
+     * <code>was...Clicked()</code> input events.
+     */
     public void refresh(int waitTime) {
         synchronized(this) {
             BufferedImage newCanvas = snapshot;
@@ -223,7 +293,7 @@ public class Window {
             canvas = newCanvas;
         }
         clear(canvas);
-
+        
         if(clearLeftMouseButton) {
             leftMouseButtonClicked = false;
             clearLeftMouseButton = false;
