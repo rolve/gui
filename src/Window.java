@@ -313,6 +313,10 @@ public class Window {
         this.bold = bold;
     }
     
+    public void setPixel(int x, int y) {
+        canvas.setRGB(x, y, color.toRgbInt());
+    }
+    
     public void drawRect(int x, int y, int width, int height) {
         withGraphics(g -> g.drawRect(toNative(x), toNative(y), toNative(width), toNative(height)));
     }
@@ -494,8 +498,12 @@ class Color {
         this.g = clamp(g);
         this.b = clamp(b);
     }
-    
+
     private static int clamp(int raw) {
         return max(0, min(255, raw));
+    }
+    
+    public int toRgbInt() {
+        return r << 16 | g << 8 | b;
     }
 }
