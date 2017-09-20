@@ -14,7 +14,6 @@ import static java.awt.image.BufferedImage.TYPE_INT_RGB;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 import static java.lang.Math.round;
-import static java.util.Collections.newSetFromMap;
 import static java.util.Collections.singletonMap;
 import static javax.swing.SwingUtilities.invokeAndWait;
 import static javax.swing.SwingUtilities.invokeLater;
@@ -42,7 +41,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 
 import javax.imageio.ImageIO;
@@ -101,16 +99,11 @@ public class Window {
     private Map<String, BufferedImage> images = new HashMap<>();
     private Map<String, BufferedImage> scaledImages = new HashMap<>();
     
-    private Set<String> typedKeys = newSetFromMap(new ConcurrentHashMap<>());
-    private Set<String> clearKeys = new HashSet<>();
-    private Set<String> pressedKeys = newSetFromMap(new ConcurrentHashMap<>());
-    
-    private volatile boolean leftMouseButtonClicked = false;
-    private volatile boolean rightMouseButtonClicked = false;
-    private boolean clearLeftMouseButton = false;
-    private boolean clearRightMouseButton = false;
-    private volatile boolean leftMouseButtonPressed = false;
-    private volatile boolean rightMouseButtonPressed = false;
+    private Object inputLock = new Object();
+    private Set<Input> pressedInputs = new HashSet<>();
+    private Set<Input> releasedInputs = new HashSet<>();
+    private Set<Input> pressedSnapshot = new HashSet<>();
+    private Set<Input> releasedSnapshot = new HashSet<>();
     
     private volatile int mouseX = 0;
     private volatile int mouseY = 0;
@@ -156,19 +149,16 @@ public class Window {
         panel.addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
-                if(SwingUtilities.isLeftMouseButton(e))
-                    leftMouseButtonPressed = true;
-                else if(SwingUtilities.isRightMouseButton(e))
-                    rightMouseButtonPressed = true;
+                synchronized(inputLock) {
+                    pressedInputs.add(new MouseInput(e));
+                }
             }
             @Override
             public void mouseReleased(MouseEvent e) {
-                if(SwingUtilities.isLeftMouseButton(e)) {
-                    leftMouseButtonPressed = false;
-                    leftMouseButtonClicked = true;
-                } else if(SwingUtilities.isRightMouseButton(e)) {
-                    rightMouseButtonPressed = false;
-                    rightMouseButtonClicked = true;
+                MouseInput input = new MouseInput(e);
+                synchronized(inputLock) {
+                    pressedInputs.remove(input);
+                    releasedInputs.add(input);
                 }
             }
         });
@@ -194,15 +184,17 @@ public class Window {
         frame.addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
-                pressedKeys.add(keyText(e));
+                synchronized(inputLock) {
+                    pressedInputs.add(new KeyInput(e));
+                }
             }
             @Override
             public void keyReleased(KeyEvent e) {
-                pressedKeys.remove(keyText(e));
-                typedKeys.add(keyText(e));
-            }
-            private String keyText(KeyEvent e) {
-                return getKeyText(e.getKeyCode()).toLowerCase();
+                KeyInput input = new KeyInput(e);
+                synchronized(inputLock) {
+                    pressedInputs.remove(input);
+                    releasedInputs.add(input);
+                }
             }
         });
         frame.addWindowListener(new WindowAdapter() {
@@ -294,17 +286,6 @@ public class Window {
         }
         clear(canvas);
         
-        if(clearLeftMouseButton) {
-            leftMouseButtonClicked = false;
-            clearLeftMouseButton = false;
-        }
-        if(clearRightMouseButton) {
-            rightMouseButtonClicked = false;
-            clearRightMouseButton = false;
-        }
-        typedKeys.removeAll(clearKeys);
-        clearKeys.clear();
-        
         while(true) {
             long sleepTime = (waitTime - (System.currentTimeMillis() - lastRefreshTime)) / 2;
             try {
@@ -317,6 +298,14 @@ public class Window {
         lastRefreshTime = System.currentTimeMillis();
         
         frame.repaint();
+        
+        pressedSnapshot.clear();
+        releasedSnapshot.clear();
+        synchronized(inputLock) {
+            pressedSnapshot.addAll(pressedInputs);
+            releasedSnapshot.addAll(releasedInputs);
+            releasedInputs.clear();
+        }
     }
     
     private static void clear(BufferedImage image) {
@@ -501,35 +490,28 @@ public class Window {
      * Input
      */
     
-    public boolean isKeyPressed(String keyCode) {
-        return pressedKeys.contains(keyCode.toLowerCase());
+    public boolean isKeyPressed(String keyText) {
+        return pressedSnapshot.contains(new KeyInput(keyText));
     }
     
-    public boolean wasKeyTyped(String keyCode) {
-        String lower = keyCode.toLowerCase();
-        if(typedKeys.contains(lower))
-            clearKeys.add(lower);
-        return typedKeys.contains(lower);
+    public boolean wasKeyTyped(String keyText) {
+        return releasedSnapshot.contains(new KeyInput(keyText));
     }
     
     public boolean isLeftMouseButtonPressed() {
-        return leftMouseButtonPressed;
+        return pressedSnapshot.contains(new MouseInput(true));
     }
     
     public boolean isRightMouseButtonPressed() {
-        return rightMouseButtonPressed;
+        return pressedSnapshot.contains(new MouseInput(false));
     }
     
     public boolean wasLeftMouseButtonClicked() {
-        if(leftMouseButtonClicked)
-            clearLeftMouseButton = true;
-        return leftMouseButtonClicked;
+        return releasedSnapshot.contains(new MouseInput(true));
     }
     
     public boolean wasRightMouseButtonClicked() {
-        if(rightMouseButtonClicked)
-            clearRightMouseButton = true;
-        return rightMouseButtonClicked;
+        return releasedSnapshot.contains(new MouseInput(false));
     }
     
     public int getMouseX() {
@@ -556,6 +538,42 @@ public class Window {
     /** Converts the given number of native pixels to "user space" pixels (for high-DPI displays). */
     private int toUser(int pixels) {
         return pixels / pixelScale;
+    }
+    
+    private static class Input {}
+    
+    private static class KeyInput extends Input {
+        String key;
+        KeyInput(KeyEvent e) {
+           this(getKeyText(e.getKeyCode()));
+        }
+        KeyInput(String keyText) {
+            this.key = keyText.toLowerCase();
+        }
+        public int hashCode() {
+            return 31 + key.hashCode();
+        }
+        public boolean equals(Object obj) {
+            return this == obj || obj != null && obj instanceof KeyInput && key.equals(((KeyInput) obj).key);
+        }
+    }
+    
+    private static class MouseInput extends Input {
+        boolean left;
+        MouseInput(MouseEvent e) {
+            this(SwingUtilities.isLeftMouseButton(e));
+        }
+        MouseInput(boolean left) {
+            this.left = left;
+        }
+        @Override
+        public int hashCode() {
+            return 31 + (left ? 1231 : 1237);
+        }
+        @Override
+        public boolean equals(Object obj) {
+            return this == obj || obj != null && obj instanceof MouseInput && left == ((MouseInput) obj).left;
+        }
     }
 }
 
