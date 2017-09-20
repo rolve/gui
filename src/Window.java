@@ -170,8 +170,12 @@ public class Window {
             }
             @Override
             public void mouseDragged(MouseEvent e) {
-                mouseX = toUser(e.getX());
-                mouseY = toUser(e.getY());
+                int x = e.getX();
+                int y = e.getY();
+                if(x >= 0 && x < width && y >= 0 && y < height) {
+                    mouseX = toUser(x);
+                    mouseY = toUser(y);
+                }
             }
         });
         panel.addComponentListener(new ComponentAdapter() {
