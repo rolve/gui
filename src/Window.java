@@ -15,6 +15,7 @@ import static java.lang.Math.max;
 import static java.lang.Math.min;
 import static java.lang.Math.round;
 import static java.util.Collections.singletonMap;
+import static java.util.stream.Collectors.toList;
 import static javax.swing.SwingUtilities.invokeAndWait;
 import static javax.swing.SwingUtilities.invokeLater;
 
@@ -39,6 +40,7 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
@@ -328,14 +330,28 @@ public class Window {
         return canvas;
     }
     
+    /**
+     * If <code>resizable</code> is <code>true</code>, this window can be
+     * resized by the user. By default, windows are non-resizable.
+     * <p>
+     * For resizable windows, use {@link #getWidth()} and {@link #getHeight()}
+     * to get the current window size.
+     */
     public void setResizable(boolean resizable) {
         run(() -> frame.setResizable(resizable));
     }
     
+    /**
+     * Returns the current window width.
+     */
     public int getWidth() {
         return width;
     }
-    
+
+    /**
+     * Returns the current window height (excluding any title bar added
+     * by the operating system).
+     */
     public int getHeight() {
         return height;
     }
@@ -344,82 +360,177 @@ public class Window {
      * Painting
      */
     
+    /**
+     * Sets the color for the subsequent drawing operations. The three
+     * parameters represent the red, green, and blue channel and are
+     * expected to be in the 0&ndash;255 range. Values outside this
+     * range will be clamped. The default color is black (0, 0, 0).
+     */
     public void setColor(int red, int green, int blue) {
         color = new Color(red, green, blue);
     }
-    
+
+    /**
+     * Sets the color for the subsequent drawing operations, using a
+     * {@link Color} object. The default color is black (0, 0, 0).
+     */
     public void setColor(Color color) {
         this.color = color;
     }
     
+    /**
+     * Returns the current drawing color.
+     */
     public Color getColor() {
         return color;
     }
     
+    /**
+     * Sets the stroke width for subsequent <code>draw...()</code>
+     * operations, in pixels. The default stroke width is 1 pixel.
+     */
     public void setStrokeWidth(int strokeWidth) {
         this.strokeWidth = strokeWidth;
     }
     
+    /**
+     * Returns the current stroke width (in pixels).
+     */
     public int getStrokeWidth() {
         return strokeWidth;
     }
     
+    /**
+     * Sets the font size for subsequent {@link #drawString(String, int, int)}
+     * operations, in points. The default font size is 11 points.
+     */
     public void setFontSize(int fontSize) {
         this.fontSize = fontSize;
     }
     
+    /**
+     * Returns the current font size, in points.
+     */
     public int getFontSize() {
         return fontSize;
     }
     
+    /**
+     * If <code>bold</code> is <code>true</code>, subsequent
+     * {@link #drawString(String, int, int)} operations will use a bold
+     * font.
+     */
     public void setBold(boolean bold) {
         this.bold = bold;
     }
     
+    /**
+     * Sets the color of the pixel at the given coordinates to
+     * the current drawing {@linkplain #getColor() color}.
+     */
     public void setPixel(int x, int y) {
         canvas.setRGB(x, y, color.toRgbInt());
     }
     
+    /**
+     * Draws the outline of a rectangle with the upper-left corner at
+     * (<code>x</code>, <code>y</code>) and the given <code>width</code>
+     * and <code>height</code>. The current {@linkplain #getColor() color}
+     * and {@linkplain #getStrokeWidth() stroke width} are used.
+     */
     public void drawRect(int x, int y, int width, int height) {
         withGraphics(g -> g.drawRect(toNative(x), toNative(y), toNative(width), toNative(height)));
     }
     
+    /**
+     * Draws the outline of an oval with a rectangular bounding box that has
+     * the upper-left corner at (<code>x</code>, <code>y</code>) and the given
+     * <code>width</code> and <code>height</code>. The current
+     * {@linkplain #getColor() color} and {@linkplain #getStrokeWidth() stroke width}
+     * are used.
+     */
     public void drawOval(int x, int y, int width, int height) {
         withGraphics(g -> g.drawOval(toNative(x), toNative(y), toNative(width), toNative(height)));
     }
     
+    /**
+     * Draws the outline of a circle with the center at (<code>x</code>, <code>y</code>)
+     * and the given <code>radius</code>. The current {@linkplain #getColor() color}
+     * and {@linkplain #getStrokeWidth() stroke width} are used.
+     */
     public void drawCircle(int centerX, int centerY, int radius) {
         drawOval(centerX - radius, centerY - radius, radius * 2, radius * 2);
     }
     
+    /**
+     * Draws a line from (<code>x1</code>, <code>y1</code>) to (<code>x2</code>, <code>y2</code>).
+     * The current {@linkplain #getColor() color} and {@linkplain #getStrokeWidth() stroke width}
+     * are used.
+     */
     public void drawLine(int x1, int y1, int x2, int y2) {
         withGraphics(g -> g.drawLine(toNative(x1), toNative(y1), toNative(x2), toNative(y2)));
     }
     
+    /**
+     * Draw the given string with the current {@linkplain #getColor() color}.
+     * The baseline of the first character is at position (<code>x</code>, <code>y</code>).
+     */
     public void drawString(String string, int x, int y) {
         withGraphics(g -> g.drawString(string, toNative(x), toNative(y)));
     }
     
+    /**
+     * Draws the image found at the given <code>path</code> with the upper-left
+     * corner at position (<code>x</code>, <code>y</code>).
+     * <p>
+     * For homework submissions, put all images in the project directory and refer
+     * to them using relative paths (i.e., not starting with "C:\" or "/"). For
+     * example, an image called "image.jpg" in the project folder can be referred to
+     * simply using the path "image.jpg". If you put the image into a subfolder,
+     * e.g., "images", refer to it using the path "images/image.jpg". Also, make
+     * sure to commit all required images to the SVN repository.
+     */
     public void drawImage(String path, int x, int y) {
         ensureLoaded(path);
         withGraphics(g -> g.drawImage(scaledImages.get(path), toNative(x), toNative(y), null));
     }
     
+    /**
+     * Draws the image found at the given path with the center at position
+     * (<code>x</code>, <code>y</code>).
+     * <p>
+     * Also, see {@link #drawImage(String, int, int)}.
+     */
     public void drawImageCentered(String path, int x, int y) {
         ensureLoaded(path);
         BufferedImage img = scaledImages.get(path);
         withGraphics(g -> g.drawImage(img, toNative(x) - img.getWidth()/2, toNative(y) - img.getHeight()/2, null));
     }
     
+    /**
+     * Draws the image found at the given <code>path</code> with the upper-left
+     * corner at position (<code>x</code>, <code>y</code>) and scales it by the
+     * given <code>scale</code>. For example, a scale of 2.0 doubles the size of the
+     * image.
+     * <p>
+     * Also, see {@link #drawImage(String, int, int)}.
+     */
     public void drawImage(String path, int x, int y, double scale) {
         drawImage(path, x, y, scale, 0);
     }
     
+    /**
+     * Draws the image found at the given path with the center at position
+     * (<code>x</code>, <code>y</code>) and scales it by the given <code>scale</code>.
+     * For example, a scale of 2.0 doubles the size of the image.
+     * <p>
+     * Also, see {@link #drawImage(String, int, int)}.
+     */
     public void drawImageCentered(String path, int x, int y, double scale) {
         drawImageCentered(path, x, y, scale, 0);
     }
     
-    public void drawImage(String path, int x, int y, double scale, double angle) {
+    private void drawImage(String path, int x, int y, double scale, double angle) {
         ensureLoaded(path);
         BufferedImage image = images.get(path);
         AffineTransform transform = new AffineTransform();
@@ -428,6 +539,13 @@ public class Window {
         withGraphics(g -> g.drawImage(image, new AffineTransformOp(transform, interpolation), toNative(x), toNative(y)));
     }
     
+    /**
+     * Draws the image found at the given path with the center at position
+     * (<code>x</code>, <code>y</code>), scales it by the given <code>scale</code>
+     * and rotates it by the given <code>angle</code>, in radians (0&ndash;2&times;{@linkplain Math#PI &pi;}).
+     * <p>
+     * Also, see {@link #drawImage(String, int, int)}.
+     */
     public void drawImageCentered(String path, int x, int y, double scale, double angle) {
         ensureLoaded(path);
         BufferedImage image = images.get(path);
@@ -463,19 +581,37 @@ public class Window {
         return images.get(imagePath);
     }
     
+    /**
+     * Fills the whole canvas with the current {@linkplain #getColor() color}.
+     */
     public void fill() {
         Dimension size = getDefaultToolkit().getScreenSize();
         withGraphics(g -> g.fillRect(0, 0, size.width, size.height));
     }
     
+    /**
+     * Fills a rectangle that has the upper-left corner at (<code>x</code>,
+     * <code>y</code>) and the given <code>width</code> and <code>height</code> with
+     * the current {@linkplain #getColor() color}.
+     */
     public void fillRect(int x, int y, int width, int height) {
         withGraphics(g -> g.fillRect(toNative(x), toNative(y), toNative(width), toNative(height)));
     }
     
+    /**
+     * Fills an oval with the current {@linkplain #getColor() color}. The oval has a
+     * rectangular bounding box with the upper-left corner at (<code>x</code>,
+     * <code>y</code>) and the given <code>width</code> and <code>height</code>
+     */
     public void fillOval(int x, int y, int width, int height) {
         withGraphics(g -> g.fillOval(toNative(x), toNative(y), toNative(width), toNative(height)));
     }
     
+    /**
+     * Fills a circle that has the center at (<code>x</code>, <code>y</code>) and
+     * the given <code>radius</code> with the current {@linkplain #getColor()
+     * color}.
+     */
     public void fillCircle(int centerX, int centerY, int radius) {
         fillOval(centerX - radius, centerY - radius, radius * 2, radius * 2);
     }
@@ -494,34 +630,98 @@ public class Window {
      * Input
      */
     
-    public boolean isKeyPressed(String keyText) {
-        return pressedSnapshot.contains(new KeyInput(keyText));
+    public List<String> getPressedKeys() {
+        return pressedSnapshot.stream()
+                .filter(i -> i instanceof KeyInput)
+                .map(i -> ((KeyInput) i).key)
+                .collect(toList());
     }
     
-    public boolean wasKeyTyped(String keyText) {
-        return releasedSnapshot.contains(new KeyInput(keyText));
+    public List<String> getTypedKeys() {
+        return releasedSnapshot.stream()
+                .filter(i -> i instanceof KeyInput)
+                .map(i -> ((KeyInput) i).key)
+                .collect(toList());
     }
     
+    /**
+     * Returns whether the key specified by the given <code>keyText</code> is
+     * currently pressed. Use {@link #getPressedKeys()} to find out the names
+     * for your keys.
+     */
+    public boolean isKeyPressed(String keyName) {
+        return pressedSnapshot.contains(new KeyInput(keyName));
+    }
+
+    /**
+     * Returns whether the key specified by the given <code>keyText</code> was
+     * just typed (released). Use {@link #getPressedKeys()} to find out the names
+     * for your keys.
+     */
+    public boolean wasKeyTyped(String keyName) {
+        return releasedSnapshot.contains(new KeyInput(keyName));
+    }
+    
+    /**
+     * Returns whether the left mouse button is currently pressed. Use
+     * {@link #getMouseX()} and {@link #getMouseY()} to get the current mouse
+     * position.
+     * 
+     * @see #isRightMouseButtonPressed()
+     */
     public boolean isLeftMouseButtonPressed() {
         return pressedSnapshot.contains(new MouseInput(true));
     }
     
+    /**
+     * Returns whether the right mouse button is currently pressed. Use
+     * {@link #getMouseX()} and {@link #getMouseY()} to get the current mouse
+     * position.
+     * 
+     * @see #isLeftMouseButtonPressed()
+     */
     public boolean isRightMouseButtonPressed() {
         return pressedSnapshot.contains(new MouseInput(false));
     }
     
+    /**
+     * Returns whether the left mouse button was just clicked (released). Use
+     * {@link #getMouseX()} and {@link #getMouseY()} to get the current mouse
+     * position.
+     * 
+     * @see #isRightMouseButtonClicked()
+     */
     public boolean wasLeftMouseButtonClicked() {
         return releasedSnapshot.contains(new MouseInput(true));
     }
     
+    /**
+     * Returns whether the right mouse button was just clicked (released). Use
+     * {@link #getMouseX()} and {@link #getMouseY()} to get the current mouse
+     * position.
+     * 
+     * @see #isLeftMouseButtonClicked()
+     */
     public boolean wasRightMouseButtonClicked() {
         return releasedSnapshot.contains(new MouseInput(false));
     }
     
+    /**
+     * Returns the x coordinate of the current mouse position within the
+     * window.
+     * 
+     * @see #getMouseY()
+     */
     public int getMouseX() {
         return mouseX;
     }
-    
+
+    /**
+     * Returns the y coordinate of the current mouse position within the
+     * window.
+     * 
+     * @see #getMouseX()
+     */
     public int getMouseY() {
         return mouseY;
     }
@@ -581,10 +781,18 @@ public class Window {
     }
 }
 
-class Color {
+/**
+ * A class to represent colors.
+ */
+final class Color {
     
     public final int r, g, b;
     
+    /**
+     * Creates a new color. The three parameters represent the red, green, and blue
+     * channel and are expected to be in the 0&ndash;255 range. Values outside this
+     * range will be clamped.
+     */
     public Color(int r, int g, int b) {
         this.r = clamp(r);
         this.g = clamp(g);
@@ -595,7 +803,32 @@ class Color {
         return max(0, min(255, raw));
     }
     
+    /**
+     * Returns an integer representation of this color.
+     */
     public int toRgbInt() {
         return r << 16 | g << 8 | b;
+    }
+    
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + r;
+        result = prime * result + g;
+        result = prime * result + b;
+        return result;
+    }
+    
+    @Override
+    public boolean equals(Object obj) {
+        if(this == obj)
+            return true;
+        if(obj == null)
+            return false;
+        if(getClass() != obj.getClass())
+            return false;
+        Color other = (Color) obj;
+        return r == other.r && g == other.g && b == other.b;
     }
 }

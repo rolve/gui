@@ -29,6 +29,8 @@ public class Keys {
             window.fillRect(x, y, 50, 50);
             window.fillRect(500, 100, 50, 50);
             
+            window.drawString(window.getPressedKeys().toString(), 20, 50);
+            
             window.refresh(20);
         }
     }
