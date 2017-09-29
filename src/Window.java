@@ -442,6 +442,7 @@ public class Window {
      */
     public void setPixel(int x, int y) {
         if(pixelScale == 1)
+            // probably more efficient than fillRect():
             canvas.setRGB(x, y, color.toRgbInt());
         else
             fillRect(x, y, 1, 1);
