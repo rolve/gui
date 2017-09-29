@@ -441,7 +441,10 @@ public class Window {
      * the current drawing {@linkplain #getColor() color}.
      */
     public void setPixel(int x, int y) {
-        canvas.setRGB(x, y, color.toRgbInt());
+        if(pixelScale == 1)
+            canvas.setRGB(x, y, color.toRgbInt());
+        else
+            fillRect(x, y, 1, 1);
     }
     
     /**
