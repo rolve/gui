@@ -1,4 +1,6 @@
+import static java.awt.BasicStroke.CAP_BUTT;
 import static java.awt.BasicStroke.CAP_ROUND;
+import static java.awt.BasicStroke.JOIN_MITER;
 import static java.awt.BasicStroke.JOIN_ROUND;
 import static java.awt.Color.WHITE;
 import static java.awt.Font.BOLD;
@@ -95,6 +97,7 @@ public class Window {
     
     private Color color = new Color(0, 0, 0);
     private int strokeWidth = 1;
+    private boolean roundStroke = false;
     private int fontSize = 11;
     private boolean bold = false;
     
@@ -401,6 +404,15 @@ public class Window {
     }
     
     /**
+     * If <code>roundStroke</code> is <code>true</code>, subsequent
+     * <code>draw...()</code> operations will use round stroke caps
+     * and joins instead of flat caps and miter joins.
+     */
+    public void setRoundStroke(boolean roundStroke) {
+        this.roundStroke = roundStroke;
+    }
+    
+    /**
      * Sets the font size for subsequent {@link #drawString(String, int, int)}
      * operations, in points. The default font size is 11 points.
      */
@@ -620,7 +632,9 @@ public class Window {
         Graphics2D g = canvas.createGraphics();
         g.addRenderingHints(singletonMap(KEY_ANTIALIASING, VALUE_ANTIALIAS_ON));
         g.setColor(new java.awt.Color(color.r, color.g, color.b));
-        g.setStroke(new BasicStroke(toNative(strokeWidth), CAP_ROUND, JOIN_ROUND));
+        g.setStroke(new BasicStroke(toNative(strokeWidth),
+                roundStroke ? CAP_ROUND : CAP_BUTT,
+                roundStroke ? JOIN_ROUND : JOIN_MITER));
         g.setFont(g.getFont().deriveFont(bold ? BOLD : PLAIN, toNative(fontSize)));
         command.accept(g);
         g.dispose();
