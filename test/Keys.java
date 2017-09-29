@@ -9,8 +9,8 @@ public class Keys {
         window.open();
         
         int speed = 5;
-        int x = 100;
-        int y = 100;
+        double x = 100;
+        double y = 100;
         int color = 0;
         while(window.isOpen()) {
             if(window.isKeyPressed("w") || window.isKeyPressed("up"))
