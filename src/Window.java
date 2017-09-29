@@ -186,8 +186,8 @@ public class Window {
         panel.addComponentListener(new ComponentAdapter() {
             @Override
             public void componentResized(ComponentEvent e) {
-                Window.this.width = panel.getWidth();
-                Window.this.height = panel.getHeight();
+                Window.this.width = (int) toUser(panel.getWidth());
+                Window.this.height = (int) toUser(panel.getHeight());
             }
         });
         frame.addKeyListener(new KeyAdapter() {
