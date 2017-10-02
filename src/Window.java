@@ -281,13 +281,37 @@ public class Window {
                 Thread.sleep((long) 50);
             } catch (InterruptedException e) {}
     }
+
+    /**
+     * Displays the current content of the canvas and then clears the canvas for the
+     * next iteration. (This is the same as calling
+     * <code>refresh(waitTime, true)</code>.) To achieve a constant time interval
+     * between iterations, this method does not return until the given
+     * <code>waitTime</code> (in milliseconds) has elapsed since the last call to
+     * {@link #refresh(int)}. For example, to get a frame rate of 50 frames per
+     * second, use a <code>waitTime</code> of <code>1000 / 50 = 20</code>
+     * milliseconds:
+     * <pre>
+     * while(window.isOpen()) {
+     *     ...
+     *     window.refresh(20);
+     * }
+     * </pre>
+     * 
+     * In addition, this method also clears the <code>was...Pressed()</code> and
+     * <code>was...Clicked()</code> input events.
+     */
+    public void refresh(int waitTime) {
+        refresh(waitTime, true);
+    }
     
     /**
-     * Displays the current content of the canvas and then clears the canvas for
-     * the next iteration. To achieve a constant time interval between iterations,
-     * this method does not return until the given <code>waitTime</code> (in milliseconds)
-     * has elapsed since the last call to {@link #refresh(int)}. For example, to
-     * get a frame rate of 50 frames per second, use a <code>waitTime</code> of
+     * Displays the current content of the canvas. If <code>clearCanvas</code> is
+     * <code>true</code>, then the canvas is cleared for the next iteration. To
+     * achieve a constant time interval between iterations, this method does not
+     * return until the given <code>waitTime</code> (in milliseconds) has elapsed
+     * since the last call to {@link #refresh(int)}. For example, to get a frame
+     * rate of 50 frames per second, use a <code>waitTime</code> of
      * <code>1000 / 50 = 20</code> milliseconds:
      * <pre>
      * while(window.isOpen()) {
@@ -295,16 +319,25 @@ public class Window {
      *     window.refresh(20);
      * }
      * </pre>
+     * 
      * In addition, this method also clears the <code>was...Pressed()</code> and
      * <code>was...Clicked()</code> input events.
      */
-    public void refresh(int waitTime) {
-        synchronized(this) {
-            BufferedImage newCanvas = snapshot;
-            snapshot = canvas;
-            canvas = newCanvas;
+    public void refresh(int waitTime, boolean clearCanvas) {
+        if(clearCanvas) {
+            synchronized(this) {
+                BufferedImage newCanvas = snapshot;
+                snapshot = canvas;
+                canvas = newCanvas;
+            }
+            clear(canvas);
+        } else {
+            synchronized(this) {
+                Graphics g = snapshot.getGraphics();
+                g.drawImage(canvas, 0, 0, null);
+                g.dispose();
+            }
         }
-        clear(canvas);
         
         while(true) {
             long sleepTime = (waitTime - (System.currentTimeMillis() - lastRefreshTime)) / 2;
