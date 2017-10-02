@@ -10,7 +10,6 @@ import static java.awt.RenderingHints.KEY_STROKE_CONTROL;
 import static java.awt.RenderingHints.VALUE_ANTIALIAS_ON;
 import static java.awt.RenderingHints.VALUE_STROKE_PURE;
 import static java.awt.Toolkit.getDefaultToolkit;
-import static java.awt.event.KeyEvent.getKeyText;
 import static java.awt.geom.AffineTransform.getScaleInstance;
 import static java.awt.geom.AffineTransform.getTranslateInstance;
 import static java.awt.image.AffineTransformOp.TYPE_NEAREST_NEIGHBOR;
@@ -44,6 +43,7 @@ import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -88,6 +88,23 @@ import javax.swing.SwingUtilities;
  * coordinate system may correspond to multiple actual pixels on the monitor.
  */
 public class Window {
+    
+    private static final Set<String> legalKeyTexts = new HashSet<>();
+    private static final Map<Integer, String> code2text = new HashMap<>();
+    
+    static {
+        for(Field field : KeyEvent.class.getFields()) {
+            String name = field.getName();
+            if(name.startsWith("VK_")) {
+                String text = name.substring(3).toLowerCase();
+                try {
+                    int code = field.getInt(KeyEvent.class);
+                    legalKeyTexts.add(text);
+                    code2text.put(code, text);
+                } catch(Exception e) {}
+            }
+        }
+    }
     
     private static final int MIN_WIDTH = 200;
     private static final int MIN_HEIGHT = 100;
@@ -762,9 +779,11 @@ public class Window {
     private static class KeyInput extends Input {
         String key;
         KeyInput(KeyEvent e) {
-           this(getKeyText(e.getKeyCode()));
+           this(code2text.get(e.getKeyCode()));
         }
         KeyInput(String keyText) {
+            if(!legalKeyTexts.contains(keyText.toLowerCase()))
+                throw new IllegalArgumentException("key \"" + keyText + "\" does not exist");
             this.key = keyText.toLowerCase();
         }
         public int hashCode() {
