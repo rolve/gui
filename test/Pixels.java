@@ -4,7 +4,7 @@ public class Pixels {
         for(int x = 0; x < 255; x++) {
             for(int y = 0; y < 255; y++) {
                 window.setColor(127, x, y);
-                window.setPixel(x, y);
+                window.fillRect(x, y, 1, 1);
             }
         }
         window.open();

@@ -485,18 +485,6 @@ public class Window {
     }
     
     /**
-     * Sets the color of the pixel at the given coordinates to
-     * the current drawing {@linkplain #getColor() color}.
-     */
-    public void setPixel(int x, int y) {
-        if(pixelScale == 1)
-            // probably more efficient than fillRect():
-            canvas.setRGB(x, y, color.toRgbInt());
-        else
-            fillRect(x, y, 1, 1);
-    }
-    
-    /**
      * Draws the outline of a rectangle with the upper-left corner at
      * (<code>x</code>, <code>y</code>) and the given <code>width</code>
      * and <code>height</code>. The current {@linkplain #getColor() color}
