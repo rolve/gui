@@ -251,6 +251,9 @@ public class Window {
             frame.pack();
             frame.setLocationRelativeTo(null); // center
             frame.setVisible(true);
+            frame.setAlwaysOnTop(true);
+            frame.toFront();
+            frame.setAlwaysOnTop(false);
         });
     }
     
