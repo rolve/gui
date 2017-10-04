@@ -10,7 +10,7 @@ public class Recursion {
 		time = 0;
 		while (window.isOpen()) {
 			drawTree(SIZE / 2, SIZE, 100, Math.PI / 2);
-			window.refresh(20);
+			window.refreshAndClear(20);
 			time++;
 		}
 	}

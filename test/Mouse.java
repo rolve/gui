@@ -24,7 +24,7 @@ public class Mouse {
             window.drawLine(window.getMouseX(), window.getMouseY(), x, y);
             window.fillOval(x - size/2, y - size/2, size + 1, size + 1);
             window.drawString((int) x + ", " + (int) y, x, y - size/2 - size/10 - 2);
-            window.refresh(20);
+            window.refreshAndClear(20);
         }
     }
 }

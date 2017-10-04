@@ -31,7 +31,7 @@ public class Keys {
             
             window.drawString(window.getPressedKeys().toString(), 20, 50);
             
-            window.refresh(20);
+            window.refreshAndClear(20);
         }
     }
 }

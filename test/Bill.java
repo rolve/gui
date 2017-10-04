@@ -83,7 +83,7 @@ public class Bill {
             window.setColor(200, 200, 0);
             window.drawString("Highscore: " + highscore, 10, 45);
             
-            window.refresh(20);
+            window.refreshAndClear(20);
             t++;
         }
     }

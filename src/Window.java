@@ -281,12 +281,10 @@ public class Window {
                 Thread.sleep((long) 50);
             } catch (InterruptedException e) {}
     }
-
+    
     /**
-     * Displays the current content of the canvas and then clears the canvas for the
-     * next iteration. (This is the same as calling
-     * <code>refresh(waitTime, true)</code>.) To achieve a constant time interval
-     * between iterations, this method does not return until the given
+     * Displays the current content of the canvas. To achieve a constant time
+     * interval between iterations, this method does not return until the given
      * <code>waitTime</code> (in milliseconds) has elapsed since the last call to
      * {@link #refresh(int)}. For example, to get a frame rate of 50 frames per
      * second, use a <code>waitTime</code> of <code>1000 / 50 = 20</code>
@@ -300,31 +298,37 @@ public class Window {
      * 
      * In addition, this method also clears the <code>was...Pressed()</code> and
      * <code>was...Clicked()</code> input events.
+     * 
+     * @see #refreshAndClear(int)
      */
     public void refresh(int waitTime) {
-        refresh(waitTime, true);
+        refresh(waitTime, false);
     }
     
     /**
-     * Displays the current content of the canvas. If <code>clearCanvas</code> is
-     * <code>true</code>, then the canvas is cleared for the next iteration. To
-     * achieve a constant time interval between iterations, this method does not
-     * return until the given <code>waitTime</code> (in milliseconds) has elapsed
-     * since the last call to {@link #refresh(int)}. For example, to get a frame
-     * rate of 50 frames per second, use a <code>waitTime</code> of
-     * <code>1000 / 50 = 20</code> milliseconds:
+     * Displays the current content of the canvas and then clears the canvas for the
+     * next iteration. Call this method instead of {@link #refresh(int)} if every
+     * frame is drawn from scratch. To achieve a constant time interval between
+     * iterations, this method does not return until the given <code>waitTime</code>
+     * (in milliseconds) has elapsed since the last call to {@link #refresh(int)}.
+     * For example, to get a frame rate of 50 frames per second, use a
+     * <code>waitTime</code> of <code>1000 / 50 = 20</code> milliseconds:
      * <pre>
      * while(window.isOpen()) {
      *     ...
-     *     window.refresh(20);
+     *     window.refreshAndClear(20);
      * }
      * </pre>
      * 
      * In addition, this method also clears the <code>was...Pressed()</code> and
      * <code>was...Clicked()</code> input events.
      */
-    public void refresh(int waitTime, boolean clearCanvas) {
-        if(clearCanvas) {
+    public void refreshAndClear(int waitTime) {
+        refresh(waitTime, true);
+    }
+    
+    private void refresh(int waitTime, boolean clear) {
+        if(clear) {
             synchronized(this) {
                 BufferedImage newCanvas = snapshot;
                 snapshot = canvas;
@@ -639,14 +643,6 @@ public class Window {
             }
         }
         return images.get(imagePath);
-    }
-    
-    /**
-     * Fills the whole canvas with the current {@linkplain #getColor() color}.
-     */
-    public void fill() {
-        Dimension size = getDefaultToolkit().getScreenSize();
-        withGraphics(g -> g.fillRect(0, 0, size.width, size.height));
     }
     
     /**
