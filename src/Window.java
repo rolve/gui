@@ -47,6 +47,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -139,7 +140,10 @@ public class Window {
     private volatile double height;
     
     private long lastRefreshTime = 0;
-   
+
+    private final Set<Hoverable> hovered = new HashSet<>();
+    private final Set<Component> components = new LinkedHashSet<>();
+
     /**
      * Create a new window with the specified title, width, and height.
      */
@@ -356,6 +360,8 @@ public class Window {
     }
     
     private void refresh(int waitTime, boolean clear) {
+        runComponents();
+        
         if(clear) {
             synchronized(this) {
                 BufferedImage newCanvas = snapshot;
@@ -390,6 +396,41 @@ public class Window {
             pressedSnapshot.addAll(pressedInputs);
             releasedSnapshot.addAll(releasedInputs);
             releasedInputs.clear();
+        }
+    }
+    
+    private void runComponents() {
+        double mx = mouseX;
+        double my = mouseY;
+        for(Component comp : components) {
+            if(comp instanceof Hoverable) {
+                Hoverable h = (Hoverable) comp;
+                if(h.getBoundingBox().contains(mx, my) && hovered.add(h))
+                    h.onMouseEnter();
+                else if(!h.getBoundingBox().contains(mx, my) && hovered.remove(h))
+                    h.onMouseExit();
+            }
+        }
+        boolean leftClicked = wasLeftMouseButtonClicked();
+        boolean rightClicked = wasRightMouseButtonClicked();
+        if(leftClicked || rightClicked) {
+            for(Component comp : components) {
+                if(comp instanceof Clickable) {
+                    Clickable c = (Clickable) comp;
+                    if(c.getBoundingBox().contains(mx, my)) {
+                        if(leftClicked)
+                            c.onLeftClick(mx, my);
+                        if(rightClicked)
+                            c.onRightClick(mx, my);
+                    }
+                }
+            }
+        }
+        for(Component comp : components) {
+            if(comp instanceof Drawable) {
+                Drawable d = (Drawable) comp;
+                d.draw(this);
+            }
         }
     }
     
@@ -434,7 +475,15 @@ public class Window {
     public double getHeight() {
         return height;
     }
-    
+
+    public void addComponent(Component component) {
+        components.add(component);
+    }
+
+    public void removeComponent(Component component) {
+        components.remove(component);
+    }
+
     /*
      * Painting
      */
@@ -908,4 +957,41 @@ final class Color {
         Color other = (Color) obj;
         return r == other.r && g == other.g && b == other.b;
     }
+}
+
+/*
+ * Component classes
+ */
+
+class Rectangle {
+    final double x, y, width, height;
+    public Rectangle(double x, double y, double width, double height) {
+        this.x = x;
+        this.y = y;
+        this.width = width;
+        this.height = height;
+    }
+    public boolean contains(double px, double py) {
+        return px >= x && py >= y && px <= x + width && py <= y + height;
+    }
+}
+
+interface Component {}
+
+interface Drawable extends Component {
+    void draw(Window window);
+}
+
+interface Interactive extends Component {
+    Rectangle getBoundingBox();
+}
+
+interface Hoverable extends Interactive {
+    void onMouseEnter();
+    void onMouseExit();
+}
+
+interface Clickable extends Interactive {
+    void onLeftClick(double x, double y);
+    void onRightClick(double x, double y);
 }
