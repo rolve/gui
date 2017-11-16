@@ -17,6 +17,7 @@ import static java.awt.image.BufferedImage.TYPE_INT_RGB;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 import static java.lang.Math.round;
+import static java.util.Collections.newSetFromMap;
 import static java.util.Collections.singletonMap;
 import static java.util.stream.Collectors.toList;
 import static javax.swing.SwingUtilities.invokeAndWait;
@@ -45,9 +46,10 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedHashSet;
+import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -141,8 +143,8 @@ public class Window {
     
     private long lastRefreshTime = 0;
 
-    private final Set<Hoverable> hovered = new HashSet<>();
-    private final Set<Component> components = new LinkedHashSet<>();
+    private final Set<Hoverable> hovered = newSetFromMap(new IdentityHashMap<>());
+    private final List<Component> components = new ArrayList<Component>();
 
     /**
      * Create a new window with the specified title, width, and height.
@@ -476,12 +478,37 @@ public class Window {
         return height;
     }
 
+    /**
+     * Adds <code>component</code> to this window. Whenever one of the
+     * {@link #refresh()} methods is called, first the events for
+     * {@link Interactive} components (e.g. {@link Hoverable#onMouseEnter()
+     * onMouseEnter()}) are fired and then {@link Drawable} components are drawn.
+     * 
+     * @throws IllegalArgumentException
+     *             if <code>component</code> is <code>null</code> or already added.
+     * @see #removeComponent(Component)
+     */
     public void addComponent(Component component) {
+        if(component == null)
+            throw new IllegalArgumentException("component must not be null");
+        if(components.stream().anyMatch(c -> c == component))
+            throw new IllegalArgumentException("component already added");
         components.add(component);
     }
 
+    /**
+     * Removes <code>component</code> from this window.
+     * 
+     * @throws IllegalArgumentException
+     *             if <code>component</code> is <code>null</code> not previously
+     *             added.
+     * @see #addComponent(Component)
+     */
     public void removeComponent(Component component) {
-        components.remove(component);
+        if(component == null)
+            throw new IllegalArgumentException("component must not be null");
+        if(!components.remove(component))
+            throw new IllegalArgumentException("component not present");
     }
 
     /*
