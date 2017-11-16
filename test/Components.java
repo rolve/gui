@@ -54,11 +54,13 @@ class Greeting implements Drawable, Hoverable {
     @Override
     public void onMouseEnter() {
         text = "World!";
+        x += 10;
     }
 
     @Override
     public void onMouseExit() {
         text = "Hello";
+        x -= 5;
     }
 
     @Override
