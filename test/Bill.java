@@ -3,6 +3,8 @@ import static java.lang.Math.max;
 
 import java.util.Random;
 
+import gui.Window;
+
 public class Bill {
 
     private static final int width = 658;

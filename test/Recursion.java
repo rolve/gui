@@ -1,3 +1,5 @@
+import gui.Window;
+
 public class Recursion {
 
     private static final int SIZE = 500;

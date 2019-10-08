@@ -1,6 +1,8 @@
 import static java.lang.Math.cos;
 import static java.lang.Math.sin;
 
+import gui.Window;
+
 public class Keys {
 
     public static void main(String[] args) {

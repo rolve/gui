@@ -1,3 +1,5 @@
+import gui.Window;
+
 public class Pixels {
     public static void main(String[] args) {
         Window window = new Window("Pixels", 255, 255);

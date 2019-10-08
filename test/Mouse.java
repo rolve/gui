@@ -1,5 +1,7 @@
 import static java.lang.Math.max;
 
+import gui.Window;
+
 public class Mouse {
 
     public static void main(String[] args) {

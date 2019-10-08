@@ -1,5 +1,12 @@
 import static java.lang.Math.max;
 
+import gui.Color;
+import gui.Window;
+import gui.component.Clickable;
+import gui.component.Drawable;
+import gui.component.Hoverable;
+import gui.component.Rectangle;
+
 public class Components {
 
     public static void main(String[] args) {
