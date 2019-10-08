@@ -1,5 +1,5 @@
 public class Simple {
-    
+
     public static void main(String[] args) {
         Window window = new Window("Simple", 500, 300);
         window.setColor(255, 0, 0);

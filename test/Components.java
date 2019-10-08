@@ -10,9 +10,9 @@ public class Components {
         window.addComponent(new ClickySquare(50, 50, 50));
         window.addComponent(new ClickySquare(200, 50, 70));
         window.addComponent(new Greeting(300, 100));
-        
+
         window.open();
-        while(window.isOpen()) {
+        while (window.isOpen()) {
             window.refreshAndClear(20);
         }
     }
@@ -27,7 +27,7 @@ class GreenCircle implements Drawable {
         this.x = x;
         this.y = y;
     }
-    
+
     @Override
     public void draw(Window window) {
         window.setColor(0, 180, 0);
@@ -36,7 +36,7 @@ class GreenCircle implements Drawable {
 }
 
 class Greeting implements Drawable, Hoverable {
-    
+
     private String text = "Hello";
     private double x;
     private double y;
