@@ -96,6 +96,8 @@ public class Window {
     private static final Map<Integer, String> code2text = new HashMap<>();
     
     static {
+        System.setProperty("sun.java2d.uiScale.enabled", "false");
+        
         for(Field field : KeyEvent.class.getFields()) {
             String name = field.getName();
             if(name.startsWith("VK_")) {
