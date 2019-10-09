@@ -25,6 +25,7 @@ import static javax.swing.SwingUtilities.invokeLater;
 
 import java.awt.BasicStroke;
 import java.awt.Dimension;
+import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.event.ComponentAdapter;
@@ -665,6 +666,19 @@ public class Window {
      */
     public void drawString(String string, double x, double y) {
         withGraphics(g -> g.drawString(string, (float) toNative(x), (float) toNative(y)));
+    }
+
+    /**
+     * Draw the given string with the current {@linkplain #getColor() color}. The
+     * <em>center</em> of the baseline is at position (<code>x</code>,
+     * <code>y</code>).
+     */
+    public void drawStringCentered(String string, double x, double y) {
+        withGraphics(g -> {
+            FontMetrics metrics = g.getFontMetrics();
+            int width = metrics.stringWidth(string);
+            g.drawString(string, (float) toNative(x) - width / 2, (float) toNative(y));
+        });
     }
 
     /**
