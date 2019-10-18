@@ -27,4 +27,18 @@
             </plugin>
         </plugins>
     </build>
+
+    <organization>
+        <name>ETH Zurich, Michael Faes</name>
+    </organization>
+    <inceptionYear>2017</inceptionYear>
+    <developers>
+        <developer>
+            <name>Michael Faes</name>
+            <email>rolve@trick17.ch</email>
+        </developer>
+        <developer>
+            <name>Remi Meier</name>
+        </developer>
+    </developers>
 </project>
