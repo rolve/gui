@@ -597,7 +597,7 @@ public class Window {
     }
 
     /**
-     * Sets the font size for subsequent {@link #drawString(String, int, int)}
+     * Sets the font size for subsequent {@link #drawString(String, double, double)}
      * operations, in points. The default font size is 11 points.
      */
     public void setFontSize(int fontSize) {
@@ -613,7 +613,7 @@ public class Window {
 
     /**
      * If <code>bold</code> is <code>true</code>, subsequent
-     * {@link #drawString(String, int, int)} operations will use a bold font.
+     * {@link #drawString(String, double, double)} operations will use a bold font.
      */
     public void setBold(boolean bold) {
         this.bold = bold;
@@ -888,7 +888,7 @@ public class Window {
      * {@link #getMouseX()} and {@link #getMouseY()} to get the current mouse
      * position.
      *
-     * @see #isRightMouseButtonClicked()
+     * @see #wasRightMouseButtonClicked()
      */
     public boolean wasLeftMouseButtonClicked() {
         return releasedSnapshot.contains(new MouseInput(true));
@@ -899,7 +899,7 @@ public class Window {
      * {@link #getMouseX()} and {@link #getMouseY()} to get the current mouse
      * position.
      *
-     * @see #isLeftMouseButtonClicked()
+     * @see #wasLeftMouseButtonClicked()
      */
     public boolean wasRightMouseButtonClicked() {
         return releasedSnapshot.contains(new MouseInput(false));
