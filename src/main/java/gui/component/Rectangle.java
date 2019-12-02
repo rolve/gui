@@ -5,7 +5,7 @@ package gui.component;
  * the interactive area of a component.
  */
 public class Rectangle {
-    final double x, y, width, height;
+    public final double x, y, width, height;
 
     public Rectangle(double x, double y, double width, double height) {
         this.x = x;
