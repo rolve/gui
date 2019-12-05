@@ -432,9 +432,9 @@ public class Window {
         for (Component comp : components) {
             if (comp instanceof Hoverable) {
                 Hoverable h = (Hoverable) comp;
-                if (h.getBoundingBox().contains(mx, my) && hovered.add(h)) {
+                if (h.getBoundingBox(this).contains(mx, my) && hovered.add(h)) {
                     h.onMouseEnter();
-                } else if (!h.getBoundingBox().contains(mx, my) && hovered.remove(h)) {
+                } else if (!h.getBoundingBox(this).contains(mx, my) && hovered.remove(h)) {
                     h.onMouseExit();
                 }
             }
@@ -445,7 +445,7 @@ public class Window {
             for (Component comp : components) {
                 if (comp instanceof Clickable) {
                     Clickable c = (Clickable) comp;
-                    if (c.getBoundingBox().contains(mx, my)) {
+                    if (c.getBoundingBox(this).contains(mx, my)) {
                         if (leftClicked) {
                             c.onLeftClick(mx, my);
                         }
