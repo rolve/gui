@@ -302,15 +302,38 @@ public class Window {
     }
 
     /**
-     * This method returns only once the window is closed by the user (or if it was
-     * not open in the first place). More precisely, this method returns, as soon as
-     * {@link #isOpen()} returns <code>true</code>.
+     * This method waits until the window is closed by the user (or if it was
+     * not open in the first place). More precisely, this method returns as soon
+     * as {@link #isOpen()} returns <code>true</code>.
      */
     public void waitUntilClosed() {
         while (isOpen()) {
             try {
                 Thread.sleep(50);
             } catch (InterruptedException e) {}
+        }
+    }
+
+    /**
+     * Repeatedly runs all the {@linkplain #addComponent(Component) registered}
+     * components by {@linkplain #refreshAndClear() refreshing and clearing}
+     * until the window is closed by the user.
+     * 
+     * @see #runUntilClosed(int)
+     */
+    public void runUntilClosed() {
+        runUntilClosed(0);
+    }
+
+    /**
+     * Repeatedly runs all the {@linkplain #addComponent(Component) registered}
+     * components by {@linkplain #refreshAndClear(int) refreshing and clearing}
+     * until the window is closed by the user. Waits <code>waitTime</code>
+     * milliseconds between iterations.
+     */
+    public void runUntilClosed(int waitTime) {
+        while (isOpen()) {
+            refreshAndClear(waitTime);
         }
     }
 

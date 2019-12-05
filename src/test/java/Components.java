@@ -19,9 +19,7 @@ public class Components {
         window.addComponent(new Greeting(300, 100));
 
         window.open();
-        while (window.isOpen()) {
-            window.refreshAndClear(20);
-        }
+        window.runUntilClosed(20);
     }
 }
 
@@ -54,7 +52,7 @@ class Greeting implements Drawable, Hoverable {
     }
 
     @Override
-    public Rectangle getBoundingBox() {
+    public Rectangle getBoundingBox(Window window) {
         return new Rectangle(x, y, 70, 30);
     }
 
@@ -102,7 +100,7 @@ class ClickySquare implements Drawable, Hoverable, Clickable {
     }
 
     @Override
-    public Rectangle getBoundingBox() {
+    public Rectangle getBoundingBox(Window window) {
         return new Rectangle(x, y, size, size);
     }
 
