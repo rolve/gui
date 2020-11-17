@@ -23,4 +23,20 @@ public class Rectangle implements Shape {
     public boolean contains(double px, double py) {
         return px >= x && py >= y && px <= x + width && py <= y + height;
     }
+
+    public double getX() {
+        return x;
+    }
+
+    public double getY() {
+        return y;
+    }
+
+    public double getWidth() {
+        return width;
+    }
+
+    public double getHeight() {
+        return height;
+    }
 }
