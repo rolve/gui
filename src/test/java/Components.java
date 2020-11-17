@@ -52,7 +52,7 @@ class Greeting implements Drawable, Hoverable {
     }
 
     @Override
-    public Rectangle getBoundingBox(Window window) {
+    public Rectangle getInteractiveArea(Window window) {
         return new Rectangle(x, y, 70, 30);
     }
 
@@ -100,7 +100,7 @@ class ClickySquare implements Drawable, Hoverable, Clickable {
     }
 
     @Override
-    public Rectangle getBoundingBox(Window window) {
+    public Rectangle getInteractiveArea(Window window) {
         return new Rectangle(x, y, size, size);
     }
 

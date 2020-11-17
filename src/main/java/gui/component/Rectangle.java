@@ -1,12 +1,18 @@
 package gui.component;
 
 /**
- * A simple 2D rectangle. Used by {@link Interactive#getBoundingBox()} to define
- * the interactive area of a component.
+ * A simple 2D rectangle that can be used as the
+ * {@linkplain Interactive#getInteractiveArea(gui.Window) interactive area} of a
+ * component.
  */
-public class Rectangle {
-    public final double x, y, width, height;
+public class Rectangle implements Shape {
 
+    private final double x, y, width, height;
+
+    /**
+     * Creates a rectangle of size (width, height) with the upper left corner at
+     * coordinate (x, y).
+     */
     public Rectangle(double x, double y, double width, double height) {
         this.x = x;
         this.y = y;
