@@ -28,6 +28,13 @@
         </plugins>
     </build>
 
+    <distributionManagement>
+        <repository>
+            <id>gitlab.com</id>
+            <url>https://gitlab.com/api/v4/projects/30441174/packages/maven</url>
+        </repository>
+    </distributionManagement>
+
     <organization>
         <name>ETH Zurich, Michael Faes</name>
     </organization>
