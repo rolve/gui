@@ -1,0 +1,19 @@
+image: maven:3-openjdk-8
+
+variables:
+  MVN_REPO: $CI_PROJECT_DIR/maven-repo
+
+cache:
+  paths:
+    - $MVN_REPO/
+
+test:
+  script:
+    - mvn install -B -Dmaven.repo.local=$MVN_REPO
+
+deploy:
+  stage: deploy
+  script:
+    - mvn deploy -B -DskipTests -s ci_settings.xml -Dmaven.repo.local=$MVN_REPO
+  only:
+    - master
