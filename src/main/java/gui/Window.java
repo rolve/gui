@@ -12,9 +12,7 @@ import static java.awt.RenderingHints.KEY_STROKE_CONTROL;
 import static java.awt.RenderingHints.VALUE_ANTIALIAS_ON;
 import static java.awt.RenderingHints.VALUE_STROKE_PURE;
 import static java.awt.Toolkit.getDefaultToolkit;
-import static java.awt.geom.AffineTransform.getScaleInstance;
 import static java.awt.geom.AffineTransform.getTranslateInstance;
-import static java.awt.image.AffineTransformOp.TYPE_NEAREST_NEIGHBOR;
 import static java.awt.image.BufferedImage.TYPE_INT_RGB;
 import static java.lang.Math.round;
 import static java.util.Collections.newSetFromMap;
@@ -40,7 +38,6 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Line2D;
 import java.awt.geom.Rectangle2D;
-import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
 import java.io.File;
@@ -112,8 +109,6 @@ public class Window {
     private static final Map<Integer, String> code2text = new HashMap<>();
 
     static {
-        System.setProperty("sun.java2d.uiScale.enabled", "false");
-
         for (Field field : KeyEvent.class.getFields()) {
             String name = field.getName();
             if (name.startsWith("VK_")) {
@@ -132,7 +127,6 @@ public class Window {
 
     private final JFrame frame;
     private final JPanel panel;
-    private final int pixelScale = (int) round(getDefaultToolkit().getScreenResolution() / 96.0);
 
     private BufferedImage canvas;
     private BufferedImage snapshot;
@@ -174,7 +168,7 @@ public class Window {
         frame = new JFrame();
         frame.setTitle(title);
         frame.setResizable(false);
-        frame.setMinimumSize(new Dimension((int) toNative(MIN_WIDTH), (int) toNative(MIN_HEIGHT)));
+        frame.setMinimumSize(new Dimension((int) MIN_WIDTH, (int) MIN_HEIGHT));
 
         panel = new JPanel() {
             @Override
@@ -184,7 +178,7 @@ public class Window {
                 }
             }
         };
-        Dimension size = new Dimension((int) toNative(width), (int) toNative(height));
+        Dimension size = new Dimension((int) width, (int) height);
         panel.setSize(size);
         panel.setPreferredSize(size);
         panel.addMouseListener(new MouseAdapter() {
@@ -207,8 +201,8 @@ public class Window {
         panel.addMouseMotionListener(new MouseAdapter() {
             @Override
             public void mouseMoved(MouseEvent e) {
-                mouseX = toUser(e.getX());
-                mouseY = toUser(e.getY());
+                mouseX = e.getX();
+                mouseY = e.getY();
             }
 
             @Override
@@ -216,16 +210,16 @@ public class Window {
                 int x = e.getX();
                 int y = e.getY();
                 if (x >= 0 && x < width && y >= 0 && y < height) {
-                    mouseX = toUser(x);
-                    mouseY = toUser(y);
+                    mouseX = x;
+                    mouseY = y;
                 }
             }
         });
         panel.addComponentListener(new ComponentAdapter() {
             @Override
             public void componentResized(ComponentEvent e) {
-                Window.this.width = toUser(panel.getWidth());
-                Window.this.height = toUser(panel.getHeight());
+                Window.this.width = panel.getWidth();
+                Window.this.height = panel.getHeight();
             }
         });
         frame.addKeyListener(new KeyAdapter() {
@@ -649,7 +643,7 @@ public class Window {
      * {@linkplain #getStrokeWidth() stroke width} are used.
      */
     public void drawRect(double x, double y, double width, double height) {
-        withGraphics(g -> g.draw(new Rectangle2D.Double(toNative(x), toNative(y), toNative(width), toNative(height))));
+        withGraphics(g -> g.draw(new Rectangle2D.Double(x, y, width, height)));
     }
 
     /**
@@ -660,7 +654,7 @@ public class Window {
      * width} are used.
      */
     public void drawOval(double x, double y, double width, double height) {
-        withGraphics(g -> g.draw(new Ellipse2D.Double(toNative(x), toNative(y), toNative(width), toNative(height))));
+        withGraphics(g -> g.draw(new Ellipse2D.Double(x, y, width, height)));
     }
 
     /**
@@ -679,7 +673,7 @@ public class Window {
      * {@linkplain #getStrokeWidth() stroke width} are used.
      */
     public void drawLine(double x1, double y1, double x2, double y2) {
-        withGraphics(g -> g.draw(new Line2D.Double(toNative(x1), toNative(y1), toNative(x2), toNative(y2))));
+        withGraphics(g -> g.draw(new Line2D.Double(x1, y1, x2, y2)));
     }
 
     /**
@@ -688,7 +682,7 @@ public class Window {
      * <code>y</code>).
      */
     public void drawString(String string, double x, double y) {
-        withGraphics(g -> g.drawString(string, (float) toNative(x), (float) toNative(y)));
+        withGraphics(g -> g.drawString(string, (float) x, (float) y));
     }
 
     /**
@@ -700,7 +694,7 @@ public class Window {
         withGraphics(g -> {
             FontMetrics metrics = g.getFontMetrics();
             int width = metrics.stringWidth(string);
-            g.drawString(string, (float) toNative(x) - width / 2, (float) toNative(y));
+            g.drawString(string, (float) x - width / 2, (float) y);
         });
     }
 
@@ -717,7 +711,7 @@ public class Window {
      */
     public void drawImage(String path, double x, double y) {
         ensureLoaded(path);
-        withGraphics(g -> g.drawImage(scaledImages.get(path), getTranslateInstance(toNative(x), toNative(y)), null));
+        withGraphics(g -> g.drawImage(scaledImages.get(path), getTranslateInstance(x, y), null));
     }
 
     /**
@@ -729,7 +723,7 @@ public class Window {
     public void drawImageCentered(String path, double x, double y) {
         ensureLoaded(path);
         BufferedImage img = scaledImages.get(path);
-        withGraphics(g -> g.drawImage(img, getTranslateInstance(toNative(x) - img.getWidth()/2, toNative(y) - img.getHeight()/2), null));
+        withGraphics(g -> g.drawImage(img, getTranslateInstance(x - img.getWidth()/2, y - img.getHeight()/2), null));
     }
 
     /**
@@ -760,8 +754,8 @@ public class Window {
         ensureLoaded(path);
         BufferedImage image = images.get(path);
         AffineTransform transform = new AffineTransform();
-        transform.translate(toNative(x), toNative(y));
-        transform.scale(scale * pixelScale, scale * pixelScale);
+        transform.translate(x, y);
+        transform.scale(scale, scale);
         transform.rotate(angle, image.getWidth() / 2, image.getHeight() / 2);
         withGraphics(g -> g.drawImage(image, transform, null));
     }
@@ -778,9 +772,9 @@ public class Window {
         ensureLoaded(path);
         BufferedImage image = images.get(path);
         AffineTransform transform = new AffineTransform();
-        transform.translate(toNative(x) - image.getWidth() / 2 * pixelScale * scale,
-                toNative(y) - image.getHeight() / 2 * pixelScale * scale);
-        transform.scale(scale * pixelScale, scale * pixelScale);
+        transform.translate(x - image.getWidth() / 2 * scale,
+                            y - image.getHeight() / 2 * scale);
+        transform.scale(scale, scale);
         transform.rotate(angle, image.getWidth() / 2, image.getHeight() / 2);
         withGraphics(g -> g.drawImage(image, transform, null));
     }
@@ -793,15 +787,7 @@ public class Window {
                     throw new Error("could not load image \"" + imagePath + "\"");
                 }
                 images.put(imagePath, image);
-
-                BufferedImage scaled;
-                if (pixelScale == 1) {
-                    scaled = image;
-                } else {
-                    AffineTransformOp op = new AffineTransformOp(getScaleInstance(pixelScale, pixelScale), TYPE_NEAREST_NEIGHBOR);
-                    scaled = op.filter(image, null);
-                }
-                scaledImages.put(imagePath, scaled);
+                scaledImages.put(imagePath, image);
             } catch (IOException e) {
                 throw new Error("could not load image \"" + imagePath + "\"", e);
             }
@@ -815,7 +801,7 @@ public class Window {
      * the current {@linkplain #getColor() color}.
      */
     public void fillRect(double x, double y, double width, double height) {
-        withGraphics(g -> g.fill(new Rectangle2D.Double(toNative(x), toNative(y), toNative(width), toNative(height))));
+        withGraphics(g -> g.fill(new Rectangle2D.Double(x, y, width, height)));
     }
 
     /**
@@ -824,7 +810,7 @@ public class Window {
      * <code>y</code>) and the given <code>width</code> and <code>height</code>
      */
     public void fillOval(double x, double y, double width, double height) {
-        withGraphics(g -> g.fill(new Ellipse2D.Double(toNative(x), toNative(y), toNative(width), toNative(height))));
+        withGraphics(g -> g.fill(new Ellipse2D.Double(x, y, width, height)));
     }
 
     /**
@@ -841,9 +827,9 @@ public class Window {
         g.addRenderingHints(singletonMap(KEY_STROKE_CONTROL, VALUE_STROKE_PURE));
         g.addRenderingHints(singletonMap(KEY_ANTIALIASING, VALUE_ANTIALIAS_ON));
         g.setColor(new java.awt.Color(color.r, color.g, color.b));
-        g.setStroke(new BasicStroke((float) (toNative(strokeWidth)), roundStroke ? CAP_ROUND : CAP_BUTT,
+        g.setStroke(new BasicStroke((float) strokeWidth, roundStroke ? CAP_ROUND : CAP_BUTT,
                 roundStroke ? JOIN_ROUND : JOIN_MITER));
-        g.setFont(g.getFont().deriveFont(bold ? BOLD : PLAIN, (float) toNative(fontSize)));
+        g.setFont(g.getFont().deriveFont(bold ? BOLD : PLAIN, (float) fontSize));
         command.accept(g);
         g.dispose();
     }
@@ -952,22 +938,6 @@ public class Window {
         } catch (InvocationTargetException e) {
             throw new Error(e);
         } catch (InterruptedException e) {}
-    }
-
-    /**
-     * Converts the given number of "user space" pixels to native pixels (for
-     * high-DPI displays).
-     */
-    private double toNative(double pixels) {
-        return pixels * pixelScale;
-    }
-
-    /**
-     * Converts the given number of native pixels to "user space" pixels (for
-     * high-DPI displays).
-     */
-    private double toUser(double pixels) {
-        return pixels / pixelScale;
     }
 
     private static class Input {}
