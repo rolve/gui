@@ -283,6 +283,7 @@ public class Window {
      * Closes the window.
      */
     public void close() {
+        open = false;
         run(() -> frame.setVisible(false));
     }
 
