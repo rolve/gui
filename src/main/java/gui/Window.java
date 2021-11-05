@@ -1,39 +1,12 @@
 package gui;
 
-import static java.awt.BasicStroke.CAP_BUTT;
-import static java.awt.BasicStroke.CAP_ROUND;
-import static java.awt.BasicStroke.JOIN_MITER;
-import static java.awt.BasicStroke.JOIN_ROUND;
-import static java.awt.Color.WHITE;
-import static java.awt.Font.BOLD;
-import static java.awt.Font.PLAIN;
-import static java.awt.RenderingHints.KEY_ANTIALIASING;
-import static java.awt.RenderingHints.KEY_STROKE_CONTROL;
-import static java.awt.RenderingHints.VALUE_ANTIALIAS_ON;
-import static java.awt.RenderingHints.VALUE_STROKE_PURE;
-import static java.awt.Toolkit.getDefaultToolkit;
-import static java.awt.geom.AffineTransform.getTranslateInstance;
-import static java.awt.image.BufferedImage.TYPE_INT_RGB;
-import static java.lang.Math.round;
-import static java.util.Collections.newSetFromMap;
-import static java.util.Collections.singletonMap;
-import static java.util.stream.Collectors.toList;
-import static javax.swing.SwingUtilities.invokeAndWait;
-import static javax.swing.SwingUtilities.invokeLater;
+import gui.component.Component;
+import gui.component.*;
 
-import java.awt.BasicStroke;
-import java.awt.Dimension;
-import java.awt.FontMetrics;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
+import javax.imageio.ImageIO;
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Line2D;
@@ -44,25 +17,23 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.IdentityHashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Consumer;
 
-import javax.imageio.ImageIO;
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.SwingUtilities;
-
-import gui.component.Clickable;
-import gui.component.Component;
-import gui.component.Drawable;
-import gui.component.Hoverable;
-import gui.component.Interactive;
+import static java.awt.BasicStroke.*;
+import static java.awt.Color.WHITE;
+import static java.awt.Font.BOLD;
+import static java.awt.Font.PLAIN;
+import static java.awt.RenderingHints.*;
+import static java.awt.Toolkit.getDefaultToolkit;
+import static java.awt.geom.AffineTransform.getTranslateInstance;
+import static java.awt.image.BufferedImage.TYPE_INT_RGB;
+import static java.util.Collections.newSetFromMap;
+import static java.util.Collections.singletonMap;
+import static java.util.stream.Collectors.toList;
+import static javax.swing.SwingUtilities.invokeAndWait;
+import static javax.swing.SwingUtilities.invokeLater;
 
 /**
  * A class for creating simple GUIs (graphical user interfaces). Every instance
@@ -115,7 +86,7 @@ public class Window {
                     int code = field.getInt(KeyEvent.class);
                     legalKeyTexts.add(text);
                     code2text.put(code, text);
-                } catch (Exception e) {}
+                } catch (Exception ignored) {}
             }
         }
     }
@@ -135,14 +106,14 @@ public class Window {
     private int fontSize = 11;
     private boolean bold = false;
 
-    private Map<String, BufferedImage> images = new HashMap<>();
-    private Map<String, BufferedImage> scaledImages = new HashMap<>();
+    private final Map<String, BufferedImage> images = new HashMap<>();
+    private final Map<String, BufferedImage> scaledImages = new HashMap<>();
 
-    private Object inputLock = new Object();
-    private Set<Input> pressedInputs = new HashSet<>();
-    private Set<Input> releasedInputs = new HashSet<>();
-    private Set<Input> pressedSnapshot = new HashSet<>();
-    private Set<Input> releasedSnapshot = new HashSet<>();
+    private final Object inputLock = new Object();
+    private final Set<Input> pressedInputs = new HashSet<>();
+    private final Set<Input> releasedInputs = new HashSet<>();
+    private final Set<Input> pressedSnapshot = new HashSet<>();
+    private final Set<Input> releasedSnapshot = new HashSet<>();
 
     private volatile double mouseX = 0;
     private volatile double mouseY = 0;
@@ -166,7 +137,7 @@ public class Window {
         frame = new JFrame();
         frame.setTitle(title);
         frame.setResizable(false);
-        frame.setMinimumSize(new Dimension((int) MIN_WIDTH, (int) MIN_HEIGHT));
+        frame.setMinimumSize(new Dimension(MIN_WIDTH, MIN_HEIGHT));
 
         panel = new JPanel() {
             @Override
@@ -176,7 +147,7 @@ public class Window {
                 }
             }
         };
-        Dimension size = new Dimension((int) width, (int) height);
+        Dimension size = new Dimension(width, height);
         panel.setSize(size);
         panel.setPreferredSize(size);
         panel.addMouseListener(new MouseAdapter() {
@@ -254,9 +225,9 @@ public class Window {
                 try {
                     main.join();
                     break;
-                } catch (InterruptedException e) {}
+                } catch (InterruptedException ignored) {}
             }
-            invokeLater(() -> frame.dispose());
+            invokeLater(frame::dispose);
         }).start();
     }
 
@@ -303,7 +274,7 @@ public class Window {
         while (isOpen()) {
             try {
                 Thread.sleep(50);
-            } catch (InterruptedException e) {}
+            } catch (InterruptedException ignored) {}
         }
     }
 
@@ -427,7 +398,7 @@ public class Window {
                 } else {
                     break;
                 }
-            } catch (InterruptedException e) {}
+            } catch (InterruptedException ignored) {}
         }
         lastRefreshTime = System.currentTimeMillis();
 
@@ -482,9 +453,7 @@ public class Window {
 
     private static void clear(BufferedImage image) {
         int[] data = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
-        for (int i = 0; i < data.length; i++) {
-            data[i] = 0xFFFFFFFF;
-        }
+        Arrays.fill(data, 0xFFFFFFFF);
     }
 
     private BufferedImage newCanvas() {
@@ -778,7 +747,7 @@ public class Window {
         withGraphics(g -> g.drawImage(image, transform, null));
     }
 
-    private BufferedImage ensureLoaded(String imagePath) throws Error {
+    private void ensureLoaded(String imagePath) throws Error {
         if (!images.containsKey(imagePath)) {
             try {
                 BufferedImage image = ImageIO.read(new File(imagePath));
@@ -791,7 +760,6 @@ public class Window {
                 throw new Error("could not load image \"" + imagePath + "\"", e);
             }
         }
-        return images.get(imagePath);
     }
 
     /**
@@ -936,7 +904,7 @@ public class Window {
             invokeAndWait(run);
         } catch (InvocationTargetException e) {
             throw new Error(e);
-        } catch (InterruptedException e) {}
+        } catch (InterruptedException ignored) {}
     }
 
     private static class Input {}
@@ -962,7 +930,7 @@ public class Window {
 
         @Override
         public boolean equals(Object obj) {
-            return this == obj || obj != null && obj instanceof KeyInput && key.equals(((KeyInput) obj).key);
+            return this == obj || obj instanceof KeyInput && key.equals(((KeyInput) obj).key);
         }
     }
 
@@ -984,7 +952,7 @@ public class Window {
 
         @Override
         public boolean equals(Object obj) {
-            return this == obj || obj != null && obj instanceof MouseInput && left == ((MouseInput) obj).left;
+            return this == obj || obj instanceof MouseInput && left == ((MouseInput) obj).left;
         }
     }
 }
