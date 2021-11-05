@@ -99,9 +99,7 @@ import gui.component.Interactive;
  *
  * All methods of this class use a pixel-based coordinate system with the origin
  * in the upper-left corner of the window. The x-axis extends to the right while
- * the y-axis extends to the bottom of the window. Note that, on high-DPI
- * monitors, one pixel in the window coordinate system may correspond to
- * multiple actual pixels on the monitor.
+ * the y-axis extends to the bottom of the window.
  */
 public class Window {
 
