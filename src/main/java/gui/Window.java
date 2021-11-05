@@ -12,7 +12,6 @@ import java.awt.geom.Ellipse2D;
 import java.awt.geom.Line2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
-import java.awt.image.DataBufferInt;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -22,15 +21,10 @@ import java.util.*;
 import java.util.function.Consumer;
 
 import static java.awt.BasicStroke.*;
-import static java.awt.Color.WHITE;
 import static java.awt.Font.BOLD;
 import static java.awt.Font.PLAIN;
 import static java.awt.RenderingHints.*;
-import static java.awt.Toolkit.getDefaultToolkit;
-import static java.awt.geom.AffineTransform.getTranslateInstance;
-import static java.awt.image.BufferedImage.TYPE_INT_RGB;
 import static java.util.Collections.newSetFromMap;
-import static java.util.Collections.singletonMap;
 import static java.util.stream.Collectors.toList;
 import static javax.swing.SwingUtilities.invokeAndWait;
 import static javax.swing.SwingUtilities.invokeLater;
@@ -97,8 +91,8 @@ public class Window {
     private final JFrame frame;
     private final JPanel panel;
 
-    private BufferedImage canvas;
-    private BufferedImage snapshot;
+    private List<Consumer<Graphics2D>> drawCommands;
+    private List<Consumer<Graphics2D>> drawSnapshot;
 
     private Color color = new Color(0, 0, 0);
     private double strokeWidth = 1;
@@ -140,9 +134,18 @@ public class Window {
 
         panel = new JPanel() {
             @Override
-            public void paintComponent(Graphics g) {
+            public void paintComponent(Graphics graphics) {
+                Graphics2D g = (Graphics2D) graphics;
+                g.addRenderingHints(Map.of(
+                        KEY_STROKE_CONTROL, VALUE_STROKE_PURE,
+                        KEY_ANTIALIASING, VALUE_ANTIALIAS_ON));
+                // initialize with last settings
+                g.setColor(new java.awt.Color(color.r, color.g, color.b));
+                g.setStroke(new BasicStroke((float) strokeWidth, roundStroke ? CAP_ROUND : CAP_BUTT,
+                        roundStroke ? JOIN_ROUND : JOIN_MITER));
+                g.setFont(g.getFont().deriveFont(bold ? BOLD : PLAIN, (float) fontSize));
                 synchronized (Window.this) {
-                    g.drawImage(snapshot, 0, 0, null);
+                    drawSnapshot.forEach(command -> command.accept(g));
                 }
             }
         };
@@ -215,8 +218,8 @@ public class Window {
         });
         frame.setContentPane(panel);
 
-        canvas = newCanvas();
-        snapshot = newCanvas();
+        drawCommands = new ArrayList<>();
+        drawSnapshot = new ArrayList<>();
 
         Thread main = Thread.currentThread();
         new Thread(() -> {
@@ -234,7 +237,7 @@ public class Window {
      * Opens the window and displays the current content of the canvas.
      */
     public void open() {
-        canvas.copyData(snapshot.getRaster());
+        drawSnapshot.addAll(drawCommands);
         open = true;
 
         run(() -> {
@@ -376,16 +379,12 @@ public class Window {
 
         if (clear) {
             synchronized (this) {
-                BufferedImage newCanvas = snapshot;
-                snapshot = canvas;
-                canvas = newCanvas;
+                drawSnapshot = drawCommands;
+                drawCommands = new ArrayList<>();
             }
-            clear(canvas);
         } else {
             synchronized (this) {
-                Graphics g = snapshot.getGraphics();
-                g.drawImage(canvas, 0, 0, null);
-                g.dispose();
+                drawSnapshot.addAll(drawCommands);
             }
         }
 
@@ -448,21 +447,6 @@ public class Window {
                 d.draw(this);
             }
         }
-    }
-
-    private static void clear(BufferedImage image) {
-        int[] data = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
-        Arrays.fill(data, 0xFFFFFFFF);
-    }
-
-    private BufferedImage newCanvas() {
-        Dimension size = getDefaultToolkit().getScreenSize();
-        BufferedImage canvas = new BufferedImage(size.width, size.height, TYPE_INT_RGB);
-        Graphics g = canvas.getGraphics();
-        g.setColor(WHITE);
-        g.fillRect(0, 0, size.width, size.height);
-        g.dispose();
-        return canvas;
     }
 
     /**
@@ -538,7 +522,7 @@ public class Window {
      * color is black (0, 0, 0).
      */
     public void setColor(int red, int green, int blue) {
-        color = new Color(red, green, blue);
+        setColor(new Color(red, green, blue));
     }
 
     /**
@@ -547,6 +531,7 @@ public class Window {
      */
     public void setColor(Color color) {
         this.color = color;
+        drawCommands.add(g -> g.setColor(new java.awt.Color(color.r, color.g, color.b)));
     }
 
     /**
@@ -562,6 +547,12 @@ public class Window {
      */
     public void setStrokeWidth(double strokeWidth) {
         this.strokeWidth = strokeWidth;
+        drawCommands.add(g -> {
+            BasicStroke prev = (BasicStroke) g.getStroke();
+            g.setStroke(new BasicStroke((float) strokeWidth,
+                    prev.getEndCap(),
+                    prev.getLineJoin()));
+        });
     }
 
     /**
@@ -578,6 +569,12 @@ public class Window {
      */
     public void setRoundStroke(boolean roundStroke) {
         this.roundStroke = roundStroke;
+        drawCommands.add(g -> {
+            BasicStroke prev = (BasicStroke) g.getStroke();
+            g.setStroke(new BasicStroke(prev.getLineWidth(),
+                    roundStroke ? CAP_ROUND : CAP_BUTT,
+                    roundStroke ? JOIN_ROUND : JOIN_MITER));
+        });
     }
 
     /**
@@ -586,6 +583,7 @@ public class Window {
      */
     public void setFontSize(int fontSize) {
         this.fontSize = fontSize;
+        drawCommands.add(g -> g.setFont(g.getFont().deriveFont((float) fontSize)));
     }
 
     /**
@@ -601,6 +599,7 @@ public class Window {
      */
     public void setBold(boolean bold) {
         this.bold = bold;
+        drawCommands.add(g -> g.setFont(g.getFont().deriveFont(bold ? BOLD : PLAIN)));
     }
 
     /**
@@ -610,7 +609,7 @@ public class Window {
      * {@linkplain #getStrokeWidth() stroke width} are used.
      */
     public void drawRect(double x, double y, double width, double height) {
-        withGraphics(g -> g.draw(new Rectangle2D.Double(x, y, width, height)));
+        drawCommands.add(g -> g.draw(new Rectangle2D.Double(x, y, width, height)));
     }
 
     /**
@@ -621,7 +620,7 @@ public class Window {
      * width} are used.
      */
     public void drawOval(double x, double y, double width, double height) {
-        withGraphics(g -> g.draw(new Ellipse2D.Double(x, y, width, height)));
+        drawCommands.add(g -> g.draw(new Ellipse2D.Double(x, y, width, height)));
     }
 
     /**
@@ -640,7 +639,7 @@ public class Window {
      * {@linkplain #getStrokeWidth() stroke width} are used.
      */
     public void drawLine(double x1, double y1, double x2, double y2) {
-        withGraphics(g -> g.draw(new Line2D.Double(x1, y1, x2, y2)));
+        drawCommands.add(g -> g.draw(new Line2D.Double(x1, y1, x2, y2)));
     }
 
     /**
@@ -649,7 +648,7 @@ public class Window {
      * <code>y</code>).
      */
     public void drawString(String string, double x, double y) {
-        withGraphics(g -> g.drawString(string, (float) x, (float) y));
+        drawCommands.add(g -> g.drawString(string, (float) x, (float) y));
     }
 
     /**
@@ -658,7 +657,7 @@ public class Window {
      * <code>y</code>).
      */
     public void drawStringCentered(String string, double x, double y) {
-        withGraphics(g -> {
+        drawCommands.add(g -> {
             FontMetrics metrics = g.getFontMetrics();
             int width = metrics.stringWidth(string);
             g.drawString(string, (float) x - width / 2, (float) y);
@@ -677,8 +676,7 @@ public class Window {
      * sure to commit all required images to the SVN repository.
      */
     public void drawImage(String path, double x, double y) {
-        ensureLoaded(path);
-        withGraphics(g -> g.drawImage(images.get(path), getTranslateInstance(x, y), null));
+        drawImage(path, x, y, 1);
     }
 
     /**
@@ -688,9 +686,7 @@ public class Window {
      * Also, see {@link #drawImage(String, double, double)}.
      */
     public void drawImageCentered(String path, double x, double y) {
-        ensureLoaded(path);
-        BufferedImage img = images.get(path);
-        withGraphics(g -> g.drawImage(img, getTranslateInstance(x - img.getWidth()/2, y - img.getHeight()/2), null));
+        drawImageCentered(path, x, y, 1);
     }
 
     /**
@@ -724,7 +720,7 @@ public class Window {
         transform.translate(x, y);
         transform.scale(scale, scale);
         transform.rotate(angle, image.getWidth() / 2, image.getHeight() / 2);
-        withGraphics(g -> g.drawImage(image, transform, null));
+        drawCommands.add(g -> g.drawImage(image, transform, null));
     }
 
     /**
@@ -743,7 +739,7 @@ public class Window {
                             y - image.getHeight() / 2 * scale);
         transform.scale(scale, scale);
         transform.rotate(angle, image.getWidth() / 2, image.getHeight() / 2);
-        withGraphics(g -> g.drawImage(image, transform, null));
+        drawCommands.add(g -> g.drawImage(image, transform, null));
     }
 
     private void ensureLoaded(String imagePath) throws Error {
@@ -766,7 +762,7 @@ public class Window {
      * the current {@linkplain #getColor() color}.
      */
     public void fillRect(double x, double y, double width, double height) {
-        withGraphics(g -> g.fill(new Rectangle2D.Double(x, y, width, height)));
+        drawCommands.add(g -> g.fill(new Rectangle2D.Double(x, y, width, height)));
     }
 
     /**
@@ -775,7 +771,7 @@ public class Window {
      * <code>y</code>) and the given <code>width</code> and <code>height</code>
      */
     public void fillOval(double x, double y, double width, double height) {
-        withGraphics(g -> g.fill(new Ellipse2D.Double(x, y, width, height)));
+        drawCommands.add(g -> g.fill(new Ellipse2D.Double(x, y, width, height)));
     }
 
     /**
@@ -785,18 +781,6 @@ public class Window {
      */
     public void fillCircle(double centerX, double centerY, double radius) {
         fillOval(centerX - radius, centerY - radius, radius * 2, radius * 2);
-    }
-
-    private void withGraphics(Consumer<Graphics2D> command) {
-        Graphics2D g = canvas.createGraphics();
-        g.addRenderingHints(singletonMap(KEY_STROKE_CONTROL, VALUE_STROKE_PURE));
-        g.addRenderingHints(singletonMap(KEY_ANTIALIASING, VALUE_ANTIALIAS_ON));
-        g.setColor(new java.awt.Color(color.r, color.g, color.b));
-        g.setStroke(new BasicStroke((float) strokeWidth, roundStroke ? CAP_ROUND : CAP_BUTT,
-                roundStroke ? JOIN_ROUND : JOIN_MITER));
-        g.setFont(g.getFont().deriveFont(bold ? BOLD : PLAIN, (float) fontSize));
-        command.accept(g);
-        g.dispose();
     }
 
     /*
