@@ -717,7 +717,7 @@ public class Window {
         drawImageCentered(path, x, y, scale, 0);
     }
 
-    private void drawImage(String path, double x, double y, double scale, double angle) {
+    public void drawImage(String path, double x, double y, double scale, double angle) {
         ensureLoaded(path);
         BufferedImage image = images.get(path);
         AffineTransform transform = new AffineTransform();
