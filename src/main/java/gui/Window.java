@@ -107,7 +107,6 @@ public class Window {
     private boolean bold = false;
 
     private final Map<String, BufferedImage> images = new HashMap<>();
-    private final Map<String, BufferedImage> scaledImages = new HashMap<>();
 
     private final Object inputLock = new Object();
     private final Set<Input> pressedInputs = new HashSet<>();
@@ -679,7 +678,7 @@ public class Window {
      */
     public void drawImage(String path, double x, double y) {
         ensureLoaded(path);
-        withGraphics(g -> g.drawImage(scaledImages.get(path), getTranslateInstance(x, y), null));
+        withGraphics(g -> g.drawImage(images.get(path), getTranslateInstance(x, y), null));
     }
 
     /**
@@ -690,7 +689,7 @@ public class Window {
      */
     public void drawImageCentered(String path, double x, double y) {
         ensureLoaded(path);
-        BufferedImage img = scaledImages.get(path);
+        BufferedImage img = images.get(path);
         withGraphics(g -> g.drawImage(img, getTranslateInstance(x - img.getWidth()/2, y - img.getHeight()/2), null));
     }
 
@@ -755,7 +754,6 @@ public class Window {
                     throw new Error("could not load image \"" + imagePath + "\"");
                 }
                 images.put(imagePath, image);
-                scaledImages.put(imagePath, image);
             } catch (IOException e) {
                 throw new Error("could not load image \"" + imagePath + "\"", e);
             }
