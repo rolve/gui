@@ -21,6 +21,7 @@ import java.util.*;
 import java.util.function.Consumer;
 
 import static java.awt.BasicStroke.*;
+import static java.awt.Color.WHITE;
 import static java.awt.Font.BOLD;
 import static java.awt.Font.PLAIN;
 import static java.awt.RenderingHints.*;
@@ -139,11 +140,15 @@ public class Window {
                 g.addRenderingHints(Map.of(
                         KEY_STROKE_CONTROL, VALUE_STROKE_PURE,
                         KEY_ANTIALIASING, VALUE_ANTIALIAS_ON));
+                // white background
+                g.setColor(WHITE);
+                g.fillRect(0, 0, getWidth(), getHeight());
                 // initialize with last settings
                 g.setColor(new java.awt.Color(color.r, color.g, color.b));
                 g.setStroke(new BasicStroke((float) strokeWidth, roundStroke ? CAP_ROUND : CAP_BUTT,
                         roundStroke ? JOIN_ROUND : JOIN_MITER));
                 g.setFont(g.getFont().deriveFont(bold ? BOLD : PLAIN, (float) fontSize));
+                // execute draw commands
                 synchronized (Window.this) {
                     drawSnapshot.forEach(command -> command.accept(g));
                 }
