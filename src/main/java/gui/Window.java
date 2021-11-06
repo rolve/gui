@@ -31,12 +31,14 @@ import static javax.swing.SwingUtilities.invokeAndWait;
 import static javax.swing.SwingUtilities.invokeLater;
 
 /**
+ * <p>
  * A class for creating simple GUIs (graphical user interfaces). Every instance
  * represents a separate Window. The programmer can display content in the
  * window by drawing on a canvas using <code>draw...()</code> and
  * <code>fill...()</code> methods. Note that the content of the canvas is not
  * displayed immediately, but only after a call to {@link #open()} or
  * {@link #refresh(int)}.
+ *
  * <p>
  * There are two ways to use this class. The first way is for displaying static
  * content. First, draw the content using the various <code>draw...()</code> or
@@ -47,9 +49,9 @@ import static javax.swing.SwingUtilities.invokeLater;
  * Window window = new Window("Pixels", width, height);
  * window.drawString(x, y, "Hello World!");
  * window.open();
- * window.waitUntilClosed();
- * </pre>
+ * window.waitUntilClosed();</pre>
  *
+ * <p>
  * The second way is for displaying dynamic and possibly interactive content.
  * First, open the window and then, draw and call {@link #refresh(int)} in a
  * loop:
@@ -60,9 +62,9 @@ import static javax.swing.SwingUtilities.invokeLater;
  * while (window.isOpen()) {
  *     window.drawString(x, y, "Hello World!");
  *     window.refresh(20);
- * }
- * </pre>
+ * }</pre>
  *
+ * <p>
  * All methods of this class use a pixel-based coordinate system with the origin
  * in the upper-left corner of the window. The x-axis extends to the right while
  * the y-axis extends to the bottom of the window.
