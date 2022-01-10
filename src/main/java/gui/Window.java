@@ -146,7 +146,7 @@ public class Window {
                 g.setColor(WHITE);
                 g.fillRect(0, 0, getWidth(), getHeight());
                 // initialize with last settings
-                g.setColor(new java.awt.Color(color.r, color.g, color.b));
+                g.setColor(new java.awt.Color(color.r, color.g, color.b, color.alpha));
                 g.setStroke(new BasicStroke((float) strokeWidth, roundStroke ? CAP_ROUND : CAP_BUTT,
                         roundStroke ? JOIN_ROUND : JOIN_MITER));
                 g.setFont(g.getFont().deriveFont(bold ? BOLD : PLAIN, (float) fontSize));
@@ -526,7 +526,8 @@ public class Window {
      * Sets the color for the subsequent drawing operations. The three parameters
      * represent the red, green, and blue channel and are expected to be in the
      * 0&ndash;255 range. Values outside this range will be clamped. The default
-     * color is black (0, 0, 0).
+     * color is black (0, 0, 0). For colors with transparency, use
+     * {@link #setColor(Color)}.
      */
     public void setColor(int red, int green, int blue) {
         setColor(new Color(red, green, blue));
@@ -538,7 +539,7 @@ public class Window {
      */
     public void setColor(Color color) {
         this.color = color;
-        drawCommands.add(g -> g.setColor(new java.awt.Color(color.r, color.g, color.b)));
+        drawCommands.add(g -> g.setColor(new java.awt.Color(color.r, color.g, color.b, color.alpha)));
     }
 
     /**
