@@ -391,7 +391,7 @@ public class Window {
             }
         } else {
             synchronized (this) {
-                drawSnapshot.addAll(drawCommands);
+                drawSnapshot = new ArrayList<>(drawCommands);
             }
         }
 
