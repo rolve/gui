@@ -1,6 +1,6 @@
 # GUI Library for "Intro to Java" Courses
 
-Classes for creating simple GUIs in introduction-level programming courses.  
+Classes for creating simple GUIs in introduction-level programming courses.
 The classes in this library use Swing classes ([JFrame][1], [JPanel][2], etc.) 
 but do not expose any Swing type or concepts directly. Instead, all 
 functionality is exposed using a simple, single-threaded, and mostly 
