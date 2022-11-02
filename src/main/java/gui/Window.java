@@ -25,6 +25,8 @@ import static java.awt.Color.WHITE;
 import static java.awt.Font.BOLD;
 import static java.awt.Font.PLAIN;
 import static java.awt.RenderingHints.*;
+import static java.lang.Math.max;
+import static java.lang.Math.min;
 import static java.util.Collections.newSetFromMap;
 import static java.util.stream.Collectors.toList;
 import static javax.swing.SwingUtilities.invokeAndWait;
@@ -102,6 +104,7 @@ public class Window {
     private boolean roundStroke = false;
     private int fontSize = 11;
     private boolean bold = false;
+    private double alpha = 1;
 
     private final Map<String, BufferedImage> images = new HashMap<>();
 
@@ -241,10 +244,12 @@ public class Window {
                 roundStroke ? JOIN_ROUND : JOIN_MITER);
         var currentStyle = bold ? BOLD : PLAIN;
         var currentSize = fontSize;
+        var currentComposite = AlphaComposite.SrcOver.derive((float) alpha);
         return g -> {
             g.setColor(currentColor);
             g.setStroke(currentStroke);
             g.setFont(g.getFont().deriveFont(currentStyle, currentSize));
+            g.setComposite(currentComposite);
         };
     }
 
@@ -616,6 +621,20 @@ public class Window {
     public void setBold(boolean bold) {
         this.bold = bold;
         drawCommands.add(g -> g.setFont(g.getFont().deriveFont(bold ? BOLD : PLAIN)));
+    }
+
+    public boolean isBold() {
+        return bold;
+    }
+
+    public void setAlpha(double alpha) {
+        var clamped = max(0, min(1, alpha));
+        this.alpha = clamped;
+        drawCommands.add(g -> g.setComposite(AlphaComposite.SrcOver.derive((float) clamped)));
+    }
+
+    public double getAlpha() {
+        return alpha;
     }
 
     /**
