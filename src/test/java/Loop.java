@@ -18,7 +18,7 @@ public class Loop {
             double amplitude = sin(time) * 50 + 50;
             window.setColor((int) (sin(time) * 255), (int) (sin(time / PI) * 255), 10);
             window.fillRect(amplitude, cos(time) * 50 + 50, amplitude + 10, amplitude + 10);
-            window.refreshAndClear(0);
+            window.refreshAndClear(10);
             t++;
 
             System.out.println((System.nanoTime() - lastTime) / 1000000);
