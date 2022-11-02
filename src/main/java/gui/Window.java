@@ -145,11 +145,6 @@ public class Window {
                 // white background
                 g.setColor(WHITE);
                 g.fillRect(0, 0, getWidth(), getHeight());
-                // initialize with last settings
-                g.setColor(new java.awt.Color(color.r, color.g, color.b, color.alpha));
-                g.setStroke(new BasicStroke((float) strokeWidth, roundStroke ? CAP_ROUND : CAP_BUTT,
-                        roundStroke ? JOIN_ROUND : JOIN_MITER));
-                g.setFont(g.getFont().deriveFont(bold ? BOLD : PLAIN, (float) fontSize));
                 // execute draw commands
                 synchronized (Window.this) {
                     drawSnapshot.forEach(command -> command.accept(g));
@@ -225,7 +220,7 @@ public class Window {
         });
         frame.setContentPane(panel);
 
-        drawCommands = new ArrayList<>();
+        drawCommands = new ArrayList<>(List.of(applyCurrentSettings()));
         drawSnapshot = new ArrayList<>();
 
         Thread main = Thread.currentThread();
@@ -238,6 +233,19 @@ public class Window {
             }
             invokeLater(frame::dispose);
         }).start();
+    }
+
+    private Consumer<Graphics2D> applyCurrentSettings() {
+        var currentColor = new java.awt.Color(color.r, color.g, color.b, color.alpha);
+        var currentStroke = new BasicStroke((float) strokeWidth, roundStroke ? CAP_ROUND : CAP_BUTT,
+                roundStroke ? JOIN_ROUND : JOIN_MITER);
+        var currentStyle = bold ? BOLD : PLAIN;
+        var currentSize = fontSize;
+        return g -> {
+            g.setColor(currentColor);
+            g.setStroke(currentStroke);
+            g.setFont(g.getFont().deriveFont(currentStyle, currentSize));
+        };
     }
 
     /**
@@ -387,7 +395,7 @@ public class Window {
         if (clear) {
             synchronized (this) {
                 drawSnapshot = drawCommands;
-                drawCommands = new ArrayList<>();
+                drawCommands = new ArrayList<>(List.of(applyCurrentSettings()));
             }
         } else {
             synchronized (this) {
