@@ -16,8 +16,8 @@ More Info in the [API Documentation][5].
 
 ## Download
 
-The library is hosted in a [public Maven repository on GitLab.com][6], where 
-you can check for the latest version and download the JAR file.
+The library is hosted in a [public Maven repository on gitlab.fhnw.ch][6],
+where you can check for the latest version and download the JAR file.
 
 For Maven projects, add the following to your pom.xml file:
 
@@ -26,14 +26,14 @@ For Maven projects, add the following to your pom.xml file:
     <dependency>
         <groupId>ch.trick17.gui</groupId>
         <artifactId>gui</artifactId>
-        <version>1.4.1-SNAPSHOT</version>
+        <version>1.5.0-SNAPSHOT</version>
     </dependency>
 </dependencies>
 
 <repositories>
     <repository>
         <id>gitlab-maven</id>
-        <url>https://gitlab.com/api/v4/projects/30441174/packages/maven</url>
+        <url>https://gitlab.fhnw.ch/api/v4/projects/13172/packages/maven</url>
     </repository>
 </repositories>
 ```
@@ -44,11 +44,11 @@ For Gradle projects:
 repositories {
     mavenCentral()
     maven {
-        url "https://gitlab.com/api/v4/projects/30441174/packages/maven"
+        url "https://gitlab.fhnw.ch/api/v4/projects/13172/packages/maven"
     }
 }
 dependencies {
-    implementation 'ch.trick17.gui:gui:1.4.1-SNAPSHOT'
+    implementation 'ch.trick17.gui:gui:1.5.0-SNAPSHOT'
 }
 ```
 
@@ -58,4 +58,4 @@ dependencies {
 [3]: https://rolve.github.io/gui/apidocs/gui/Window.html
 [4]: https://rolve.github.io/gui/apidocs/gui/component/Component.html
 [5]: https://rolve.github.io/gui/apidocs/overview-summary.html
-[6]: https://gitlab.com/rolve/gui/-/packages
+[6]: https://gitlab.fhnw.ch/michael.faes/gui/-/packages
