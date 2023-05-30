@@ -49,7 +49,7 @@ import static javax.swing.SwingUtilities.invokeLater;
  *
  * <pre>
  * Window window = new Window("Pixels", width, height);
- * window.drawString(x, y, "Hello World!");
+ * window.drawString("Hello World!", x, y);
  * window.open();
  * window.waitUntilClosed();</pre>
  *
