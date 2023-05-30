@@ -62,7 +62,7 @@ import static javax.swing.SwingUtilities.invokeLater;
  * Window window = new Window("Pixels", width, height);
  * window.open();
  * while (window.isOpen()) {
- *     window.drawString(x, y, "Hello World!");
+ *     window.drawString("Hello World!", x, y);
  *     window.refresh(20);
  * }</pre>
  *
