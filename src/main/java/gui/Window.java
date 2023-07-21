@@ -4,7 +4,9 @@ import gui.component.Component;
 import gui.component.*;
 
 import javax.imageio.ImageIO;
-import javax.swing.*;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.AffineTransform;
@@ -24,6 +26,7 @@ import static java.awt.Color.WHITE;
 import static java.awt.Font.BOLD;
 import static java.awt.Font.PLAIN;
 import static java.awt.RenderingHints.*;
+import static java.lang.Integer.signum;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 import static java.util.Collections.newSetFromMap;
@@ -103,6 +106,7 @@ public class Window {
     private boolean roundStroke = false;
     private int fontSize = 11;
     private boolean bold = false;
+    private TextAlign textAlign = TextAlign.LEFT;
     private double alpha = 1;
 
     private final Map<String, BufferedImage> images = new HashMap<>();
@@ -243,11 +247,16 @@ public class Window {
                 roundStroke ? JOIN_ROUND : JOIN_MITER);
         var currentStyle = bold ? BOLD : PLAIN;
         var currentSize = fontSize;
+        var currentTextAlign = textAlign;
         var currentComposite = AlphaComposite.SrcOver.derive((float) alpha);
         return g -> {
             g.setColor(currentColor);
             g.setStroke(currentStroke);
             g.setFont(g.getFont().deriveFont(currentStyle, currentSize));
+            // Text alignment is stored as a "rendering hint" inside the
+            // Graphics2D object. Somewhat hacky, but consistent with all other
+            // settings, which are supported by Graphics2D directly.
+            g.addRenderingHints(Map.of(TextAlign.Key.INSTANCE, currentTextAlign));
             g.setComposite(currentComposite);
         };
     }
@@ -626,6 +635,48 @@ public class Window {
         return bold;
     }
 
+    /**
+     * Subsequent {@link #drawString(String, double, double)} operations will
+     * draw the text left aligned.
+     */
+    public void setTextAlignLeft() {
+        setTextAlign(-1);
+    }
+
+    /**
+     * Subsequent {@link #drawString(String, double, double)} operations will
+     * draw the text centered (on the x Axis).
+     */
+    public void setTextAlignCenter() {
+        setTextAlign(0);
+    }
+
+    /**
+     * Subsequent {@link #drawString(String, double, double)} operations will
+     * draw the text right aligned.
+     */
+    public void setTextAlignRight() {
+        setTextAlign(1);
+    }
+
+    /**
+     * Sets the alignment for subsequent {@link #drawString(String, double, double)}
+     * operations. A negative value means left aligned, zero means centered, and
+     * a positive value means right aligned.
+     */
+    public void setTextAlign(int textAlign) {
+        this.textAlign = TextAlign.fromInt(textAlign);
+        drawCommands.add(g -> g.addRenderingHints(Map.of(TextAlign.Key.INSTANCE, TextAlign.fromInt(textAlign))));
+    }
+
+    /**
+     * Returns the current text alignment, as an int. Left aligned is represented
+     * as -1, centered as 0, and right aligned as +1.
+     */
+    public int getTextAlign() {
+        return textAlign.toInt();
+    }
+
     public void setAlpha(double alpha) {
         var clamped = max(0, min(1, alpha));
         this.alpha = clamped;
@@ -677,19 +728,36 @@ public class Window {
     }
 
     /**
-     * Draw the given string with the current {@linkplain #getColor() color}. The
-     * baseline of the first character is at position (<code>x</code>,
-     * <code>y</code>).
+     * Draws the given string with the current {@linkplain #getColor() color},
+     * {@linkplain #getFontSize() font size}, {@linkplain #isBold() boldness},
+     * and {@linkplain #getTextAlign() alignment}. The baseline is located at
+     * the given <code>y</code> coordinate.
      */
     public void drawString(String string, double x, double y) {
-        drawCommands.add(g -> g.drawString(string, (float) x, (float) y));
+        drawCommands.add(g -> {
+            var align = (TextAlign) g.getRenderingHints().get(TextAlign.Key.INSTANCE);
+            var drawX = x;
+            if (align != TextAlign.LEFT) {
+                var metrics = g.getFontMetrics();
+                var width = metrics.stringWidth(string);
+                drawX -= align == TextAlign.CENTER ? width / 2f : width;
+            }
+            g.drawString(string, (float) drawX, (float) y);
+        });
     }
 
     /**
-     * Draw the given string with the current {@linkplain #getColor() color}. The
-     * <em>center</em> of the baseline is at position (<code>x</code>,
+     * Draws the given string with the current {@linkplain #getColor() color},
+     * {@linkplain #getFontSize() font size}, and {@linkplain #isBold() boldness}.
+     * The <em>center</em> of the baseline is at position (<code>x</code>,
      * <code>y</code>).
+     *
+     * @deprecated Provided for backwards compatibility. The methods
+     * {@link #setTextAlignCenter()} and {@link #setTextAlignRight()}, etc. provide
+     * more flexibility and consistency. This method ignores the text alignment
+     * setting defined using those methods.
      */
+    @Deprecated
     public void drawStringCentered(String string, double x, double y) {
         drawCommands.add(g -> {
             var metrics = g.getFontMetrics();
@@ -969,6 +1037,30 @@ public class Window {
         @Override
         public boolean equals(Object obj) {
             return this == obj || obj instanceof MouseInput && left == ((MouseInput) obj).left;
+        }
+    }
+
+    private enum TextAlign {
+        LEFT, CENTER, RIGHT;
+
+        static TextAlign fromInt(int textAlign) {
+            return values()[signum(textAlign) + 1];
+        }
+
+        int toInt() {
+            return ordinal() - 1;
+        }
+
+        static class Key extends RenderingHints.Key {
+            static final Key INSTANCE = new Key();
+
+            private Key() {
+                super(Integer.MAX_VALUE / 13);
+            }
+
+            public boolean isCompatibleValue(Object val) {
+                return val instanceof TextAlign;
+            }
         }
     }
 }
