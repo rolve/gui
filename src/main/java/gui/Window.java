@@ -736,13 +736,17 @@ public class Window {
     public void drawString(String string, double x, double y) {
         drawCommands.add(g -> {
             var align = (TextAlign) g.getRenderingHints().get(TextAlign.Key.INSTANCE);
-            var drawX = x;
-            if (align != TextAlign.LEFT) {
-                var metrics = g.getFontMetrics();
-                var width = metrics.stringWidth(string);
-                drawX -= align == TextAlign.CENTER ? width / 2f : width;
+            var metrics = g.getFontMetrics();
+            var drawY = y;
+            for (var line : (Iterable<String>) string.lines()::iterator) {
+                var drawX = x;
+                if (align != TextAlign.LEFT) {
+                    var width = metrics.stringWidth(line);
+                    drawX -= align == TextAlign.CENTER ? width / 2f : width;
+                }
+                g.drawString(line, (float) drawX, (float) drawY);
+                drawY += g.getFont().getSize();
             }
-            g.drawString(string, (float) drawX, (float) y);
         });
     }
 
@@ -755,7 +759,7 @@ public class Window {
      * @deprecated Provided for backwards compatibility. The methods
      * {@link #setTextAlignCenter()} and {@link #setTextAlignRight()}, etc. provide
      * more flexibility and consistency. This method ignores the text alignment
-     * setting defined using those methods.
+     * setting defined using those methods and does not support multi-line text.
      */
     @Deprecated
     public void drawStringCentered(String string, double x, double y) {
