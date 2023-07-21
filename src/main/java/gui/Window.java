@@ -14,7 +14,6 @@ import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import java.util.*;
@@ -73,18 +72,18 @@ import static javax.swing.SwingUtilities.invokeLater;
  */
 public class Window {
 
-    private static final Set<String> legalKeyTexts = new HashSet<>();
-    private static final Map<Integer, String> code2text = new HashMap<>();
+    private static final Set<String> LEGAL_KEY_TEXTS = new HashSet<>();
+    private static final Map<Integer, String> CODE_TO_TEXT = new HashMap<>();
 
     static {
-        for (Field field : KeyEvent.class.getFields()) {
-            String name = field.getName();
+        for (var field : KeyEvent.class.getFields()) {
+            var name = field.getName();
             if (name.startsWith("VK_")) {
-                String text = name.substring(3).toLowerCase();
                 try {
-                    int code = field.getInt(KeyEvent.class);
-                    legalKeyTexts.add(text);
-                    code2text.put(code, text);
+                    var code = field.getInt(KeyEvent.class);
+                    var text = name.substring(3).toLowerCase();
+                    LEGAL_KEY_TEXTS.add(text);
+                    CODE_TO_TEXT.put(code, text);
                 } catch (Exception ignored) {}
             }
         }
@@ -141,7 +140,7 @@ public class Window {
         panel = new JPanel() {
             @Override
             public void paintComponent(Graphics graphics) {
-                Graphics2D g = (Graphics2D) graphics;
+                var g = (Graphics2D) graphics;
                 g.addRenderingHints(Map.of(
                         KEY_STROKE_CONTROL, VALUE_STROKE_PURE,
                         KEY_ANTIALIASING, VALUE_ANTIALIAS_ON));
@@ -154,7 +153,7 @@ public class Window {
                 }
             }
         };
-        Dimension size = new Dimension(width, height);
+        var size = new Dimension(width, height);
         panel.setSize(size);
         panel.setPreferredSize(size);
         panel.addMouseListener(new MouseAdapter() {
@@ -167,7 +166,7 @@ public class Window {
 
             @Override
             public void mouseReleased(MouseEvent e) {
-                MouseInput input = new MouseInput(e);
+                var input = new MouseInput(e);
                 synchronized (inputLock) {
                     pressedInputs.remove(input);
                     releasedInputs.add(input);
@@ -183,8 +182,8 @@ public class Window {
 
             @Override
             public void mouseDragged(MouseEvent e) {
-                int x = e.getX();
-                int y = e.getY();
+                var x = e.getX();
+                var y = e.getY();
                 if (x >= 0 && x < width && y >= 0 && y < height) {
                     mouseX = x;
                     mouseY = y;
@@ -208,7 +207,7 @@ public class Window {
 
             @Override
             public void keyReleased(KeyEvent e) {
-                KeyInput input = new KeyInput(e);
+                var input = new KeyInput(e);
                 synchronized (inputLock) {
                     pressedInputs.remove(input);
                     releasedInputs.add(input);
@@ -226,7 +225,7 @@ public class Window {
         drawCommands = new ArrayList<>(List.of(applyCurrentSettings()));
         drawSnapshot = new ArrayList<>();
 
-        Thread main = Thread.currentThread();
+        var main = Thread.currentThread();
         new Thread(() -> {
             while (true) {
                 try {
@@ -409,7 +408,7 @@ public class Window {
         }
 
         while (true) {
-            long sleepTime = (waitTime - (System.currentTimeMillis() - lastRefreshTime)) / 2;
+            var sleepTime = (waitTime - (System.currentTimeMillis() - lastRefreshTime)) / 2;
             try {
                 if (sleepTime > 1) {
                     Thread.sleep(sleepTime);
@@ -432,11 +431,11 @@ public class Window {
     }
 
     private void runComponents() {
-        double mx = mouseX;
-        double my = mouseY;
-        for (Component comp : components) {
+        var mx = mouseX;
+        var my = mouseY;
+        for (var comp : components) {
             if (comp instanceof Hoverable) {
-                Hoverable h = (Hoverable) comp;
+                var h = (Hoverable) comp;
                 if (h.getInteractiveArea(this).contains(mx, my) && hovered.add(h)) {
                     h.onMouseEnter();
                 } else if (!h.getInteractiveArea(this).contains(mx, my) && hovered.remove(h)) {
@@ -444,12 +443,12 @@ public class Window {
                 }
             }
         }
-        boolean leftClicked = wasLeftMouseButtonClicked();
-        boolean rightClicked = wasRightMouseButtonClicked();
+        var leftClicked = wasLeftMouseButtonClicked();
+        var rightClicked = wasRightMouseButtonClicked();
         if (leftClicked || rightClicked) {
-            for (Component comp : components) {
+            for (var comp : components) {
                 if (comp instanceof Clickable) {
-                    Clickable c = (Clickable) comp;
+                    var c = (Clickable) comp;
                     if (c.getInteractiveArea(this).contains(mx, my)) {
                         if (leftClicked) {
                             c.onLeftClick(mx, my);
@@ -461,9 +460,9 @@ public class Window {
                 }
             }
         }
-        for (Component comp : components) {
+        for (var comp : components) {
             if (comp instanceof Drawable) {
-                Drawable d = (Drawable) comp;
+                var d = (Drawable) comp;
                 d.draw(this);
             }
         }
@@ -569,7 +568,7 @@ public class Window {
     public void setStrokeWidth(double strokeWidth) {
         this.strokeWidth = strokeWidth;
         drawCommands.add(g -> {
-            BasicStroke prev = (BasicStroke) g.getStroke();
+            var prev = (BasicStroke) g.getStroke();
             g.setStroke(new BasicStroke((float) strokeWidth,
                     prev.getEndCap(),
                     prev.getLineJoin()));
@@ -591,7 +590,7 @@ public class Window {
     public void setRoundStroke(boolean roundStroke) {
         this.roundStroke = roundStroke;
         drawCommands.add(g -> {
-            BasicStroke prev = (BasicStroke) g.getStroke();
+            var prev = (BasicStroke) g.getStroke();
             g.setStroke(new BasicStroke(prev.getLineWidth(),
                     roundStroke ? CAP_ROUND : CAP_BUTT,
                     roundStroke ? JOIN_ROUND : JOIN_MITER));
@@ -693,9 +692,9 @@ public class Window {
      */
     public void drawStringCentered(String string, double x, double y) {
         drawCommands.add(g -> {
-            FontMetrics metrics = g.getFontMetrics();
-            int width = metrics.stringWidth(string);
-            g.drawString(string, (float) x - width / 2, (float) y);
+            var metrics = g.getFontMetrics();
+            var width = metrics.stringWidth(string);
+            g.drawString(string, (float) x - width / 2f, (float) y);
         });
     }
 
@@ -750,11 +749,11 @@ public class Window {
 
     public void drawImage(String path, double x, double y, double scale, double angle) {
         ensureLoaded(path);
-        BufferedImage image = images.get(path);
-        AffineTransform transform = new AffineTransform();
+        var image = images.get(path);
+        var transform = new AffineTransform();
         transform.translate(x, y);
         transform.scale(scale, scale);
-        transform.rotate(angle, image.getWidth() / 2, image.getHeight() / 2);
+        transform.rotate(angle, image.getWidth() / 2.0, image.getHeight() / 2.0);
         drawCommands.add(g -> g.drawImage(image, transform, null));
     }
 
@@ -768,19 +767,19 @@ public class Window {
      */
     public void drawImageCentered(String path, double x, double y, double scale, double angle) {
         ensureLoaded(path);
-        BufferedImage image = images.get(path);
-        AffineTransform transform = new AffineTransform();
-        transform.translate(x - image.getWidth() / 2 * scale,
-                            y - image.getHeight() / 2 * scale);
+        var image = images.get(path);
+        var transform = new AffineTransform();
+        transform.translate(x - image.getWidth() / 2.0 * scale,
+                            y - image.getHeight() / 2.0 * scale);
         transform.scale(scale, scale);
-        transform.rotate(angle, image.getWidth() / 2, image.getHeight() / 2);
+        transform.rotate(angle, image.getWidth() / 2.0, image.getHeight() / 2.0);
         drawCommands.add(g -> g.drawImage(image, transform, null));
     }
 
     private void ensureLoaded(String imagePath) throws Error {
         if (!images.containsKey(imagePath)) {
             try {
-                BufferedImage image = ImageIO.read(new File(imagePath));
+                var image = ImageIO.read(new File(imagePath));
                 if (image == null) {
                     throw new Error("could not load image \"" + imagePath + "\"");
                 }
@@ -930,11 +929,11 @@ public class Window {
         String key;
 
         KeyInput(KeyEvent e) {
-            this(code2text.get(e.getKeyCode()));
+            this(CODE_TO_TEXT.get(e.getKeyCode()));
         }
 
         KeyInput(String keyText) {
-            if (!legalKeyTexts.contains(keyText.toLowerCase())) {
+            if (!LEGAL_KEY_TEXTS.contains(keyText.toLowerCase())) {
                 throw new IllegalArgumentException("key \"" + keyText + "\" does not exist");
             }
             this.key = keyText.toLowerCase();

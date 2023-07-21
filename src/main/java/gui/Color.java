@@ -56,8 +56,8 @@ public final class Color {
 
     @Override
     public int hashCode() {
-        final int prime = 31;
-        int result = 1;
+        var prime = 31;
+        var result = 1;
         result = prime * result + r;
         result = prime * result + g;
         result = prime * result + b;
@@ -76,7 +76,7 @@ public final class Color {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        Color other = (Color) obj;
+        var other = (Color) obj;
         return r == other.r && g == other.g && b == other.b && alpha == other.alpha;
     }
 }
