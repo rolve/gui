@@ -26,6 +26,7 @@ import static java.awt.Color.WHITE;
 import static java.awt.Font.BOLD;
 import static java.awt.Font.PLAIN;
 import static java.awt.RenderingHints.*;
+import static java.lang.Double.isFinite;
 import static java.lang.Integer.signum;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
@@ -95,6 +96,17 @@ public class Window {
     private static final int MIN_WIDTH = 200;
     private static final int MIN_HEIGHT = 100;
 
+    private static final Key TEXT_ALIGN = new Key(165191049) {
+        public boolean isCompatibleValue(Object val) {
+            return val instanceof TextAlign;
+        }
+    };
+    private static final Key LINE_SPACING = new Key(165191050) {
+        public boolean isCompatibleValue(Object val) {
+            return val instanceof Double;
+        }
+    };
+
     private final JFrame frame;
     private final JPanel panel;
 
@@ -107,6 +119,7 @@ public class Window {
     private int fontSize = 11;
     private boolean bold = false;
     private TextAlign textAlign = TextAlign.LEFT;
+    private double lineSpacing = 1.0;
     private double alpha = 1;
 
     private final Map<String, BufferedImage> images = new HashMap<>();
@@ -248,15 +261,17 @@ public class Window {
         var currentStyle = bold ? BOLD : PLAIN;
         var currentSize = fontSize;
         var currentTextAlign = textAlign;
+        var currentLineHeight = lineSpacing;
         var currentComposite = AlphaComposite.SrcOver.derive((float) alpha);
         return g -> {
             g.setColor(currentColor);
             g.setStroke(currentStroke);
             g.setFont(g.getFont().deriveFont(currentStyle, currentSize));
-            // Text alignment is stored as a "rendering hint" inside the
-            // Graphics2D object. Somewhat hacky, but consistent with all other
-            // settings, which are supported by Graphics2D directly.
-            g.addRenderingHints(Map.of(TextAlign.Key.INSTANCE, currentTextAlign));
+            // Text alignment and line height are stored as a "rendering hints"
+            // inside the Graphics2D object. Somewhat hacky, but consistent with
+            // all other settings, which are supported by Graphics2D directly.
+            g.addRenderingHints(Map.of(TEXT_ALIGN, currentTextAlign));
+            g.addRenderingHints(Map.of(LINE_SPACING, currentLineHeight));
             g.setComposite(currentComposite);
         };
     }
@@ -662,11 +677,11 @@ public class Window {
     /**
      * Sets the alignment for subsequent {@link #drawString(String, double, double)}
      * operations. A negative value means left aligned, zero means centered, and
-     * a positive value means right aligned.
+     * a positive value means right aligned. The default alignment is left.
      */
     public void setTextAlign(int textAlign) {
         this.textAlign = TextAlign.fromInt(textAlign);
-        drawCommands.add(g -> g.addRenderingHints(Map.of(TextAlign.Key.INSTANCE, TextAlign.fromInt(textAlign))));
+        drawCommands.add(g -> g.addRenderingHints(Map.of(TEXT_ALIGN, TextAlign.fromInt(textAlign))));
     }
 
     /**
@@ -675,6 +690,30 @@ public class Window {
      */
     public int getTextAlign() {
         return textAlign.toInt();
+    }
+
+    /**
+     * Sets the line spacing for subsequent {@link #drawString(String, double, double)}
+     * operations with multiple lines of text. The line spacing is specified as a
+     * multiplier of the font size; for example, 1.0 (the default value) means
+     * single spacing, 2.0 means double spacing, etc.
+     */
+    public void setLineSpacing(double lineSpacing) {
+        var clamped = clampPositive(lineSpacing);
+        this.lineSpacing = clamped;
+        drawCommands.add(g -> g.addRenderingHints(Map.of(LINE_SPACING, clamped)));
+    }
+
+    private double clampPositive(double d) {
+        if (isFinite(d)) {
+            return max(0, d);
+        } else {
+            return Double.MAX_VALUE;
+        }
+    }
+
+    public double getLineSpacing() {
+        return lineSpacing;
     }
 
     public void setAlpha(double alpha) {
@@ -735,7 +774,8 @@ public class Window {
      */
     public void drawString(String string, double x, double y) {
         drawCommands.add(g -> {
-            var align = (TextAlign) g.getRenderingHints().get(TextAlign.Key.INSTANCE);
+            var align = (TextAlign) g.getRenderingHints().get(TEXT_ALIGN);
+            var lineHeight = (double) g.getRenderingHints().get(LINE_SPACING);
             var metrics = g.getFontMetrics();
             var drawY = y;
             for (var line : (Iterable<String>) string.lines()::iterator) {
@@ -745,7 +785,7 @@ public class Window {
                     drawX -= align == TextAlign.CENTER ? width / 2f : width;
                 }
                 g.drawString(line, (float) drawX, (float) drawY);
-                drawY += g.getFont().getSize();
+                drawY += g.getFont().getSize() * lineHeight;
             }
         });
     }
@@ -1053,18 +1093,6 @@ public class Window {
 
         int toInt() {
             return ordinal() - 1;
-        }
-
-        static class Key extends RenderingHints.Key {
-            static final Key INSTANCE = new Key();
-
-            private Key() {
-                super(Integer.MAX_VALUE / 13);
-            }
-
-            public boolean isCompatibleValue(Object val) {
-                return val instanceof TextAlign;
-            }
         }
     }
 }
