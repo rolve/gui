@@ -9,10 +9,7 @@ import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 import java.awt.*;
 import java.awt.event.*;
-import java.awt.geom.AffineTransform;
-import java.awt.geom.Ellipse2D;
-import java.awt.geom.Line2D;
-import java.awt.geom.Rectangle2D;
+import java.awt.geom.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -26,6 +23,7 @@ import static java.awt.Color.WHITE;
 import static java.awt.Font.BOLD;
 import static java.awt.Font.PLAIN;
 import static java.awt.RenderingHints.*;
+import static java.awt.geom.Path2D.WIND_EVEN_ODD;
 import static java.lang.Double.isFinite;
 import static java.lang.Integer.signum;
 import static java.lang.Math.max;
@@ -826,6 +824,74 @@ public class Window {
      */
     public void drawLine(double x1, double y1, double x2, double y2) {
         drawCommands.add(g -> g.draw(new Line2D.Double(x1, y1, x2, y2)));
+    }
+
+    /**
+     * Draws a path defined by the coordinates in the given array. The odd
+     * indices correspond to the x coordinates, the even indices to the y
+     * coordinates of the points that constitute the path. For
+     * example, if the array <code>{1.0, 2.0, 3.0, 4.0, 5.0, 6.0}</code> is
+     * given, the path goes from (1.0, 2.0) to (3.0, 4.0) to (5.0, 6.0).
+     * <p>
+     * The current {@linkplain #getColor() color},
+     * {@linkplain #getStrokeWidth() stroke width}, and
+     * {@linkplain #isRoundStroke()  stroke roundness} are used.
+     */
+    public void drawPath(double[] coordinates) {
+        if (coordinates.length >= 2) {
+            var path = toPath(coordinates);
+            drawCommands.add(g -> g.draw(path));
+        }
+    }
+
+    /**
+     * Draws a polygon defined by the coordinates in the given array. The odd
+     * indices correspond to the x coordinates, the even indices to the y
+     * coordinates of the corners of the polygon. For example, if the array
+     * <code>{1.0, 2.0, 3.0, 4.0, 5.0, 6.0}</code> is given, polygon is a
+     * triangle with the corners at the points (1.0, 2.0), (3.0, 4.0), and
+     * (5.0, 6.0).
+     * <p>
+     * This method is similar to {@link #drawPath(double[]) drawPath}, but
+     * always draws a closed path.
+     * <p>
+     * The current {@linkplain #getColor() color},
+     * {@linkplain #getStrokeWidth() stroke width}, and
+     * {@linkplain #isRoundStroke()  stroke roundness} are used.
+     */
+    public void drawPolygon(double[] coordinates) {
+        if (coordinates.length >= 2) {
+            var path = toPath(coordinates);
+            path.closePath();
+            drawCommands.add(g -> g.draw(path));
+        }
+    }
+
+    /**
+     * Fills a polygon defined by the coordinates in the given array, with the
+     * current {@linkplain #getColor() color}. The odd indices correspond to
+     * the x coordinates, the even indices to the y coordinates of the corners
+     * of the polygon. For example, if the array
+     * <code>{1.0, 2.0, 3.0, 4.0, 5.0, 6.0}</code> is given, the polygon is a
+     * triangle with the corners at the points (1.0, 2.0), (3.0, 4.0), and
+     * (5.0, 6.0).
+     */
+    public void fillPolygon(double[] coordinates) {
+        if (coordinates.length >= 2) {
+            var path = toPath(coordinates);
+            path.closePath();
+            path.setWindingRule(WIND_EVEN_ODD);
+            drawCommands.add(g -> g.fill(path));
+        }
+    }
+
+    private static Path2D.Double toPath(double[] coordinates) {
+        var path = new Path2D.Double();
+        path.moveTo(coordinates[0], coordinates[1]);
+        for (int i = 2; i < coordinates.length; i += 2) {
+            path.lineTo(coordinates[i], coordinates[i + 1]);
+        }
+        return path;
     }
 
     /**
