@@ -609,7 +609,7 @@ public class Window {
     /**
      * If <code>roundStroke</code> is <code>true</code>, subsequent
      * <code>draw...()</code> operations will use round stroke caps and joins
-     * instead of flat caps and miter joins.
+     * (instead of flat caps and miter joins).
      */
     public void setRoundStroke(boolean roundStroke) {
         this.roundStroke = roundStroke;
@@ -619,6 +619,15 @@ public class Window {
                     roundStroke ? CAP_ROUND : CAP_BUTT,
                     roundStroke ? JOIN_ROUND : JOIN_MITER));
         });
+    }
+
+    /**
+     * Returns a boolean value indicating whether round stroke caps and joins
+     * are used to draw shapes (instead of flat caps and miter joins). The
+     * default is <code>false</code>.
+     */
+    public boolean isRoundStroke() {
+        return roundStroke;
     }
 
     /**
@@ -646,6 +655,11 @@ public class Window {
         drawCommands.add(g -> g.setFont(g.getFont().deriveFont(bold ? BOLD : PLAIN)));
     }
 
+    /**
+     * Returns a boolean value indicating whether a bold font is used to
+     * {@linkplain #drawString(String, double, double) draw strings}. The
+     * default is <code>false</code>.
+     */
     public boolean isBold() {
         return bold;
     }
@@ -748,8 +762,9 @@ public class Window {
     /**
      * Draws the outline of a rectangle with the upper-left corner at
      * (<code>x</code>, <code>y</code>) and the given <code>width</code> and
-     * <code>height</code>. The current {@linkplain #getColor() color} and
-     * {@linkplain #getStrokeWidth() stroke width} are used.
+     * <code>height</code>. The current {@linkplain #getColor() color},
+     * {@linkplain #getStrokeWidth() stroke width}, and
+     * {@linkplain #isRoundStroke()  stroke roundness} are used.
      */
     public void drawRect(double x, double y, double width, double height) {
         drawCommands.add(g -> g.draw(new Rectangle2D.Double(x, y, width, height)));
@@ -805,8 +820,9 @@ public class Window {
 
     /**
      * Draws a line from (<code>x1</code>, <code>y1</code>) to (<code>x2</code>,
-     * <code>y2</code>). The current {@linkplain #getColor() color} and
-     * {@linkplain #getStrokeWidth() stroke width} are used.
+     * <code>y2</code>). The current {@linkplain #getColor() color},
+     * {@linkplain #getStrokeWidth() stroke width}, and
+     * {@linkplain #isRoundStroke()  stroke roundness} are used.
      */
     public void drawLine(double x1, double y1, double x2, double y2) {
         drawCommands.add(g -> g.draw(new Line2D.Double(x1, y1, x2, y2)));
