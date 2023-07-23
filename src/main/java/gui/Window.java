@@ -737,6 +737,15 @@ public class Window {
     }
 
     /**
+     * Fills a rectangle that has the upper-left corner at (<code>x</code>,
+     * <code>y</code>) and the given <code>width</code> and <code>height</code> with
+     * the current {@linkplain #getColor() color}.
+     */
+    public void fillRect(double x, double y, double width, double height) {
+        drawCommands.add(g -> g.fill(new Rectangle2D.Double(x, y, width, height)));
+    }
+
+    /**
      * Draws the outline of an oval with a rectangular bounding box that has the
      * upper-left corner at (<code>x</code>, <code>y</code>) and the given
      * <code>width</code> and <code>height</code>. The current
@@ -748,6 +757,15 @@ public class Window {
     }
 
     /**
+     * Fills an oval with the current {@linkplain #getColor() color}. The oval has a
+     * rectangular bounding box with the upper-left corner at (<code>x</code>,
+     * <code>y</code>) and the given <code>width</code> and <code>height</code>
+     */
+    public void fillOval(double x, double y, double width, double height) {
+        drawCommands.add(g -> g.fill(new Ellipse2D.Double(x, y, width, height)));
+    }
+
+    /**
      * Draws the outline of a circle with the center at (<code>x</code>,
      * <code>y</code>) and the given <code>radius</code>. The current
      * {@linkplain #getColor() color} and {@linkplain #getStrokeWidth() stroke
@@ -755,6 +773,15 @@ public class Window {
      */
     public void drawCircle(double centerX, double centerY, double radius) {
         drawOval(centerX - radius, centerY - radius, radius * 2, radius * 2);
+    }
+
+    /**
+     * Fills a circle that has the center at (<code>x</code>, <code>y</code>) and
+     * the given <code>radius</code> with the current {@linkplain #getColor()
+     * color}.
+     */
+    public void fillCircle(double centerX, double centerY, double radius) {
+        fillOval(centerX - radius, centerY - radius, radius * 2, radius * 2);
     }
 
     /**
@@ -900,33 +927,6 @@ public class Window {
                 throw new Error("could not load image \"" + imagePath + "\"", e);
             }
         }
-    }
-
-    /**
-     * Fills a rectangle that has the upper-left corner at (<code>x</code>,
-     * <code>y</code>) and the given <code>width</code> and <code>height</code> with
-     * the current {@linkplain #getColor() color}.
-     */
-    public void fillRect(double x, double y, double width, double height) {
-        drawCommands.add(g -> g.fill(new Rectangle2D.Double(x, y, width, height)));
-    }
-
-    /**
-     * Fills an oval with the current {@linkplain #getColor() color}. The oval has a
-     * rectangular bounding box with the upper-left corner at (<code>x</code>,
-     * <code>y</code>) and the given <code>width</code> and <code>height</code>
-     */
-    public void fillOval(double x, double y, double width, double height) {
-        drawCommands.add(g -> g.fill(new Ellipse2D.Double(x, y, width, height)));
-    }
-
-    /**
-     * Fills a circle that has the center at (<code>x</code>, <code>y</code>) and
-     * the given <code>radius</code> with the current {@linkplain #getColor()
-     * color}.
-     */
-    public void fillCircle(double centerX, double centerY, double radius) {
-        fillOval(centerX - radius, centerY - radius, radius * 2, radius * 2);
     }
 
     /*
