@@ -555,7 +555,7 @@ public class Window {
     }
 
     /*
-     * Painting
+     * Paint settings
      */
 
     /**
@@ -651,6 +651,21 @@ public class Window {
     }
 
     /**
+     * Measures the width that the given text would have if it was
+     * {@linkplain #drawString(String, double, double) drawn} with the current
+     * {@linkplain #getFontSize() font size} and {@linkplain #isBold() boldness}.
+     * If the text contains multiple lines, the width of the widest line is
+     * returned.
+     */
+    public double stringWidth(String string) {
+        var font = panel.getFont().deriveFont(bold ? BOLD : PLAIN, fontSize);
+        var metrics = panel.getFontMetrics(font);
+        return string.lines()
+                .mapToInt(metrics::stringWidth)
+                .max().orElse(0);
+    }
+
+    /**
      * Subsequent {@link #drawString(String, double, double)} operations will
      * draw the text left aligned.
      */
@@ -725,6 +740,10 @@ public class Window {
     public double getAlpha() {
         return alpha;
     }
+
+    /*
+     * Painting
+     */
 
     /**
      * Draws the outline of a rectangle with the upper-left corner at
