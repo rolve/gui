@@ -839,18 +839,19 @@ public class Window {
      */
     public void drawPath(double[] coordinates) {
         if (coordinates.length >= 2) {
-            var path = toPath(coordinates);
+            var path = new Path2D.Double();
+            append(path, coordinates);
             drawCommands.add(g -> g.draw(path));
         }
     }
 
     /**
-     * Draws a polygon defined by the coordinates in the given array. The odd
-     * indices correspond to the x coordinates, the even indices to the y
-     * coordinates of the corners of the polygon. For example, if the array
-     * <code>{1.0, 2.0, 3.0, 4.0, 5.0, 6.0}</code> is given, polygon is a
-     * triangle with the corners at the points (1.0, 2.0), (3.0, 4.0), and
-     * (5.0, 6.0).
+     * Draws a polygon with a single "ring" defined by the coordinates in the
+     * given array. The odd indices correspond to the x coordinates, the even
+     * indices to the y coordinates of the corners of the polygon. For example,
+     * if the array <code>{1.0, 2.0, 3.0, 4.0, 5.0, 6.0}</code> is given, the
+     * polygon is a triangle with the corners at the points (1.0, 2.0),
+     * (3.0, 4.0), and (5.0, 6.0).
      * <p>
      * This method is similar to {@link #drawPath(double[]) drawPath}, but
      * always draws a closed path.
@@ -861,37 +862,61 @@ public class Window {
      */
     public void drawPolygon(double[] coordinates) {
         if (coordinates.length >= 2) {
-            var path = toPath(coordinates);
+            var path = new Path2D.Double();
+            append(path, coordinates);
             path.closePath();
             drawCommands.add(g -> g.draw(path));
         }
     }
 
     /**
-     * Fills a polygon defined by the coordinates in the given array, with the
-     * current {@linkplain #getColor() color}. The odd indices correspond to
-     * the x coordinates, the even indices to the y coordinates of the corners
-     * of the polygon. For example, if the array
+     * Fills a polygon with a single "ring" defined by the coordinates in the
+     * given array, with the current {@linkplain #getColor() color}. The odd
+     * indices correspond to the x coordinates, the even indices to the y
+     * coordinates of the corners of the polygon. For example, if the array
      * <code>{1.0, 2.0, 3.0, 4.0, 5.0, 6.0}</code> is given, the polygon is a
      * triangle with the corners at the points (1.0, 2.0), (3.0, 4.0), and
      * (5.0, 6.0).
      */
     public void fillPolygon(double[] coordinates) {
         if (coordinates.length >= 2) {
-            var path = toPath(coordinates);
+            var path = new Path2D.Double(WIND_EVEN_ODD);
+            append(path, coordinates);
             path.closePath();
-            path.setWindingRule(WIND_EVEN_ODD);
             drawCommands.add(g -> g.fill(path));
         }
     }
 
-    private static Path2D.Double toPath(double[] coordinates) {
-        var path = new Path2D.Double();
+    /**
+     * Fills a polygon with multiple "rings" defined by the coordinates in the
+     * given 2D array, with the current {@linkplain #getColor() color}. Each row
+     * in the array corresponds to a ring; the odd indices in a row correspond
+     * to the x coordinates, the even indices to the y coordinates of the
+     * corners of the rings. For example, if the array
+     * <code>{{0.0, 0.0, 5.0, 0.0, 2.5, 5.0}, {1.0, 1.0, 4.0, 1.0, 2.5, 4.0}}</code>
+     * is given, the polygon has a triangular exterior ring and a smaller
+     * triangular hole.
+     * <p>
+     * This method also allows to fill polygons consisting of multiple
+     * non-overlapping parts, but as long as these contain no holes, multiple
+     * {@link #fillPolygon(double[])} calls could just as well be used.
+     */
+    public void fillMultiPolygon(double[][] rings) {
+        if (rings.length >= 2) {
+            var path = new Path2D.Double(WIND_EVEN_ODD);
+            for (var ring : rings) {
+                append(path, ring);
+                path.closePath();
+            }
+            drawCommands.add(g -> g.fill(path));
+        }
+    }
+
+    private static void append(Path2D.Double path, double[] coordinates) {
         path.moveTo(coordinates[0], coordinates[1]);
         for (int i = 2; i < coordinates.length; i += 2) {
             path.lineTo(coordinates[i], coordinates[i + 1]);
         }
-        return path;
     }
 
     /**
