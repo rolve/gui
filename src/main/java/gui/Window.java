@@ -902,14 +902,14 @@ public class Window {
      * {@link #fillPolygon(double[])} calls could just as well be used.
      */
     public void fillMultiPolygon(double[][] rings) {
-        if (rings.length >= 2) {
-            var path = new Path2D.Double(WIND_EVEN_ODD);
-            for (var ring : rings) {
+        var path = new Path2D.Double(WIND_EVEN_ODD);
+        for (var ring : rings) {
+            if (ring.length >= 2) {
                 append(path, ring);
                 path.closePath();
             }
-            drawCommands.add(g -> g.fill(path));
         }
+        drawCommands.add(g -> g.fill(path));
     }
 
     private static void append(Path2D.Double path, double[] coordinates) {
