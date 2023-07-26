@@ -888,6 +888,30 @@ public class Window {
     }
 
     /**
+     * Draws a polygon with multiple "rings" defined by the coordinates in the
+     * given 2D array. Each row in the array corresponds to a ring; the odd
+     * indices in a row correspond to the x coordinates, the even indices to
+     * the y coordinates of the corners of the rings. For example, if the array
+     * <code>{{0.0, 0.0, 5.0, 0.0, 2.5, 5.0}, {1.0, 1.0, 4.0, 1.0, 2.5, 4.0}}</code>
+     * is given, the polygon has a triangular exterior ring and a smaller
+     * triangular hole.
+     * <p>
+     * The current {@linkplain #getColor() color},
+     * {@linkplain #getStrokeWidth() stroke width}, and
+     * {@linkplain #isRoundStroke()  stroke roundness} are used.
+     */
+    public void drawMultiPolygon(double[][] rings) {
+        var path = new Path2D.Double(WIND_EVEN_ODD);
+        for (var ring : rings) {
+            if (ring.length >= 2) {
+                append(path, ring);
+                path.closePath();
+            }
+        }
+        drawCommands.add(g -> g.draw(path));
+    }
+
+    /**
      * Fills a polygon with multiple "rings" defined by the coordinates in the
      * given 2D array, with the current {@linkplain #getColor() color}. Each row
      * in the array corresponds to a ring; the odd indices in a row correspond
