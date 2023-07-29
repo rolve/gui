@@ -1,5 +1,6 @@
 package gui;
 
+import static java.lang.Integer.parseInt;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 
@@ -32,6 +33,29 @@ public final class Color {
         this.g = clamp(g);
         this.b = clamp(b);
         this.alpha = clamp(alpha);
+    }
+
+    /**
+     * Creates a new color based on the given hex code, following the
+     * <a href="https://developer.mozilla.org/en-US/docs/Web/CSS/hex-color">format used on the web</a>,
+     * e.g., #03FF99. The 3-, 4-, 6-, and 8-digit syntaxes are all supported.
+     */
+    public static Color parseHexCode(String hex) {
+        if (hex.matches("#[0-9A-Fa-f]{3}|#[0-9A-Fa-f]{4}")) {
+            var r = parseInt(hex.substring(1, 2), 16);
+            var g = parseInt(hex.substring(2, 3), 16);
+            var b = parseInt(hex.substring(3, 4), 16);
+            var a = hex.length() == 5 ? parseInt(hex.substring(4, 5), 16) : 15;
+            return new Color(17 * r, 17 * g, 17 * b, 17 * a);
+        } else if (hex.matches("#[0-9A-Fa-f]{6}|#[0-9A-Fa-f]{8}")) {
+            var r = parseInt(hex.substring(1, 3), 16);
+            var g = parseInt(hex.substring(3, 5), 16);
+            var b = parseInt(hex.substring(5, 7), 16);
+            var a = hex.length() == 9 ? parseInt(hex.substring(7, 9), 16) : 255;
+            return new Color(r, g, b, a);
+        } else {
+            throw new IllegalArgumentException("invalid hex code: " + hex);
+        }
     }
 
     private static int clamp(int raw) {
