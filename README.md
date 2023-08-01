@@ -2,12 +2,12 @@
 
 Classes for creating simple GUIs in introduction-level programming courses.
 The classes in this library use Swing classes ([JFrame][1], [JPanel][2], etc.) 
-but do not expose any Swing type or concepts directly. Instead, all 
+but do not expose any Swing types or concepts directly. Instead, all 
 functionality is exposed using a simple, single-threaded, and mostly 
-primitive-type-based interface.
+primitive-type-based API.
 
-The base interface uses a single object of type [Window][3] and focuses on 
-drawing operations and global user inputs. An extended interface allows 
+The base API uses a single object of type [Window][3] and focuses on 
+drawing operations and global user inputs. An extended API allows 
 adding "[Component][4]s", which are objects that draw themselves on the window 
 and can react to local user inputs using simple callbacks.
 
@@ -26,7 +26,7 @@ For Maven projects, add the following to your pom.xml file:
     <dependency>
         <groupId>ch.trick17.gui</groupId>
         <artifactId>gui</artifactId>
-        <version>1.5.0-SNAPSHOT</version>
+        <version>1.8.0-SNAPSHOT</version>
     </dependency>
 </dependencies>
 
@@ -48,7 +48,7 @@ repositories {
     }
 }
 dependencies {
-    implementation 'ch.trick17.gui:gui:1.5.0-SNAPSHOT'
+    implementation 'ch.trick17.gui:gui:1.8.0-SNAPSHOT'
 }
 ```
 
