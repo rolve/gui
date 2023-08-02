@@ -3,6 +3,7 @@ package gui;
 import static java.lang.Integer.parseInt;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
+import static java.lang.String.format;
 
 /**
  * A class to represent colors.
@@ -78,6 +79,13 @@ public final class Color {
         return alpha << 24 | r << 16 | g << 8 | b;
     }
 
+    /**
+     * Returns the 8-digit hex code for this color, e.g., #00ce90ff.
+     */
+    public String toHexCode() {
+        return format("#%02x%02x%02x%02x", r, g, b, alpha);
+    }
+
     @Override
     public int hashCode() {
         var prime = 31;
@@ -102,5 +110,14 @@ public final class Color {
         }
         var other = (Color) obj;
         return r == other.r && g == other.g && b == other.b && alpha == other.alpha;
+    }
+
+    @Override
+    public String toString() {
+        if (alpha == 255) {
+            return toHexCode().substring(0, 7) + format(" (%d, %d, %d)", r, g, b);
+        } else {
+            return toHexCode() + format(" (%d, %d, %d, %d)", r, g, b, alpha);
+        }
     }
 }
