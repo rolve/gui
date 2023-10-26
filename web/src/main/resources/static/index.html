@@ -47,6 +47,15 @@
     document.addEventListener('keyup', event => {
         socket.send('keyUp    ' + event.key);
     });
+    canvas.addEventListener('mousedown', event => {
+        socket.send('mouseDwn ' + event.button);
+    });
+    canvas.addEventListener('mouseup', event => {
+        socket.send('mouseUp  ' + event.button);
+    });
+    canvas.addEventListener('mousemove', event => {
+        socket.send('mouseMov ' + event.offsetX + ',' + event.offsetY);
+    });
 </script>
 </body>
 </html>
