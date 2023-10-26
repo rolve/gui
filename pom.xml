@@ -66,9 +66,6 @@
         </repository>
     </distributionManagement>
 
-    <organization>
-        <name>ETH Zurich, Michael Faes</name>
-    </organization>
     <inceptionYear>2017</inceptionYear>
     <developers>
         <developer>
