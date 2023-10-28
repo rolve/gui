@@ -177,6 +177,14 @@ public class WebGui {
         return releasedSnapshot.contains(new MouseInput(true));
     }
 
+    public boolean isRightMouseButtonPressed() {
+        return pressedSnapshot.contains(new MouseInput(false));
+    }
+
+    public boolean wasRightMouseButtonClicked() {
+        return releasedSnapshot.contains(new MouseInput(false));
+    }
+
     public double getMouseX() {
         return mouseX;
     }
