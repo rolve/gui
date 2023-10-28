@@ -2,103 +2,91 @@ package ch.trick17.gui.web;
 
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.WebSocketAdapter;
+import org.eclipse.jetty.websocket.api.WebSocketException;
 
 import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.List;
 
-import static java.lang.Double.parseDouble;
+import static java.lang.String.join;
+import static java.lang.Thread.currentThread;
+import static java.util.Arrays.asList;
 
 public class WebGuiSocket extends WebSocketAdapter {
 
-    private int x = 400;
-    private int y = 300;
-    private int size = 100;
+    private static Method mainMethod;
+    private static final ThreadLocal<WebGuiSocket> current = new ThreadLocal<>();
+
+    static void register(WebGui gui) {
+        if (mainMethod == null) {
+            // first call on the main thread: register main method
+            var stackTrace = new Throwable().getStackTrace();
+            var mainClass = stackTrace[stackTrace.length - 1].getClassName();
+            try {
+                mainMethod = Class.forName(mainClass).getMethod("main", String[].class);
+            } catch (NoSuchMethodException | ClassNotFoundException e) {
+                throw new AssertionError(e);
+            }
+
+            // start web server
+            new Thread(() -> {
+                try {
+                    new WebGuiServer().start();
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            }).start();
+
+            // kill main thread
+            currentThread().setUncaughtExceptionHandler((t, e) -> {});
+            throw new ThreadDeath();
+        } else {
+            // other calls: register and initialize GUI
+            current.get().gui = gui;
+            gui.initialize(current.get());
+        }
+    }
+
+    private WebGui gui;
 
     @Override
     public void onWebSocketConnect(Session session) {
         super.onWebSocketConnect(session);
-        render();
+        new Thread(() -> {
+            current.set(this);
+            try {
+                mainMethod.invoke(null, (Object) new String[0]);
+            } catch (IllegalAccessException | InvocationTargetException e) {
+                throw new RuntimeException(e);
+            }
+        }, "WebGui").start();
     }
 
     @Override
     public void onWebSocketText(String event) {
-        var name = event.substring(0, 8);
-        var args = event.substring(9);
-        switch (name) {
-            case "keyDown ":
-                handleKeyDown(args);
-                break;
-            case "keyUp   ":
-                handleKeyUp(args);
-                break;
-            case "mouseUp ":
-                handleMouseUp(args);
-                break;
-            case "mouseDwn":
-                handleMouseDown(args);
-                break;
-            case "mouseMov":
-                var parts = args.split(",");
-                handleMouseMove(parseDouble(parts[0]), parseDouble(parts[1]));
-                break;
-            default:
-                System.out.println("Unknown event: " + event);
-        }
+        gui.onEvent(event);
     }
 
-    private void handleKeyDown(String key) {
-        switch (key) {
-            case "ArrowLeft":
-                x -= 10;
-                break;
-            case "ArrowRight":
-                x += 10;
-                break;
-            case "ArrowUp":
-                y -= 10;
-                break;
-            case "ArrowDown":
-                y += 10;
-                break;
-            case "+":
-                size += 10;
-                break;
-            case "-":
-                size -= 10;
-                break;
-        }
-        render();
+    @Override
+    public void onWebSocketClose(int statusCode, String reason) {
+        gui.close();
     }
 
-    private void handleKeyUp(String key) {
-        // nothing to do
+    void send(String... commands) {
+        send(asList(commands));
     }
 
-    private void handleMouseMove(String button) {
-        // nothing to do
-    }
-
-    private void handleMouseUp(String button) {
-        // nothing to do
-    }
-
-    private void handleMouseDown(String button) {
-        // nothing to do
-    }
-
-    private void handleMouseMove(double x, double y) {
-        this.x = (int) x;
-        this.y = (int) y;
-        render();
-    }
-
-    private void render() {
+    void send(List<String> commands) {
         try {
-            getSession().getRemote().sendString(
-                    "clear    \n" +
-                    "drawRect " + (x - size / 2) + "," + (y - size / 2) + ","
-                    + size + "," + size);
+            getSession().getRemote().sendString(join("\n", commands));
+        } catch (WebSocketException e) {
+           if (!e.getMessage().contains("Session closed")) {
+               throw e;
+           }
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new UncheckedIOException(e);
         }
     }
 }

@@ -11,13 +11,9 @@ import static org.eclipse.jetty.util.resource.Resource.newClassPathResource;
 
 public class WebGuiServer {
 
-    public static void main(String[] args) throws Exception {
-        new WebGuiServer().start();
-    }
-
     private final Server server;
 
-    public WebGuiServer() {
+    WebGuiServer() {
         server = new Server(8080);
 
         var webSocketHandler = new ServletContextHandler();
@@ -30,7 +26,7 @@ public class WebGuiServer {
         server.setHandler(new HandlerList(webSocketHandler, resourceHandler));
     }
 
-    public void start() throws Exception {
+    void start() throws Exception {
         server.start();
         server.dump(System.err);
         server.join();

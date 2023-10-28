@@ -2,12 +2,12 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>HTML5 Frontend</title>
+    <title>Application Loading...</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="m-5 bg-slate-800">
 <div class="w-[800px] m-auto shadow-xl bg-white">
-    <canvas id="canvas" width="800" height="600"></canvas>
+    <canvas id="canvas"></canvas>
 </div>
 <script type="module">
     let canvas = document.getElementById("canvas");
@@ -19,6 +19,14 @@
         let name = command.substring(0, 8);
         let args = command.substring(9);
         switch (name) {
+            case 'setTitle':
+                document.title = args;
+                break;
+            case 'setSize ':
+                let parts = args.split(',');
+                canvas.width = parts[0];
+                canvas.height = parts[1];
+                break;
             case 'clear   ':
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
                 break;
