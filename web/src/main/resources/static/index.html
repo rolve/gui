@@ -6,9 +6,9 @@
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="m-5 bg-slate-800">
-<div class="w-[800px] m-auto shadow-xl bg-white">
-    <canvas id="canvas"></canvas>
-</div>
+<canvas id="canvas" class="m-auto shadow-xl bg-white" width="0" height="0">
+    Your browser does not support the HTML5 canvas tag.
+</canvas>
 <script type="module">
     let canvas = document.getElementById("canvas");
     let ctx = canvas.getContext("2d");

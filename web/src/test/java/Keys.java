@@ -7,6 +7,7 @@ public class Keys {
 
     public static void main(String[] args) {
         WebGui gui = new WebGui("Keys", 700, 300);
+        gui.open();
 
         int speed = 5;
         double x = 100;

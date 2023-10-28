@@ -32,7 +32,7 @@ public class WebGui {
     private volatile double mouseX = 0;
     private volatile double mouseY = 0;
 
-    private volatile boolean open = true;
+    private volatile boolean open;
 
     private long lastRefreshTime = 0;
 
@@ -49,16 +49,31 @@ public class WebGui {
 
     void initialize(WebGuiSocket socket) {
         this.socket = socket;
-        socket.send("setTitle " + title,
-                    "setSize  " + width + "," + height);
+    }
+
+    public void open() {
+        var commands = new ArrayList<>(List.of(
+                "setTitle " + title,
+                "setSize  " + width + "," + height));
+        commands.addAll(drawCommands);
+        socket.send(commands);
+        open = true;
+    }
+
+    public void close() {
+        open = false;
     }
 
     public boolean isOpen() {
         return open;
     }
 
-    void close() {
-        open = false;
+    public void waitUntilClosed() {
+        while (isOpen()) {
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException ignored) {}
+        }
     }
 
     public void refreshAndClear(int waitTime) {

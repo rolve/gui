@@ -7,6 +7,7 @@ public class Mouse {
     public static void main(String[] args) {
         WebGui gui = new WebGui("Mouse", 700, 300);
         gui.setColor(0, 128, 0);
+        gui.open();
 
         double x = 50;
         double y = 50;
