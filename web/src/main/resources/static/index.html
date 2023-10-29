@@ -43,17 +43,25 @@
                 break;
             case 'drawImg ': {
                 let parts = args.split(',', 5);
+                let scale = parts[2];
                 let img = images[parts[4]];
-                // TODO: scale & rotate
-                ctx.drawImage(img, parts[0], parts[1]);
+                ctx.translate(parts[0], parts[1]);
+                ctx.scale(scale, scale);
+                // TODO: rotate
+                ctx.drawImage(img, 0, 0);
+                ctx.setTransform(1, 0, 0, 1, 0, 0);
                 break;
             }
             case 'drawImgC': {
                 let parts = args.split(',', 5);
+                let scale = parts[2];
                 let img = images[parts[4]];
-                // TODO: scale & rotate
-                ctx.drawImage(img, parts[0] - img.width / 2,
-                    parts[1] - img.height / 2);
+                ctx.translate(parts[0] - img.width / 2 * scale,
+                              parts[1] - img.height / 2 * scale);
+                ctx.scale(scale, scale);
+                // TODO: rotate
+                ctx.drawImage(img, 0, 0);
+                ctx.setTransform(1, 0, 0, 1, 0, 0);
                 break;
             }
             default:

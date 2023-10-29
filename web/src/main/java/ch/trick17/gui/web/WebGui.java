@@ -1,6 +1,8 @@
 package ch.trick17.gui.web;
 
 import ch.trick17.gui.Color;
+import ch.trick17.gui.web.component.Component;
+import ch.trick17.gui.web.component.Drawable;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -37,6 +39,8 @@ public class WebGui {
     private volatile boolean open;
 
     private long lastRefreshTime = 0;
+
+    private final List<Component> components = new ArrayList<>();
 
     public WebGui(String title, int width, int height) {
         this.title = title;
@@ -84,6 +88,8 @@ public class WebGui {
     }
 
     private void refresh(int waitTime, boolean clear) {
+        runComponents();
+
         if (clear) {
             synchronized (this) {
                 drawSnapshot = drawCommands;
@@ -115,6 +121,15 @@ public class WebGui {
             pressedSnapshot.addAll(pressedInputs);
             releasedSnapshot.addAll(releasedInputs);
             releasedInputs.clear();
+        }
+    }
+
+    private void runComponents() {
+        for (var comp : components) {
+            if (comp instanceof Drawable) {
+                var d = (Drawable) comp;
+                d.draw(this);
+            }
         }
     }
 
@@ -163,6 +178,16 @@ public class WebGui {
             default:
                 System.out.println("Unknown event: " + event);
         }
+    }
+
+    public void addComponent(Component component) {
+        if (component == null) {
+            throw new IllegalArgumentException("component must not be null");
+        }
+        if (components.stream().anyMatch(c -> c == component)) {
+            throw new IllegalArgumentException("component already added");
+        }
+        components.add(component);
     }
 
     public void setColor(int red, int green, int blue) {
