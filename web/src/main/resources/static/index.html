@@ -18,9 +18,7 @@
 
     let images = {};
 
-    function processCommand(command) {
-        let name = command.substring(0, 8);
-        let args = command.substring(9);
+    function processCommand(name, args) {
         switch (name) {
             case 'setTitle':
                 document.title = args;
@@ -63,6 +61,19 @@
         }
     }
 
+    function processCommands(commands) {
+        let allImagesComplete = commands
+            .filter(c => c.name === 'drawImg ' || c.name === 'drawImgC')
+            .map(c => c.args.split(',', 5)[4])
+            .map(n => images[n].complete)
+            .reduce((a, b) => a && b, true);
+        if (allImagesComplete) {
+            commands.forEach(c => processCommand(c.name, c.args));
+        } else {
+            setTimeout(() => processCommands(commands), 0);
+        }
+    }
+
     function processImage(data) {
         let nameLength = new DataView(data, 0, 4).getInt32(0, false);
         let name = new TextDecoder().decode(new DataView(data, 4, nameLength));
@@ -70,17 +81,18 @@
         let img = new Image();
         img.src = url;
         images[name] = img;
-        console.log('Loaded image: ' + name)
     }
 
     socket.addEventListener('message', event => {
         let data = event.data;
         if (data instanceof ArrayBuffer) {
-            // image
             processImage(data);
         } else {
-            // command
-            data.split('\n').forEach(processCommand);
+            let commands = data.split('\n').map(c => ({
+                name: c.substring(0, 8),
+                args: c.substring(9)
+            }));
+            processCommands(commands);
         }
     });
 

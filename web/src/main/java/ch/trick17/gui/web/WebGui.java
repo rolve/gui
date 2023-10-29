@@ -59,6 +59,7 @@ public class WebGui {
                 "setSize  " + width + "," + height));
         commands.addAll(drawCommands);
         socket.send(commands);
+        lastRefreshTime = System.currentTimeMillis();
         open = true;
     }
 

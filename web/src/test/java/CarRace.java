@@ -7,10 +7,6 @@ public class CarRace {
         int height = 600;
         int finishLine = width - 50;
 
-        var gui = new WebGui("Cars", width, height);
-        gui.drawImage("web/img/city.jpg", 0, 0);
-        gui.open();
-
         Car[] cars = {
                 new Car("Bug", 2.8, 50, height/2 - 70),
                 new Car("CopCar", 4.1, 50, height/2 - 35),
@@ -18,6 +14,14 @@ public class CarRace {
                 new Car("HotDogVan", 3.7, 50, height/2 + 40),
                 new Car("Tank", 1.8, 50, height/2 + 90)};
 
+        var gui = new WebGui("Cars", width, height);
+        gui.drawImage("web/img/city.jpg", 0, 0);
+        for (Car car : cars) {
+            car.draw(gui);
+        }
+
+        gui.open();
+        gui.refreshAndClear(1000);
         while (gui.isOpen()) {
             gui.drawImage("web/img/city.jpg", 0, 0);
 
