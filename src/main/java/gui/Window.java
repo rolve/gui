@@ -279,6 +279,7 @@ public class Window {
      */
     public void open() {
         drawSnapshot.addAll(drawCommands);
+        lastRefreshTime = System.currentTimeMillis();
         open = true;
 
         run(() -> {
