@@ -8,11 +8,12 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.nio.ByteBuffer;
 import java.util.List;
 
 import static java.lang.String.join;
 import static java.lang.Thread.currentThread;
-import static java.util.Arrays.asList;
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class WebGuiSocket extends WebSocketAdapter {
 
@@ -74,17 +75,31 @@ public class WebGuiSocket extends WebSocketAdapter {
         gui.close();
     }
 
-    void send(String... commands) {
-        send(asList(commands));
-    }
-
     void send(List<String> commands) {
         try {
             getSession().getRemote().sendString(join("\n", commands));
         } catch (WebSocketException e) {
-           if (!e.getMessage().contains("Session closed")) {
-               throw e;
-           }
+            if (!e.getMessage().contains("Session closed")) {
+                throw e;
+            }
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    void sentImage(String name, byte[] image) {
+        try {
+            var nameBytes = name.getBytes(UTF_8);
+            var buffer = ByteBuffer.allocate(4 + nameBytes.length + image.length);
+            buffer.putInt(name.length());
+            buffer.put(nameBytes);
+            buffer.put(image);
+            buffer.flip();
+            getSession().getRemote().sendBytes(buffer);
+        } catch (WebSocketException e) {
+            if (!e.getMessage().contains("Session closed")) {
+                throw e;
+            }
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }

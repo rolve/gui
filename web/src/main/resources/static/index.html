@@ -14,6 +14,9 @@
     let ctx = canvas.getContext("2d");
 
     let socket = new WebSocket('ws://localhost:8080/ws/');
+    socket.binaryType = 'arraybuffer';
+
+    let images = {};
 
     function processCommand(command) {
         let name = command.substring(0, 8);
@@ -40,13 +43,45 @@
             case 'fillRect':
                 ctx.fillRect(...args.split(','));
                 break;
+            case 'drawImg ': {
+                let parts = args.split(',', 5);
+                let img = images[parts[4]];
+                // TODO: scale & rotate
+                ctx.drawImage(img, parts[0], parts[1]);
+                break;
+            }
+            case 'drawImgC': {
+                let parts = args.split(',', 5);
+                let img = images[parts[4]];
+                // TODO: scale & rotate
+                ctx.drawImage(img, parts[0] - img.width / 2,
+                    parts[1] - img.height / 2);
+                break;
+            }
             default:
                 console.log('Unknown command: ' + command);
         }
     }
 
+    function processImage(data) {
+        let nameLength = new DataView(data, 0, 4).getInt32(0, false);
+        let name = new TextDecoder().decode(new DataView(data, 4, nameLength));
+        let url = URL.createObjectURL(new Blob([new DataView(data, 4 + nameLength)]));
+        let img = new Image();
+        img.src = url;
+        images[name] = img;
+        console.log('Loaded image: ' + name)
+    }
+
     socket.addEventListener('message', event => {
-        event.data.split('\n').forEach(processCommand);
+        let data = event.data;
+        if (data instanceof ArrayBuffer) {
+            // image
+            processImage(data);
+        } else {
+            // command
+            data.split('\n').forEach(processCommand);
+        }
     });
 
     document.addEventListener('keydown', event => {

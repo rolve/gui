@@ -2,13 +2,13 @@ package ch.trick17.gui.web;
 
 import ch.trick17.gui.Color;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.util.*;
 
 import static java.lang.Double.parseDouble;
 import static java.lang.String.format;
+import static java.nio.file.Files.readAllBytes;
 
 public class WebGui {
 
@@ -22,6 +22,8 @@ public class WebGui {
     private List<String> drawSnapshot;
 
     private Color color = new Color(0, 0, 0);
+
+    private final Set<String> loadedImages = new HashSet<>();
 
     private final Object inputLock = new Object();
     private final Set<Input> pressedInputs = new HashSet<>();
@@ -100,8 +102,7 @@ public class WebGui {
                 } else {
                     break;
                 }
-            } catch (InterruptedException ignored) {
-            }
+            } catch (InterruptedException ignored) {}
         }
         lastRefreshTime = System.currentTimeMillis();
 
@@ -174,6 +175,43 @@ public class WebGui {
 
     public void fillRect(double x, double y, double width, double height) {
         drawCommands.add(format("fillRect %.1f,%.1f,%.1f,%.1f", x, y, width, height));
+    }
+
+    public void drawImage(String path, double x, double y) {
+        drawImage(path, x, y, 1);
+    }
+
+    public void drawImage(String path, double x, double y, double scale) {
+        drawImage(path, x, y, scale, 0);
+    }
+
+    public void drawImage(String path, double x, double y, double scale, double angle) {
+        ensureLoaded(path);
+        drawCommands.add(format("drawImg  %.1f,%.1f,%.1f,%.1f,%s", x, y, scale, angle, path));
+    }
+
+    public void drawImageCentered(String path, double x, double y) {
+        drawImageCentered(path, x, y, 1);
+    }
+
+    public void drawImageCentered(String path, double x, double y, double scale) {
+        drawImageCentered(path, x, y, scale, 0);
+    }
+
+    public void drawImageCentered(String path, double x, double y, double scale, double angle) {
+        ensureLoaded(path);
+        drawCommands.add(format("drawImgC %.1f,%.1f,%.1f,%.1f,%s", x, y, scale, angle, path));
+    }
+
+    private void ensureLoaded(String imagePath) throws Error {
+        if (!loadedImages.contains(imagePath)) {
+            try {
+                loadedImages.add(imagePath);
+                socket.sentImage(imagePath, readAllBytes(Path.of(imagePath)));
+            } catch (IOException e) {
+                throw new Error("could not load image \"" + imagePath + "\"", e);
+            }
+        }
     }
 
     public boolean isKeyPressed(String keyName) {
