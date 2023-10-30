@@ -7,11 +7,8 @@ import java.util.ArrayList;
 
 public class RunHans implements Drawable {
 
-    public static final int PIXEL_WIDTH = 480;
-    public static final int PIXEL_HEIGHT = 320;
-    public static final int PIXEL_SCALE = 2;
-    public static final int WIDTH = PIXEL_WIDTH * PIXEL_SCALE;
-    public static final int HEIGHT = PIXEL_HEIGHT * PIXEL_SCALE;
+    public static final int WIDTH = 960;
+    public static final int HEIGHT = 640;
     public static final double FRAME_RATE = 50;
 
     private static final double ENEMIES_PER_MINUTE = 15;
@@ -91,13 +88,13 @@ public class RunHans implements Drawable {
 
     @Override
     public void draw(WebGui window) {
-        window.drawImage("web/img/background.png", 0, 0, PIXEL_SCALE);
+        window.drawImage("web/img/background.png", 0, 0);
 
         String levelFile = String.format("web/img/levels/%02d.png", level);
-        window.drawImageCentered(levelFile, 96, HEIGHT - 32, 3);
+        window.drawImageCentered(levelFile, 96, HEIGHT - 32);
 
         if (gameOver) {
-            window.drawImageCentered("web/img/gameover.png", WIDTH/2, HEIGHT/2, 10);
+            window.drawImageCentered("web/img/gameover.png", WIDTH/2, HEIGHT/2);
         }
     }
 }
