@@ -22,6 +22,6 @@ public class Car {
     }
 
     public void draw(WebGui gui) {
-        gui.drawImageCentered("web/img/" + name + ".png", x, y);
+        gui.drawImageCentered("img/" + name + ".png", x, y);
     }
 }

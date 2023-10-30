@@ -39,7 +39,7 @@ public abstract class Character implements Drawable {
         } else {
             suffix = "right";
         }
-        String img = "web/img/" + imgName + "-" + suffix + ".png";
+        String img = "img/" + imgName + "-" + suffix + ".png";
         window.drawImageCentered(img, x, y);
     }
 

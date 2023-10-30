@@ -231,12 +231,18 @@ public class WebGui {
 
     private void ensureLoaded(String imagePath) throws Error {
         if (!loadedImages.contains(imagePath)) {
-            try {
-                loadedImages.add(imagePath);
-                socket.sentImage(imagePath, readAllBytes(Path.of(imagePath)));
+            try (var res = getClass().getClassLoader().getResourceAsStream(imagePath)) {
+                byte[] bytes;
+                if (res != null) {
+                    bytes = res.readAllBytes();
+                } else {
+                    bytes = readAllBytes(Path.of(imagePath));
+                }
+                socket.sentImage(imagePath, bytes);
             } catch (IOException e) {
                 throw new Error("could not load image \"" + imagePath + "\"", e);
             }
+            loadedImages.add(imagePath);
         }
     }
 

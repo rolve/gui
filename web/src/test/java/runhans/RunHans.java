@@ -88,13 +88,13 @@ public class RunHans implements Drawable {
 
     @Override
     public void draw(WebGui window) {
-        window.drawImage("web/img/background.png", 0, 0);
+        window.drawImage("img/background.png", 0, 0);
 
-        String levelFile = String.format("web/img/levels/%02d.png", level);
+        String levelFile = String.format("img/levels/%02d.png", level);
         window.drawImageCentered(levelFile, 96, HEIGHT - 32);
 
         if (gameOver) {
-            window.drawImageCentered("web/img/gameover.png", WIDTH/2, HEIGHT/2);
+            window.drawImageCentered("img/gameover.png", WIDTH/2, HEIGHT/2);
         }
     }
 }
