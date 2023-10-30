@@ -1,13 +1,17 @@
 package ch.trick17.gui.web;
 
 import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.server.handler.HandlerList;
-import org.eclipse.jetty.server.handler.ResourceHandler;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.websocket.servlet.WebSocketServlet;
 import org.eclipse.jetty.websocket.servlet.WebSocketServletFactory;
 
-import static org.eclipse.jetty.util.resource.Resource.newClassPathResource;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+
+import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
+import static javax.servlet.http.HttpServletResponse.SC_OK;
 
 public class WebGuiServer {
 
@@ -15,21 +19,30 @@ public class WebGuiServer {
 
     WebGuiServer() {
         server = new Server(8080);
-
-        var webSocketHandler = new ServletContextHandler();
-        webSocketHandler.setContextPath("/ws");
-        webSocketHandler.addServlet(WebGuiServlet.class, "/");
-
-        var resourceHandler = new ResourceHandler();
-        resourceHandler.setBaseResource(newClassPathResource("/static"));
-
-        server.setHandler(new HandlerList(webSocketHandler, resourceHandler));
+        var handler = new ServletContextHandler(null, "/");
+        handler.addServlet(WebGuiServlet.class, "/ws/");
+        handler.addServlet(IndexServlet.class, "/");
+        server.setHandler(handler);
     }
 
     void start() throws Exception {
         server.start();
         server.dump(System.err);
         server.join();
+    }
+
+    public static class IndexServlet extends HttpServlet {
+        protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+            if (!req.getRequestURI().equals("/") || !req.getMethod().equals("GET")) {
+                resp.setStatus(SC_NOT_FOUND);
+                return;
+            }
+            resp.setStatus(SC_OK);
+            resp.setContentType("text/html");
+            try (var in = IndexServlet.class.getResourceAsStream("/static/index.html")) {
+                in.transferTo(resp.getOutputStream());
+            }
+        }
     }
 
     public static class WebGuiServlet extends WebSocketServlet {
