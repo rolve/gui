@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
+import static java.lang.Integer.parseInt;
 import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
 import static javax.servlet.http.HttpServletResponse.SC_OK;
 
@@ -18,7 +19,8 @@ public class WebGuiServer {
     private final Server server;
 
     WebGuiServer() {
-        server = new Server(8080);
+        var port = System.getProperty("port", "8080");
+        server = new Server(parseInt(port));
         var handler = new ServletContextHandler(null, "/");
         handler.addServlet(WebGuiServlet.class, "/ws/");
         handler.addServlet(IndexServlet.class, "/");
