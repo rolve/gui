@@ -33,7 +33,7 @@ public class WebGuiServer {
 
     public static class IndexServlet extends HttpServlet {
         protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-            if (!req.getRequestURI().equals("/") || !req.getMethod().equals("GET")) {
+            if (!req.getRequestURI().equals("/")) {
                 resp.setStatus(SC_NOT_FOUND);
                 return;
             }
