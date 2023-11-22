@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Application Loading...</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="m-5 bg-slate-800" oncontextmenu="return false;">
+<canvas id="canvas" class="m-auto shadow-xl bg-white" width="0" height="0">
+    Your browser does not support the HTML5 canvas tag.
+</canvas>
+<script type="module">
+    let canvas = document.getElementById("canvas");
+    let ctx = canvas.getContext("2d");
+
+    let protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
+    let url = protocol + "//" + window.location.host + "/ws/";
+    let socket = new WebSocket(url);
+    socket.binaryType = 'arraybuffer';
+
+    let images = {};
+
+    function processCommand(name, args) {
+        switch (name) {
+            case 'setTitle':
+                document.title = args;
+                break;
+            case 'setSize ':
+                let parts = args.split(',');
+                canvas.width = parts[0];
+                canvas.height = parts[1];
+                break;
+            case 'clear   ':
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                break;
+            case 'setColor':
+                ctx.fillStyle = 'rgb(' + args + ')';
+                ctx.strokeStyle = 'rgb(' + args + ')';
+                break;
+            case 'drawRect':
+                ctx.strokeRect(...args.split(','));
+                break;
+            case 'fillRect':
+                ctx.fillRect(...args.split(','));
+                break;
+            case 'drawImg ': {
+                let parts = args.split(',', 5);
+                let scale = parts[2];
+                let img = images[parts[4]];
+                ctx.translate(parts[0], parts[1]);
+                ctx.scale(scale, scale);
+                // TODO: rotate
+                ctx.drawImage(img, 0, 0);
+                ctx.setTransform(1, 0, 0, 1, 0, 0);
+                break;
+            }
+            case 'drawImgC': {
+                let parts = args.split(',', 5);
+                let scale = parts[2];
+                let img = images[parts[4]];
+                ctx.translate(parts[0] - img.width / 2 * scale,
+                              parts[1] - img.height / 2 * scale);
+                ctx.scale(scale, scale);
+                // TODO: rotate
+                ctx.drawImage(img, 0, 0);
+                ctx.setTransform(1, 0, 0, 1, 0, 0);
+                break;
+            }
+            default:
+                console.log('Unknown command: ' + command);
+        }
+    }
+
+    function processCommands(commands) {
+        let allImagesComplete = commands
+            .filter(c => c.name === 'drawImg ' || c.name === 'drawImgC')
+            .map(c => c.args.split(',', 5)[4])
+            .map(n => images[n].complete)
+            .reduce((a, b) => a && b, true);
+        if (allImagesComplete) {
+            commands.forEach(c => processCommand(c.name, c.args));
+        } else {
+            setTimeout(() => processCommands(commands), 0);
+        }
+    }
+
+    function processImage(data) {
+        let nameLength = new DataView(data, 0, 4).getInt32(0, false);
+        let name = new TextDecoder().decode(new DataView(data, 4, nameLength));
+        let url = URL.createObjectURL(new Blob([new DataView(data, 4 + nameLength)]));
+        let img = new Image();
+        img.src = url;
+        images[name] = img;
+    }
+
+    socket.addEventListener('message', event => {
+        let data = event.data;
+        if (data instanceof ArrayBuffer) {
+            processImage(data);
+        } else {
+            let commands = data.split('\n').map(c => ({
+                name: c.substring(0, 8),
+                args: c.substring(9)
+            }));
+            processCommands(commands);
+        }
+    });
+
+    document.addEventListener('keydown', event => {
+        socket.send('keyDown  ' + event.key);
+    });
+    document.addEventListener('keyup', event => {
+        socket.send('keyUp    ' + event.key);
+    });
+    canvas.addEventListener('mousedown', event => {
+        socket.send('mouseDwn ' + event.button);
+    });
+    canvas.addEventListener('mouseup', event => {
+        socket.send('mouseUp  ' + event.button);
+    });
+    canvas.addEventListener('mousemove', event => {
+        socket.send('mouseMov ' + event.offsetX + ',' + event.offsetY);
+    });
+</script>
+</body>
+</html>

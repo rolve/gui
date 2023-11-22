@@ -5,6 +5,8 @@ import gui.component.Drawable;
 import gui.component.Hoverable;
 import gui.component.Interactive;
 import gui.impl.swing.Window;
+import gui.impl.web.WebGui;
+import gui.impl.web.WebGuiServer;
 
 import java.util.List;
 
@@ -50,8 +52,20 @@ import java.util.List;
  */
 public interface Gui {
 
+    /**
+     * Create a new GUI with the specified title, width, and height. By default,
+     * the GUI is displayed in a window. If the system property
+     * "<code>gui.port</code>" is set, the GUI can be accessed using a web
+     * browser instead. For example, when running the program with
+     * <code>-Dgui.port=8080</code>, the GUI can be accessed at
+     * <a href="http://localhost:8080">http://localhost:8080</a>.
+     */
     static Gui create(String title, int width, int height) {
-        return new Window(title, width, height);
+        if (WebGuiServer.port() != null) {
+            return new WebGui(title, width, height);
+        } else {
+            return new Window(title, width, height);
+        }
     }
 
     /**
@@ -80,7 +94,8 @@ public interface Gui {
         while (isOpen()) {
             try {
                 Thread.sleep(500);
-            } catch (InterruptedException ignored) {}
+            } catch (InterruptedException ignored) {
+            }
         }
     }
 

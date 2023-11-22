@@ -54,7 +54,8 @@ public class Window implements Gui {
                     var text = name.substring(3).toLowerCase();
                     LEGAL_KEY_TEXTS.add(text);
                     CODE_TO_TEXT.put(code, text);
-                } catch (Exception ignored) {}
+                } catch (Exception ignored) {
+                }
             }
         }
     }
@@ -108,9 +109,6 @@ public class Window implements Gui {
     private final Set<Hoverable> hovered = newSetFromMap(new IdentityHashMap<>());
     private final List<Component> components = new ArrayList<>();
 
-    /**
-     * Create a new window with the specified title, width, and height.
-     */
     public Window(String title, int width, int height) {
         this.width = width;
         this.height = height;
@@ -214,7 +212,8 @@ public class Window implements Gui {
                 try {
                     main.join();
                     break;
-                } catch (InterruptedException ignored) {}
+                } catch (InterruptedException ignored) {
+                }
             }
             invokeLater(frame::dispose);
         }).start();
@@ -301,7 +300,8 @@ public class Window implements Gui {
                 } else {
                     break;
                 }
-            } catch (InterruptedException ignored) {}
+            } catch (InterruptedException ignored) {
+            }
         }
         lastRefreshTime = System.currentTimeMillis();
 
@@ -660,16 +660,21 @@ public class Window implements Gui {
         var image = images.get(path);
         var transform = new AffineTransform();
         transform.translate(x - image.getWidth() / 2.0 * scale,
-                            y - image.getHeight() / 2.0 * scale);
+                y - image.getHeight() / 2.0 * scale);
         transform.scale(scale, scale);
         transform.rotate(angle, image.getWidth() / 2.0, image.getHeight() / 2.0);
         drawCommands.add(g -> g.drawImage(image, transform, null));
     }
 
-    private void ensureLoaded(String imagePath) throws Error {
+    private void ensureLoaded(String imagePath) {
         if (!images.containsKey(imagePath)) {
-            try {
-                var image = ImageIO.read(new File(imagePath));
+            try (var res = getClass().getClassLoader().getResourceAsStream(imagePath)) {
+                BufferedImage image;
+                if (res != null) {
+                    image = ImageIO.read(res);
+                } else {
+                    image = ImageIO.read(new File(imagePath));
+                }
                 if (image == null) {
                     throw new Error("could not load image \"" + imagePath + "\"");
                 }
@@ -745,10 +750,12 @@ public class Window implements Gui {
             invokeAndWait(run);
         } catch (InvocationTargetException e) {
             throw new Error(e);
-        } catch (InterruptedException ignored) {}
+        } catch (InterruptedException ignored) {
+        }
     }
 
-    private static class Input {}
+    private static class Input {
+    }
 
     private static class KeyInput extends Input {
         String key;
