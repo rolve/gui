@@ -1,8 +1,10 @@
 package gui.component;
 
+import gui.Gui;
+
 /**
  * A simple 2D rectangle that can be used as the
- * {@linkplain Interactive#getInteractiveArea(gui.Window) interactive area} of a
+ * {@linkplain Interactive#getInteractiveArea(Gui) interactive area} of a
  * component.
  */
 public class Rectangle implements Shape {

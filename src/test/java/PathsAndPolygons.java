@@ -1,19 +1,19 @@
 import gui.Color;
-import gui.Window;
+import gui.Gui;
 
 public class PathsAndPolygons {
     private static final int WIDTH = 400;
     private static final int HEIGHT = 400;
 
     public static void main(String[] args) {
-        Window window = new Window("Paths & Polygons", WIDTH, HEIGHT);
+        Gui gui = Gui.create("Paths & Polygons", WIDTH, HEIGHT);
 
         var path = new double[] {
                 380,  40,
                 220, 200,
                 380, 360};
-        window.setStrokeWidth(3);
-        window.drawPath(path);
+        gui.setStrokeWidth(3);
+        gui.drawPath(path);
 
         var bigK = new double[] {
                  20,  20,
@@ -21,13 +21,13 @@ public class PathsAndPolygons {
                 200, 200,
                 380, 380,
                  20, 380};
-        window.setColor(150, 200, 250);
-        window.fillPolygon(bigK);
+        gui.setColor(150, 200, 250);
+        gui.fillPolygon(bigK);
 
-        window.setColor(100, 150, 200);
-        window.setStrokeWidth(5);
-        window.setRoundStroke(true);
-        window.drawPolygon(bigK);
+        gui.setColor(100, 150, 200);
+        gui.setStrokeWidth(5);
+        gui.setRoundStroke(true);
+        gui.drawPolygon(bigK);
 
         var selfIntersecting = new double[] {
                  50, 100,
@@ -36,8 +36,8 @@ public class PathsAndPolygons {
                 100, 150,
                 250, 300,
                  50, 300};
-        window.setColor(new Color(255, 255, 255, 100));
-        window.fillPolygon(selfIntersecting);
+        gui.setColor(new Color(255, 255, 255, 100));
+        gui.fillPolygon(selfIntersecting);
 
         var withHole = new double[][]{
                 {
@@ -52,8 +52,8 @@ public class PathsAndPolygons {
                         320, 200,
                         300, 240
                 }};
-        window.setColor(150, 200, 250);
-        window.fillMultiPolygon(withHole);
+        gui.setColor(150, 200, 250);
+        gui.fillMultiPolygon(withHole);
 
         var intersecting = new double[][]{
                 {
@@ -68,10 +68,10 @@ public class PathsAndPolygons {
                         110,  80,
                          60,  80
                 }};
-        window.setColor(0, 100, 150);
-        window.fillMultiPolygon(intersecting);
+        gui.setColor(0, 100, 150);
+        gui.fillMultiPolygon(intersecting);
 
-        window.open();
-        window.waitUntilClosed();
+        gui.open();
+        gui.waitUntilClosed();
     }
 }

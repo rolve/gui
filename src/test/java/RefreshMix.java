@@ -1,11 +1,11 @@
-import gui.Window;
+import gui.Gui;
 
 public class RefreshMix {
 
     public static void main(String[] args) {
-        Window window = new Window("Refresh Mix", 200, 200);
-        window.open();
-        window.refreshAndClear(1000);
+        Gui gui = Gui.create("Refresh Mix", 200, 200);
+        gui.open();
+        gui.refreshAndClear(1000);
 
         // expected result:
         // .
@@ -20,15 +20,15 @@ public class RefreshMix {
         //
         // . .
 
-        while (window.isOpen()) {
-            window.fillCircle(50, 50, 30);
-            window.refresh(1000);
-            window.fillCircle(150, 50, 30);
-            window.refreshAndClear(1000);
-            window.fillCircle(150, 150, 30);
-            window.refresh(1000);
-            window.fillCircle(50, 150, 30);
-            window.refreshAndClear(1000);
+        while (gui.isOpen()) {
+            gui.fillCircle(50, 50, 30);
+            gui.refresh(1000);
+            gui.fillCircle(150, 50, 30);
+            gui.refreshAndClear(1000);
+            gui.fillCircle(150, 150, 30);
+            gui.refresh(1000);
+            gui.fillCircle(50, 150, 30);
+            gui.refreshAndClear(1000);
         }
     }
 }

@@ -1,7 +1,7 @@
 import static java.lang.Math.max;
 
 import gui.Color;
-import gui.Window;
+import gui.Gui;
 import gui.component.Clickable;
 import gui.component.Drawable;
 import gui.component.Hoverable;
@@ -10,16 +10,16 @@ import gui.component.Rectangle;
 public class Components {
 
     public static void main(String[] args) {
-        Window window = new Window("Components", 700, 300);
-        window.setResizable(true);
+        Gui gui = Gui.create("Components", 700, 300);
+        gui.setResizable(true);
 
-        window.addComponent(new GreenCircle(220, 60));
-        window.addComponent(new ClickySquare(50, 50, 50));
-        window.addComponent(new ClickySquare(200, 50, 70));
-        window.addComponent(new Greeting(300, 100));
+        gui.addComponent(new GreenCircle(220, 60));
+        gui.addComponent(new ClickySquare(50, 50, 50));
+        gui.addComponent(new ClickySquare(200, 50, 70));
+        gui.addComponent(new Greeting(300, 100));
 
-        window.open();
-        window.runUntilClosed(20);
+        gui.open();
+        gui.runUntilClosed(20);
     }
 }
 
@@ -34,9 +34,9 @@ class GreenCircle implements Drawable {
     }
 
     @Override
-    public void draw(Window window) {
-        window.setColor(0, 180, 0);
-        window.fillCircle(x, y, 30);
+    public void draw(Gui gui) {
+        gui.setColor(0, 180, 0);
+        gui.fillCircle(x, y, 30);
     }
 }
 
@@ -52,7 +52,7 @@ class Greeting implements Drawable, Hoverable {
     }
 
     @Override
-    public Rectangle getInteractiveArea(Window window) {
+    public Rectangle getInteractiveArea(Gui gui) {
         return new Rectangle(x, y, 70, 30);
     }
 
@@ -69,13 +69,13 @@ class Greeting implements Drawable, Hoverable {
     }
 
     @Override
-    public void draw(Window window) {
-        window.setColor(240, 240, 240);
-        window.fillRect(x, y, 70, 30);
-        window.setColor(0, 0, 0);
-        window.setFontSize(16);
-        window.setBold(text.equals("World!"));
-        window.drawString(text, x + 5, y + 20);
+    public void draw(Gui gui) {
+        gui.setColor(240, 240, 240);
+        gui.fillRect(x, y, 70, 30);
+        gui.setColor(0, 0, 0);
+        gui.setFontSize(16);
+        gui.setBold(text.equals("World!"));
+        gui.drawString(text, x + 5, y + 20);
     }
 }
 
@@ -94,13 +94,13 @@ class ClickySquare implements Drawable, Hoverable, Clickable {
     }
 
     @Override
-    public void draw(Window window) {
-        window.setColor(color);
-        window.fillRect(x, y, size, size);
+    public void draw(Gui gui) {
+        gui.setColor(color);
+        gui.fillRect(x, y, size, size);
     }
 
     @Override
-    public Rectangle getInteractiveArea(Window window) {
+    public Rectangle getInteractiveArea(Gui gui) {
         return new Rectangle(x, y, size, size);
     }
 

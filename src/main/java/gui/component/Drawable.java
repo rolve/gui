@@ -1,12 +1,12 @@
 package gui.component;
 
-import gui.Window;
+import gui.Gui;
 
 /**
- * A {@link Component} that can be drawn on a {@link Window}. It has a single
- * method, {@link #draw(Window)}, which takes the window instance on which it
+ * A {@link Component} that can be drawn on a {@link Gui}. It has a single
+ * method, {@link #draw(Gui)}, which takes the GUI instance on which it
  * should be drawn.
  */
 public interface Drawable extends Component {
-    void draw(Window window);
+    void draw(Gui gui);
 }

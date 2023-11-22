@@ -1,8 +1,10 @@
 package gui.component;
 
+import gui.Gui;
+
 /**
  * A shape that defines the interactive area of a component. Used by
- * {@link Interactive#getInteractiveArea(gui.Window)}.
+ * {@link Interactive#getInteractiveArea(Gui)}.
  *
  * @see Rectangle
  */

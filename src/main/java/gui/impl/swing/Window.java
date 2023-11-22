@@ -1,7 +1,11 @@
-package gui;
+package gui.impl.swing;
 
+import gui.Color;
+import gui.Gui;
+import gui.component.Clickable;
 import gui.component.Component;
-import gui.component.*;
+import gui.component.Drawable;
+import gui.component.Hoverable;
 
 import javax.imageio.ImageIO;
 import javax.swing.JFrame;
@@ -34,43 +38,7 @@ import static javax.swing.SwingUtilities.invokeAndWait;
 import static javax.swing.SwingUtilities.invokeLater;
 
 /**
- * <p>
- * A class for creating simple GUIs (graphical user interfaces). Every instance
- * represents a separate Window. The programmer can display content in the
- * window by drawing on a canvas using <code>draw...()</code> and
- * <code>fill...()</code> methods. Note that the content of the canvas is not
- * displayed immediately, but only after a call to {@link #open()} or
- * {@link #refresh(int)}.
- *
- * <p>
- * There are two ways to use this class. The first way is for displaying static
- * content. First, draw the content using the various <code>draw...()</code> or
- * <code>fill...()</code> methods, then, open the window with {@link #open()},
- * and finally, call {@link #waitUntilClosed()}:
- *
- * <pre>
- * Window window = new Window("Pixels", width, height);
- * window.drawString("Hello World!", x, y);
- * window.open();
- * window.waitUntilClosed();</pre>
- *
- * <p>
- * The second way is for displaying dynamic and possibly interactive content.
- * First, open the window and then, draw and call {@link #refresh(int)} in a
- * loop:
- *
- * <pre>
- * Window window = new Window("Pixels", width, height);
- * window.open();
- * while (window.isOpen()) {
- *     window.drawString("Hello World!", x, y);
- *     window.refresh(20);
- * }</pre>
- *
- * <p>
- * All methods of this class use a pixel-based coordinate system with the origin
- * in the upper-left corner of the window. The x-axis extends to the right while
- * the y-axis extends to the bottom of the window.
+ * Swing-based implementation of {@link Gui}.
  */
 public class Window implements Gui {
 
@@ -417,13 +385,7 @@ public class Window implements Gui {
         }
     }
 
-    /**
-     * If <code>resizable</code> is <code>true</code>, this window can be resized by
-     * the user. By default, windows are non-resizable.
-     * <p>
-     * For resizable windows, use {@link #getWidth()} and {@link #getHeight()} to
-     * get the current window size.
-     */
+    @Override
     public void setResizable(boolean resizable) {
         run(() -> frame.setResizable(resizable));
     }
