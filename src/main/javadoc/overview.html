@@ -1,14 +1,14 @@
 <!DOCTYPE html>
 <html>
 <body>
-	<p>Classes for creating simple GUIs in introduction-level
+	<p>A library for creating simple GUIs in introduction-level
 		programming courses. The classes in this library use Swing classes
 		({@link javax.swing.JFrame}, {@link javax.swing.JPanel}, etc.) but do
 		not expose any Swing types or concepts directly. Instead, all
 		functionality is exposed using a simple, single-threaded, and mostly
 		primitive-type-based API.
 	<p>The base API uses a single object of type {@link
-		gui.Window} and focuses on drawing operations and global user inputs.
+		gui.Gui} and focuses on drawing operations and global user inputs.
 		An extended interface allows adding "{@link
 		gui.component.Component}s", which are objects that draw themselves on
 		the window and can react to local user inputs using simple callbacks.
