@@ -469,21 +469,6 @@ public class Window implements Gui {
     }
 
     @Override
-    public void setTextAlignLeft() {
-        setTextAlign(-1);
-    }
-
-    @Override
-    public void setTextAlignCenter() {
-        setTextAlign(0);
-    }
-
-    @Override
-    public void setTextAlignRight() {
-        setTextAlign(1);
-    }
-
-    @Override
     public void setTextAlign(int textAlign) {
         this.textAlign = TextAlign.fromInt(textAlign);
         drawCommands.add(g -> g.addRenderingHints(Map.of(TEXT_ALIGN, TextAlign.fromInt(textAlign))));

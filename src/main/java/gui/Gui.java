@@ -319,19 +319,25 @@ public interface Gui {
      * Subsequent {@link #drawString(String, double, double)} operations will
      * draw the text left aligned.
      */
-    void setTextAlignLeft();
+    default void setTextAlignLeft() {
+        setTextAlign(-1);
+    }
 
     /**
      * Subsequent {@link #drawString(String, double, double)} operations will
      * draw the text centered (on the x Axis).
      */
-    void setTextAlignCenter();
+    default void setTextAlignCenter() {
+        setTextAlign(0);
+    }
 
     /**
      * Subsequent {@link #drawString(String, double, double)} operations will
      * draw the text right aligned.
      */
-    void setTextAlignRight();
+    default void setTextAlignRight() {
+        setTextAlign(1);
+    }
 
     /**
      * Sets the alignment for subsequent

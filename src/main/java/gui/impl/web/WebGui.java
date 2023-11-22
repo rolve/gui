@@ -267,21 +267,6 @@ public class WebGui implements Gui {
     }
 
     @Override
-    public void setTextAlignLeft() {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void setTextAlignCenter() {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void setTextAlignRight() {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
     public void setTextAlign(int textAlign) {
         throw new UnsupportedOperationException();
     }
