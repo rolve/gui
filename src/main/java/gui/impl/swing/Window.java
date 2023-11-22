@@ -270,39 +270,8 @@ public class Window implements Gui {
     }
 
     @Override
-    public void waitUntilClosed() {
-        while (isOpen()) {
-            try {
-                Thread.sleep(50);
-            } catch (InterruptedException ignored) {}
-        }
-    }
-
-    @Override
-    public void runUntilClosed() {
-        runUntilClosed(0);
-    }
-
-    @Override
-    public void runUntilClosed(int waitTime) {
-        while (isOpen()) {
-            refreshAndClear(waitTime);
-        }
-    }
-
-    @Override
-    public void refresh() {
-        refresh(0);
-    }
-
-    @Override
     public void refresh(int waitTime) {
         refresh(waitTime, false);
-    }
-
-    @Override
-    public void refreshAndClear() {
-        refreshAndClear(0);
     }
 
     @Override
@@ -424,11 +393,6 @@ public class Window implements Gui {
     /*
      * Paint settings
      */
-
-    @Override
-    public void setColor(int red, int green, int blue) {
-        setColor(new Color(red, green, blue));
-    }
 
     @Override
     public void setColor(Color color) {
@@ -587,16 +551,6 @@ public class Window implements Gui {
     }
 
     @Override
-    public void drawCircle(double centerX, double centerY, double radius) {
-        drawOval(centerX - radius, centerY - radius, radius * 2, radius * 2);
-    }
-
-    @Override
-    public void fillCircle(double centerX, double centerY, double radius) {
-        fillOval(centerX - radius, centerY - radius, radius * 2, radius * 2);
-    }
-
-    @Override
     public void drawLine(double x1, double y1, double x2, double y2) {
         drawCommands.add(g -> g.draw(new Line2D.Double(x1, y1, x2, y2)));
     }
@@ -681,33 +635,12 @@ public class Window implements Gui {
     }
 
     @Override
-    @Deprecated
     public void drawStringCentered(String string, double x, double y) {
         drawCommands.add(g -> {
             var metrics = g.getFontMetrics();
             var width = metrics.stringWidth(string);
             g.drawString(string, (float) x - width / 2f, (float) y);
         });
-    }
-
-    @Override
-    public void drawImage(String path, double x, double y) {
-        drawImage(path, x, y, 1);
-    }
-
-    @Override
-    public void drawImageCentered(String path, double x, double y) {
-        drawImageCentered(path, x, y, 1);
-    }
-
-    @Override
-    public void drawImage(String path, double x, double y, double scale) {
-        drawImage(path, x, y, scale, 0);
-    }
-
-    @Override
-    public void drawImageCentered(String path, double x, double y, double scale) {
-        drawImageCentered(path, x, y, scale, 0);
     }
 
     @Override

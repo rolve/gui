@@ -76,7 +76,13 @@ public interface Gui {
      * open in the first place). More precisely, this method returns as soon as
      * {@link #isOpen()} returns <code>true</code>.
      */
-    void waitUntilClosed();
+    default void waitUntilClosed() {
+        while (isOpen()) {
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException ignored) {}
+        }
+    }
 
     /**
      * Repeatedly runs all the {@linkplain #addComponent(Component) registered}
@@ -85,7 +91,9 @@ public interface Gui {
      *
      * @see #runUntilClosed(int)
      */
-    void runUntilClosed();
+    default void runUntilClosed() {
+        runUntilClosed(0);
+    }
 
     /**
      * Repeatedly runs all the {@linkplain #addComponent(Component) registered}
@@ -93,7 +101,11 @@ public interface Gui {
      * until the GUI is closed by the user. Waits <code>waitTime</code>
      * milliseconds between iterations.
      */
-    void runUntilClosed(int waitTime);
+    default void runUntilClosed(int waitTime) {
+        while (isOpen()) {
+            refreshAndClear(waitTime);
+        }
+    }
 
     /**
      * Displays the current content of the canvas. Use this method in a loop,
@@ -114,7 +126,9 @@ public interface Gui {
      *
      * @see #refreshAndClear()
      */
-    void refresh();
+    default void refresh() {
+        refresh(0);
+    }
 
     /**
      * Displays the current content of the canvas. To achieve a constant time
@@ -148,7 +162,9 @@ public interface Gui {
      * Note that this method is equivalent to
      * {@link #refreshAndClear(int) refreshAndClear(0)}.
      */
-    void refreshAndClear();
+    default void refreshAndClear() {
+        refreshAndClear(0);
+    }
 
     /**
      * Displays the current content of the canvas, clears the
@@ -209,7 +225,9 @@ public interface Gui {
      * The default color is black (0, 0, 0). For colors with transparency, use
      * {@link #setColor(Color)}.
      */
-    void setColor(int red, int green, int blue);
+    default void setColor(int red, int green, int blue) {
+        setColor(new Color(red, green, blue));
+    }
 
     /**
      * Sets the color for the subsequent drawing operations, using a
@@ -368,14 +386,18 @@ public interface Gui {
      * {@linkplain #getColor() color} and
      * {@linkplain #getStrokeWidth() stroke width} are used.
      */
-    void drawCircle(double centerX, double centerY, double radius);
+    default void drawCircle(double centerX, double centerY, double radius) {
+        drawOval(centerX - radius, centerY - radius, radius * 2, radius * 2);
+    }
 
     /**
      * Fills a circle that has the center at (<code>x</code>, <code>y</code>)
      * and the given <code>radius</code> with the current
      * {@linkplain #getColor() color}.
      */
-    void fillCircle(double centerX, double centerY, double radius);
+    default void fillCircle(double centerX, double centerY, double radius) {
+        fillOval(centerX - radius, centerY - radius, radius * 2, radius * 2);
+    }
 
     /**
      * Draws a line from (<code>x1</code>, <code>y1</code>) to
@@ -485,16 +507,10 @@ public interface Gui {
     /**
      * Draws the image found at the given <code>path</code> with the upper-left
      * corner at position (<code>x</code>, <code>y</code>).
-     * <p>
-     * For homework submissions, put all images in the project directory and
-     * refer to them using relative paths (i.e., not starting with "C:\" or
-     * "/"). For example, an image called "image.jpg" in the project folder can
-     * be referred to simply using the path "image.jpg". If you put the image
-     * into a subfolder, e.g., "images", refer to it using the path
-     * "images/image.jpg". Also, make sure to commit all required images to the
-     * SVN repository.
      */
-    void drawImage(String path, double x, double y);
+    default void drawImage(String path, double x, double y) {
+        drawImage(path, x, y, 1);
+    }
 
     /**
      * Draws the image found at the given path with the center at position
@@ -502,7 +518,9 @@ public interface Gui {
      * <p>
      * Also, see {@link #drawImage(String, double, double)}.
      */
-    void drawImageCentered(String path, double x, double y);
+    default void drawImageCentered(String path, double x, double y) {
+        drawImageCentered(path, x, y, 1);
+    }
 
     /**
      * Draws the image found at the given <code>path</code> with the upper-left
@@ -512,7 +530,9 @@ public interface Gui {
      * <p>
      * Also, see {@link #drawImage(String, double, double)}.
      */
-    void drawImage(String path, double x, double y, double scale);
+    default void drawImage(String path, double x, double y, double scale) {
+        drawImage(path, x, y, scale, 0);
+    }
 
     /**
      * Draws the image found at the given path with the center at position
@@ -522,7 +542,9 @@ public interface Gui {
      * <p>
      * Also, see {@link #drawImage(String, double, double)}.
      */
-    void drawImageCentered(String path, double x, double y, double scale);
+    default void drawImageCentered(String path, double x, double y, double scale) {
+        drawImageCentered(path, x, y, scale, 0);
+    }
 
     void drawImage(String path, double x, double y, double scale, double angle);
 
