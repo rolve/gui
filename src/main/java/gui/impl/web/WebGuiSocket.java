@@ -75,6 +75,10 @@ public class WebGuiSocket extends WebSocketAdapter {
         gui.close();
     }
 
+    void close() {
+        getSession().close();
+    }
+
     void send(List<String> commands) {
         try {
             getSession().getRemote().sendString(join("\n", commands));

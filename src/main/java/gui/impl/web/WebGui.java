@@ -2,8 +2,7 @@ package gui.impl.web;
 
 import gui.Color;
 import gui.Gui;
-import gui.component.Component;
-import gui.component.Drawable;
+import gui.impl.GuiBase;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -15,46 +14,20 @@ import java.util.Set;
 import static java.lang.Double.parseDouble;
 import static java.lang.String.format;
 import static java.nio.file.Files.readAllBytes;
+import static java.util.Locale.ROOT;
 
 /**
  * Web-based implementation of {@link Gui}.
  */
-public class WebGui implements Gui {
-
-    private final String title;
-    private final int width;
-    private final int height;
+public class WebGui extends GuiBase {
 
     private WebGuiSocket socket;
-
     private List<String> drawCommands;
-
-    private Color color = new Color(0, 0, 0);
-
     private final Set<String> loadedImages = new HashSet<>();
 
-    private final Object inputLock = new Object();
-    private final Set<Input> pressedInputs = new HashSet<>();
-    private final Set<Input> releasedInputs = new HashSet<>();
-    private final Set<Input> pressedSnapshot = new HashSet<>();
-    private final Set<Input> releasedSnapshot = new HashSet<>();
-
-    private volatile double mouseX = 0;
-    private volatile double mouseY = 0;
-
-    private volatile boolean open;
-
-    private long lastRefreshTime = 0;
-
-    private final List<Component> components = new ArrayList<>();
-
     public WebGui(String title, int width, int height) {
-        this.title = title;
-        this.width = width;
-        this.height = height;
-
+        super(title, width, height);
         drawCommands = applyCurrentSettings();
-
         WebGuiSocket.register(this);
     }
 
@@ -70,70 +43,25 @@ public class WebGui implements Gui {
 
     @Override
     public void open() {
+        super.open();
         var commands = new ArrayList<>(List.of(
                 "setTitle " + title,
                 "setSize  " + width + "," + height));
         commands.addAll(drawCommands);
         socket.send(commands);
-        lastRefreshTime = System.currentTimeMillis();
-        open = true;
     }
 
     @Override
     public void close() {
-        open = false;
+        super.close();
+        socket.close();
     }
 
     @Override
-    public boolean isOpen() {
-        return open;
-    }
-
-    @Override
-    public void refresh(int waitTime) {
-        refresh(waitTime, false);
-    }
-
-    @Override
-    public void refreshAndClear(int waitTime) {
-        refresh(waitTime, true);
-    }
-
-    private void refresh(int waitTime, boolean clear) {
-        runComponents();
-
-        while (true) {
-            var sleepTime = (waitTime - (System.currentTimeMillis() - lastRefreshTime)) / 2;
-            try {
-                if (sleepTime > 1) {
-                    Thread.sleep(sleepTime);
-                } else {
-                    break;
-                }
-            } catch (InterruptedException ignored) {}
-        }
-        lastRefreshTime = System.currentTimeMillis();
-
+    protected void repaint(boolean clear) {
         socket.send(drawCommands);
         if (clear) {
             drawCommands = applyCurrentSettings();
-        }
-
-        pressedSnapshot.clear();
-        releasedSnapshot.clear();
-        synchronized (inputLock) {
-            pressedSnapshot.addAll(pressedInputs);
-            releasedSnapshot.addAll(releasedInputs);
-            releasedInputs.clear();
-        }
-    }
-
-    private void runComponents() {
-        for (var comp : components) {
-            if (comp instanceof Drawable) {
-                var d = (Drawable) comp;
-                d.draw(this);
-            }
         }
     }
 
@@ -142,29 +70,20 @@ public class WebGui implements Gui {
         throw new UnsupportedOperationException();
     }
 
-    @Override
-    public double getWidth() {
-        return width;
-    }
-
-    @Override
-    public double getHeight() {
-        return height;
-    }
-
     void onEvent(String event) {
         var name = event.substring(0, 8);
         var args = event.substring(9);
         switch (name) {
             case "keyDown ":
                 synchronized (inputLock) {
-                    pressedInputs.add(new KeyInput(args));
+                    pressedInputs.add(new KeyInput(toKeyText(args)));
                 }
                 break;
             case "keyUp   ":
                 synchronized (inputLock) {
-                    pressedInputs.remove(new KeyInput(args));
-                    releasedInputs.add(new KeyInput(args));
+                    var input = new KeyInput(toKeyText(args));
+                    pressedInputs.remove(input);
+                    releasedInputs.add(input);
                 }
                 break;
             case "mouseDwn":
@@ -173,8 +92,8 @@ public class WebGui implements Gui {
                 }
                 break;
             case "mouseUp ":
-                var input = new MouseInput(args.equals("0"));
                 synchronized (inputLock) {
+                    var input = new MouseInput(args.equals("0"));
                     pressedInputs.remove(input);
                     releasedInputs.add(input);
                 }
@@ -189,110 +108,62 @@ public class WebGui implements Gui {
         }
     }
 
-    @Override
-    public void addComponent(Component component) {
-        if (component == null) {
-            throw new IllegalArgumentException("component must not be null");
-        }
-        if (components.stream().anyMatch(c -> c == component)) {
-            throw new IllegalArgumentException("component already added");
-        }
-        components.add(component);
-    }
-
-    @Override
-    public void removeComponent(Component component) {
-        if (component == null) {
-            throw new IllegalArgumentException("component must not be null");
-        }
-        if (!components.remove(component)) {
-            throw new IllegalArgumentException("component not present");
-        }
+    private String toKeyText(String keyCode) {
+        return keyCode.toLowerCase(ROOT)
+                .replace(" ", "space")
+                .replace("arrow", "");
     }
 
     @Override
     public void setColor(Color color) {
-        this.color = color;
+        super.setColor(color);
         drawCommands.add("setColor " + color.r + "," + color.g + "," + color.b);
     }
 
     @Override
-    public Color getColor() {
-        return color;
-    }
-
-    @Override
     public void setStrokeWidth(double strokeWidth) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public double getStrokeWidth() {
+        super.setStrokeWidth(strokeWidth);
         throw new UnsupportedOperationException();
     }
 
     @Override
     public void setRoundStroke(boolean roundStroke) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public boolean isRoundStroke() {
+        super.setRoundStroke(roundStroke);
         throw new UnsupportedOperationException();
     }
 
     @Override
     public void setFontSize(int fontSize) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public int getFontSize() {
+        super.setFontSize(fontSize);
         throw new UnsupportedOperationException();
     }
 
     @Override
     public void setBold(boolean bold) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public boolean isBold() {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public double stringWidth(String string) {
+        super.setBold(bold);
         throw new UnsupportedOperationException();
     }
 
     @Override
     public void setTextAlign(int textAlign) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public int getTextAlign() {
+        super.setTextAlign(textAlign);
         throw new UnsupportedOperationException();
     }
 
     @Override
     public void setLineSpacing(double lineSpacing) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public double getLineSpacing() {
+        super.setLineSpacing(lineSpacing);
         throw new UnsupportedOperationException();
     }
 
     @Override
     public void setAlpha(double alpha) {
+        super.setAlpha(alpha);
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public double getAlpha() {
+    public double stringWidth(String string) {
         throw new UnsupportedOperationException();
     }
 
@@ -368,16 +239,6 @@ public class WebGui implements Gui {
         drawCommands.add(format("drawImgC %.1f,%.1f,%.1f,%.1f,%s", x, y, scale, angle, path));
     }
 
-    @Override
-    public List<String> getPressedKeys() {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public List<String> getTypedKeys() {
-        throw new UnsupportedOperationException();
-    }
-
     private void ensureLoaded(String imagePath) {
         if (!loadedImages.contains(imagePath)) {
             try (var res = getClass().getClassLoader().getResourceAsStream(imagePath)) {
@@ -392,86 +253,6 @@ public class WebGui implements Gui {
                 throw new Error("could not load image \"" + imagePath + "\"", e);
             }
             loadedImages.add(imagePath);
-        }
-    }
-
-    @Override
-    public boolean isKeyPressed(String keyName) {
-        return pressedSnapshot.contains(new KeyInput(keyName));
-    }
-
-    @Override
-    public boolean wasKeyTyped(String keyName) {
-        return releasedSnapshot.contains(new KeyInput(keyName));
-    }
-
-    @Override
-    public boolean isLeftMouseButtonPressed() {
-        return pressedSnapshot.contains(new MouseInput(true));
-    }
-
-    @Override
-    public boolean wasLeftMouseButtonClicked() {
-        return releasedSnapshot.contains(new MouseInput(true));
-    }
-
-    @Override
-    public boolean isRightMouseButtonPressed() {
-        return pressedSnapshot.contains(new MouseInput(false));
-    }
-
-    @Override
-    public boolean wasRightMouseButtonClicked() {
-        return releasedSnapshot.contains(new MouseInput(false));
-    }
-
-    @Override
-    public double getMouseX() {
-        return mouseX;
-    }
-
-    @Override
-    public double getMouseY() {
-        return mouseY;
-    }
-
-    private static class Input {}
-
-    private static class KeyInput extends Input {
-        String key;
-
-        KeyInput(String keyText) {
-            this.key = keyText.toLowerCase()
-                    .replace(" ", "space")
-                    .replace("arrow", "");
-        }
-
-        @Override
-        public int hashCode() {
-            return 31 + key.hashCode();
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            return this == obj || obj instanceof KeyInput && key.equals(((KeyInput) obj).key);
-        }
-    }
-
-    private static class MouseInput extends Input {
-        boolean left;
-
-        MouseInput(boolean left) {
-            this.left = left;
-        }
-
-        @Override
-        public int hashCode() {
-            return 31 + (left ? 1231 : 1237);
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            return this == obj || obj instanceof MouseInput && left == ((MouseInput) obj).left;
         }
     }
 }

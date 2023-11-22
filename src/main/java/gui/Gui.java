@@ -233,6 +233,10 @@ public interface Gui {
      */
     void removeComponent(Component component);
 
+    /*
+     * Paint settings
+     */
+
     /**
      * Sets the color for the subsequent drawing operations. The three
      * parameters represent the red, green, and blue channel and are expected to

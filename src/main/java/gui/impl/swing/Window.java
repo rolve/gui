@@ -1,16 +1,11 @@
 package gui.impl.swing;
 
-import gui.Color;
 import gui.Gui;
-import gui.component.Clickable;
-import gui.component.Component;
-import gui.component.Drawable;
-import gui.component.Hoverable;
+import gui.impl.GuiBase;
 
 import javax.imageio.ImageIO;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
-import javax.swing.SwingUtilities;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.*;
@@ -28,19 +23,14 @@ import static java.awt.Font.BOLD;
 import static java.awt.Font.PLAIN;
 import static java.awt.RenderingHints.*;
 import static java.awt.geom.Path2D.WIND_EVEN_ODD;
-import static java.lang.Double.isFinite;
-import static java.lang.Integer.signum;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
-import static java.util.Collections.newSetFromMap;
-import static java.util.stream.Collectors.toList;
-import static javax.swing.SwingUtilities.invokeAndWait;
-import static javax.swing.SwingUtilities.invokeLater;
+import static javax.swing.SwingUtilities.*;
 
 /**
  * Swing-based implementation of {@link Gui}.
  */
-public class Window implements Gui {
+public class Window extends GuiBase {
 
     private static final Set<String> LEGAL_KEY_TEXTS = new HashSet<>();
     private static final Map<Integer, String> CODE_TO_TEXT = new HashMap<>();
@@ -80,38 +70,10 @@ public class Window implements Gui {
     private List<Consumer<Graphics2D>> drawCommands;
     private List<Consumer<Graphics2D>> drawSnapshot;
 
-    private Color color = new Color(0, 0, 0);
-    private double strokeWidth = 1;
-    private boolean roundStroke = false;
-    private int fontSize = 11;
-    private boolean bold = false;
-    private TextAlign textAlign = TextAlign.LEFT;
-    private double lineSpacing = 1.0;
-    private double alpha = 1;
-
     private final Map<String, BufferedImage> images = new HashMap<>();
 
-    private final Object inputLock = new Object();
-    private final Set<Input> pressedInputs = new HashSet<>();
-    private final Set<Input> releasedInputs = new HashSet<>();
-    private final Set<Input> pressedSnapshot = new HashSet<>();
-    private final Set<Input> releasedSnapshot = new HashSet<>();
-
-    private volatile double mouseX = 0;
-    private volatile double mouseY = 0;
-
-    private volatile boolean open = false;
-    private volatile double width;
-    private volatile double height;
-
-    private long lastRefreshTime = 0;
-
-    private final Set<Hoverable> hovered = newSetFromMap(new IdentityHashMap<>());
-    private final List<Component> components = new ArrayList<>();
-
     public Window(String title, int width, int height) {
-        this.width = width;
-        this.height = height;
+        super(title, width, height);
 
         frame = new JFrame();
         frame.setTitle(title);
@@ -141,13 +103,13 @@ public class Window implements Gui {
             @Override
             public void mousePressed(MouseEvent e) {
                 synchronized (inputLock) {
-                    pressedInputs.add(new MouseInput(e));
+                    pressedInputs.add(new MouseInput(isLeftMouseButton(e)));
                 }
             }
 
             @Override
             public void mouseReleased(MouseEvent e) {
-                var input = new MouseInput(e);
+                var input = new MouseInput(isLeftMouseButton(e));
                 synchronized (inputLock) {
                     pressedInputs.remove(input);
                     releasedInputs.add(input);
@@ -182,13 +144,13 @@ public class Window implements Gui {
             @Override
             public void keyPressed(KeyEvent e) {
                 synchronized (inputLock) {
-                    pressedInputs.add(new KeyInput(e));
+                    pressedInputs.add(new KeyInput(toKeyText(e)));
                 }
             }
 
             @Override
             public void keyReleased(KeyEvent e) {
-                var input = new KeyInput(e);
+                var input = new KeyInput(toKeyText(e));
                 synchronized (inputLock) {
                     pressedInputs.remove(input);
                     releasedInputs.add(input);
@@ -198,7 +160,7 @@ public class Window implements Gui {
         frame.addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
-                open = false;
+                Window.super.close();
             }
         });
         frame.setContentPane(panel);
@@ -217,6 +179,14 @@ public class Window implements Gui {
             }
             invokeLater(frame::dispose);
         }).start();
+    }
+
+    private String toKeyText(KeyEvent e) {
+        var keyText = CODE_TO_TEXT.get(e.getKeyCode());
+        if (!LEGAL_KEY_TEXTS.contains(keyText.toLowerCase())) {
+            throw new IllegalArgumentException("key \"" + keyText + "\" does not exist");
+        }
+        return keyText;
     }
 
     private Consumer<Graphics2D> applyCurrentSettings() {
@@ -243,10 +213,8 @@ public class Window implements Gui {
 
     @Override
     public void open() {
+        super.open();
         drawSnapshot.addAll(drawCommands);
-        lastRefreshTime = System.currentTimeMillis();
-        open = true;
-
         run(() -> {
             frame.pack();
             frame.setLocationRelativeTo(null); // center
@@ -259,28 +227,13 @@ public class Window implements Gui {
 
     @Override
     public void close() {
-        open = false;
+        super.close();
         run(() -> frame.setVisible(false));
     }
 
     @Override
-    public boolean isOpen() {
-        return open;
-    }
-
-    @Override
-    public void refresh(int waitTime) {
-        refresh(waitTime, false);
-    }
-
-    @Override
-    public void refreshAndClear(int waitTime) {
-        refresh(waitTime, true);
-    }
-
-    private void refresh(int waitTime, boolean clear) {
-        runComponents();
-
+    protected void repaint(boolean clear) {
+        frame.repaint();
         if (clear) {
             synchronized (this) {
                 drawSnapshot = drawCommands;
@@ -291,67 +244,6 @@ public class Window implements Gui {
                 drawSnapshot = new ArrayList<>(drawCommands);
             }
         }
-
-        while (true) {
-            var sleepTime = (waitTime - (System.currentTimeMillis() - lastRefreshTime)) / 2;
-            try {
-                if (sleepTime > 1) {
-                    Thread.sleep(sleepTime);
-                } else {
-                    break;
-                }
-            } catch (InterruptedException ignored) {
-            }
-        }
-        lastRefreshTime = System.currentTimeMillis();
-
-        frame.repaint();
-
-        pressedSnapshot.clear();
-        releasedSnapshot.clear();
-        synchronized (inputLock) {
-            pressedSnapshot.addAll(pressedInputs);
-            releasedSnapshot.addAll(releasedInputs);
-            releasedInputs.clear();
-        }
-    }
-
-    private void runComponents() {
-        var mx = mouseX;
-        var my = mouseY;
-        for (var comp : components) {
-            if (comp instanceof Hoverable) {
-                var h = (Hoverable) comp;
-                if (h.getInteractiveArea(this).contains(mx, my) && hovered.add(h)) {
-                    h.onMouseEnter();
-                } else if (!h.getInteractiveArea(this).contains(mx, my) && hovered.remove(h)) {
-                    h.onMouseExit();
-                }
-            }
-        }
-        var leftClicked = wasLeftMouseButtonClicked();
-        var rightClicked = wasRightMouseButtonClicked();
-        if (leftClicked || rightClicked) {
-            for (var comp : components) {
-                if (comp instanceof Clickable) {
-                    var c = (Clickable) comp;
-                    if (c.getInteractiveArea(this).contains(mx, my)) {
-                        if (leftClicked) {
-                            c.onLeftClick(mx, my);
-                        }
-                        if (rightClicked) {
-                            c.onRightClick(mx, my);
-                        }
-                    }
-                }
-            }
-        }
-        for (var comp : components) {
-            if (comp instanceof Drawable) {
-                var d = (Drawable) comp;
-                d.draw(this);
-            }
-        }
     }
 
     @Override
@@ -359,55 +251,19 @@ public class Window implements Gui {
         run(() -> frame.setResizable(resizable));
     }
 
-    @Override
-    public double getWidth() {
-        return width;
-    }
-
-    @Override
-    public double getHeight() {
-        return height;
-    }
-
-    @Override
-    public void addComponent(Component component) {
-        if (component == null) {
-            throw new IllegalArgumentException("component must not be null");
-        }
-        if (components.stream().anyMatch(c -> c == component)) {
-            throw new IllegalArgumentException("component already added");
-        }
-        components.add(component);
-    }
-
-    @Override
-    public void removeComponent(Component component) {
-        if (component == null) {
-            throw new IllegalArgumentException("component must not be null");
-        }
-        if (!components.remove(component)) {
-            throw new IllegalArgumentException("component not present");
-        }
-    }
-
     /*
      * Paint settings
      */
 
     @Override
-    public void setColor(Color color) {
-        this.color = color;
+    public void setColor(gui.Color color) {
+        super.setColor(color);
         drawCommands.add(g -> g.setColor(new java.awt.Color(color.r, color.g, color.b, color.alpha)));
     }
 
     @Override
-    public Color getColor() {
-        return color;
-    }
-
-    @Override
     public void setStrokeWidth(double strokeWidth) {
-        this.strokeWidth = strokeWidth;
+        super.setStrokeWidth(strokeWidth);
         drawCommands.add(g -> {
             var prev = (BasicStroke) g.getStroke();
             g.setStroke(new BasicStroke((float) strokeWidth,
@@ -417,13 +273,8 @@ public class Window implements Gui {
     }
 
     @Override
-    public double getStrokeWidth() {
-        return strokeWidth;
-    }
-
-    @Override
     public void setRoundStroke(boolean roundStroke) {
-        this.roundStroke = roundStroke;
+        super.setRoundStroke(roundStroke);
         drawCommands.add(g -> {
             var prev = (BasicStroke) g.getStroke();
             g.setStroke(new BasicStroke(prev.getLineWidth(),
@@ -433,30 +284,33 @@ public class Window implements Gui {
     }
 
     @Override
-    public boolean isRoundStroke() {
-        return roundStroke;
-    }
-
-    @Override
     public void setFontSize(int fontSize) {
-        this.fontSize = fontSize;
+        super.setFontSize(fontSize);
         drawCommands.add(g -> g.setFont(g.getFont().deriveFont((float) fontSize)));
     }
 
     @Override
-    public int getFontSize() {
-        return fontSize;
-    }
-
-    @Override
     public void setBold(boolean bold) {
-        this.bold = bold;
+        super.setBold(bold);
         drawCommands.add(g -> g.setFont(g.getFont().deriveFont(bold ? BOLD : PLAIN)));
     }
 
     @Override
-    public boolean isBold() {
-        return bold;
+    public void setTextAlign(int textAlign) {
+        super.setTextAlign(textAlign);
+        drawCommands.add(g -> g.addRenderingHints(Map.of(TEXT_ALIGN, TextAlign.fromInt(textAlign))));
+    }
+
+    @Override
+    public void setLineSpacing(double lineSpacing) {
+        super.setLineSpacing(lineSpacing);
+        drawCommands.add(g -> g.addRenderingHints(Map.of(LINE_SPACING, clampPositive(lineSpacing))));
+    }
+
+    @Override
+    public void setAlpha(double alpha) {
+        super.setAlpha(alpha);
+        drawCommands.add(g -> g.setComposite(AlphaComposite.SrcOver.derive((float) max(0, min(1, alpha)))));
     }
 
     @Override
@@ -466,49 +320,6 @@ public class Window implements Gui {
         return string.lines()
                 .mapToInt(metrics::stringWidth)
                 .max().orElse(0);
-    }
-
-    @Override
-    public void setTextAlign(int textAlign) {
-        this.textAlign = TextAlign.fromInt(textAlign);
-        drawCommands.add(g -> g.addRenderingHints(Map.of(TEXT_ALIGN, TextAlign.fromInt(textAlign))));
-    }
-
-    @Override
-    public int getTextAlign() {
-        return textAlign.toInt();
-    }
-
-    @Override
-    public void setLineSpacing(double lineSpacing) {
-        var clamped = clampPositive(lineSpacing);
-        this.lineSpacing = clamped;
-        drawCommands.add(g -> g.addRenderingHints(Map.of(LINE_SPACING, clamped)));
-    }
-
-    private double clampPositive(double d) {
-        if (isFinite(d)) {
-            return max(0, d);
-        } else {
-            return Double.MAX_VALUE;
-        }
-    }
-
-    @Override
-    public double getLineSpacing() {
-        return lineSpacing;
-    }
-
-    @Override
-    public void setAlpha(double alpha) {
-        var clamped = max(0, min(1, alpha));
-        this.alpha = clamped;
-        drawCommands.add(g -> g.setComposite(AlphaComposite.SrcOver.derive((float) clamped)));
-    }
-
-    @Override
-    public double getAlpha() {
-        return alpha;
     }
 
     /*
@@ -670,134 +481,12 @@ public class Window implements Gui {
         }
     }
 
-    /*
-     * Input
-     */
-
-    @Override
-    public List<String> getPressedKeys() {
-        return pressedSnapshot.stream()
-                .filter(i -> i instanceof KeyInput)
-                .map(i -> ((KeyInput) i).key)
-                .collect(toList());
-    }
-
-    @Override
-    public List<String> getTypedKeys() {
-        return releasedSnapshot.stream()
-                .filter(i -> i instanceof KeyInput)
-                .map(i -> ((KeyInput) i).key)
-                .collect(toList());
-    }
-
-    @Override
-    public boolean isKeyPressed(String keyName) {
-        return pressedSnapshot.contains(new KeyInput(keyName));
-    }
-
-    @Override
-    public boolean wasKeyTyped(String keyName) {
-        return releasedSnapshot.contains(new KeyInput(keyName));
-    }
-
-    @Override
-    public boolean isLeftMouseButtonPressed() {
-        return pressedSnapshot.contains(new MouseInput(true));
-    }
-
-    @Override
-    public boolean isRightMouseButtonPressed() {
-        return pressedSnapshot.contains(new MouseInput(false));
-    }
-
-    @Override
-    public boolean wasLeftMouseButtonClicked() {
-        return releasedSnapshot.contains(new MouseInput(true));
-    }
-
-    @Override
-    public boolean wasRightMouseButtonClicked() {
-        return releasedSnapshot.contains(new MouseInput(false));
-    }
-
-    @Override
-    public double getMouseX() {
-        return mouseX;
-    }
-
-    @Override
-    public double getMouseY() {
-        return mouseY;
-    }
-
     private void run(Runnable run) {
         try {
             invokeAndWait(run);
         } catch (InvocationTargetException e) {
             throw new Error(e);
         } catch (InterruptedException ignored) {
-        }
-    }
-
-    private static class Input {
-    }
-
-    private static class KeyInput extends Input {
-        String key;
-
-        KeyInput(KeyEvent e) {
-            this(CODE_TO_TEXT.get(e.getKeyCode()));
-        }
-
-        KeyInput(String keyText) {
-            if (!LEGAL_KEY_TEXTS.contains(keyText.toLowerCase())) {
-                throw new IllegalArgumentException("key \"" + keyText + "\" does not exist");
-            }
-            this.key = keyText.toLowerCase();
-        }
-
-        @Override
-        public int hashCode() {
-            return 31 + key.hashCode();
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            return this == obj || obj instanceof KeyInput && key.equals(((KeyInput) obj).key);
-        }
-    }
-
-    private static class MouseInput extends Input {
-        boolean left;
-
-        MouseInput(MouseEvent e) {
-            this(SwingUtilities.isLeftMouseButton(e));
-        }
-
-        MouseInput(boolean left) {
-            this.left = left;
-        }
-
-        @Override
-        public int hashCode() {
-            return 31 + (left ? 1231 : 1237);
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            return this == obj || obj instanceof MouseInput && left == ((MouseInput) obj).left;
-        }
-    }
-
-    private enum TextAlign {
-        LEFT, CENTER, RIGHT;
-
-        static TextAlign fromInt(int textAlign) {
-            return values()[signum(textAlign) + 1];
-        }
-
-        int toInt() {
-            return ordinal() - 1;
         }
     }
 }
