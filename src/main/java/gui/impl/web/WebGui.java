@@ -28,7 +28,6 @@ public class WebGui implements Gui {
     private WebGuiSocket socket;
 
     private List<String> drawCommands;
-    private List<String> drawSnapshot;
 
     private Color color = new Color(0, 0, 0);
 
@@ -55,7 +54,6 @@ public class WebGui implements Gui {
         this.height = height;
 
         drawCommands = applyCurrentSettings();
-        drawSnapshot = new ArrayList<>();
 
         WebGuiSocket.register(this);
     }
@@ -104,17 +102,6 @@ public class WebGui implements Gui {
     private void refresh(int waitTime, boolean clear) {
         runComponents();
 
-        if (clear) {
-            synchronized (this) {
-                drawSnapshot = drawCommands;
-                drawCommands = applyCurrentSettings();
-            }
-        } else {
-            synchronized (this) {
-                drawSnapshot = new ArrayList<>(drawCommands);
-            }
-        }
-
         while (true) {
             var sleepTime = (waitTime - (System.currentTimeMillis() - lastRefreshTime)) / 2;
             try {
@@ -127,7 +114,10 @@ public class WebGui implements Gui {
         }
         lastRefreshTime = System.currentTimeMillis();
 
-        repaint();
+        socket.send(drawCommands);
+        if (clear) {
+            drawCommands = applyCurrentSettings();
+        }
 
         pressedSnapshot.clear();
         releasedSnapshot.clear();
@@ -136,10 +126,6 @@ public class WebGui implements Gui {
             releasedSnapshot.addAll(releasedInputs);
             releasedInputs.clear();
         }
-    }
-
-    private void repaint() {
-        socket.send(drawSnapshot);
     }
 
     private void runComponents() {
