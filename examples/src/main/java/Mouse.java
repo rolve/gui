@@ -6,7 +6,6 @@ public class Mouse {
 
     public static void main(String[] args) {
         Gui gui = Gui.create("Mouse", 700, 300);
-        gui.setResizable(true);
         gui.setColor(0, 128, 0);
         gui.open();
 

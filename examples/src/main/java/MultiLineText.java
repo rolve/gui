@@ -21,7 +21,7 @@ public class MultiLineText {
         gui.setFontSize(12);
         gui.setTextAlign(-1); // left
         gui.setLineSpacing(0.8);
-        gui.drawString("This is way\ntoo little spacing...", 10, HEIGHT - 20);
+        gui.drawString("This is \\way\\\ntoo little spacing... (\\n works by the way)", 10, HEIGHT - 20);
 
         gui.open();
         gui.waitUntilClosed();

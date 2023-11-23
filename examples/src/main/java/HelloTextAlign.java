@@ -11,6 +11,7 @@ public class HelloTextAlign {
         gui.fillRect(0, 0, WIDTH, HEIGHT);
 
         gui.setFontSize(36);
+        gui.setBold(true);
         gui.setTextAlignCenter();
 
         gui.setColor(0, 0, 0);
@@ -19,8 +20,9 @@ public class HelloTextAlign {
         gui.setColor(230, 0, 0);
         gui.drawString("Hello, Gui!", WIDTH / 2.0, HEIGHT / 2.0);
 
-        gui.setFontSize(12);
         gui.setColor(150, 150, 150);
+        gui.setFontSize(12);
+        gui.setBold(false);
         gui.setTextAlignLeft();
         gui.drawString("© Awesome Corp.", 8, HEIGHT - 10);
 

@@ -11,6 +11,13 @@
 </canvas>
 <script type="module">
     let baseScale = window.devicePixelRatio;
+
+    let fontSize;
+    let textAlign;
+    let lineSpacing;
+
+    let images = {};
+
     let canvas = document.getElementById("canvas");
     let ctx = canvas.getContext("2d");
 
@@ -18,8 +25,6 @@
     let url = protocol + "//" + window.location.host + "/ws/";
     let socket = new WebSocket(url);
     socket.binaryType = 'arraybuffer';
-
-    let images = {};
 
     socket.addEventListener('message', event => {
         let data = event.data;
@@ -91,6 +96,19 @@
                 ctx.lineCap = args === 'true' ? 'round' : 'butt';
                 ctx.lineJoin = args === 'true' ? 'round' : 'miter';
                 break;
+            case 'setFont ': {
+                let parts = args.split(',');
+                fontSize = parseFloat(parts[0]);
+                let bold = parts[1] === 'true' ? 'bold ' : '';
+                ctx.font = bold + fontSize + 'px sans-serif';
+                break;
+            }
+            case 'setTxtAl':
+                textAlign = args;
+                break;
+            case 'setLnSpc':
+                lineSpacing = parseFloat(args);
+                break;
             case 'setAlpha':
                 ctx.globalAlpha = args;
                 break;
@@ -124,26 +142,23 @@
                 ctx.stroke();
                 break;
             }
-            case 'drawPath': {
+            case 'drawPath':
                 ctx.beginPath();
                 path(args.split(','));
                 ctx.stroke();
                 break;
-            }
-            case 'drawPoly': {
+            case 'drawPoly':
                 ctx.beginPath();
                 path(args.split(','));
                 ctx.closePath();
                 ctx.stroke();
                 break;
-            }
-            case 'fillPoly': {
+            case 'fillPoly':
                 ctx.beginPath();
                 path(args.split(','));
                 ctx.closePath();
                 ctx.fill("evenodd");
                 break;
-            }
             case 'drawMPly': {
                 let rings = args.split(' ');
                 ctx.beginPath();
@@ -162,6 +177,23 @@
                     ctx.closePath();
                 }
                 ctx.fill("evenodd");
+                break;
+            }
+            case 'drawStr ': {
+                let x = args.slice(0, args.indexOf(','));
+                let y = args.slice(x.length + 1, args.indexOf(',', x.length + 1));
+                let escaped = args.slice(x.length + y.length + 2);
+                let lines = unescapeAndSplit(escaped);
+                let drawY = parseFloat(y);
+                for (let line of lines) {
+                    let width = ctx.measureText(line).width;
+                    let drawX = x;
+                    if (textAlign !== 'left') {
+                        drawX -= textAlign === 'center' ? width / 2 : width;
+                    }
+                    ctx.fillText(line, drawX, drawY);
+                    drawY += fontSize * lineSpacing;
+                }
                 break;
             }
             case 'drawImg ': {
@@ -190,7 +222,7 @@
                 break;
             }
             default:
-                console.log('Unknown command: ' + command);
+                console.log('Unknown command: ' + name);
         }
     }
 
@@ -199,6 +231,32 @@
         for (let i = 2; i < parts.length; i += 2) {
             ctx.lineTo(parts[i], parts[i + 1]);
         }
+    }
+
+    function unescapeAndSplit(escaped) {
+        let result = [];
+        let current = '';
+        let i = 0;
+        while (true) {
+            let slash = escaped.indexOf('\\', i);
+            if (slash === -1) {
+                result.push(current + escaped.substring(i));
+                break;
+            } else {
+                let next = escaped.charAt(slash + 1);
+                if (next === 'n') {
+                    result.push(current + escaped.substring(i, slash));
+                    current = '';
+                    i = slash + 2;
+                } else if (next === '\\') {
+                    current += escaped.substring(i, slash + 1);
+                    i = slash + 2;
+                } else {
+                    throw new Error('Invalid escape sequence: ' + escaped.substring(slash, slash + 2));
+                }
+            }
+        }
+        return result;
     }
 
     function processImage(data) {

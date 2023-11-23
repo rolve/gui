@@ -31,10 +31,12 @@ public class WebGui extends GuiBase {
     private List<CharSequence> applyCurrentSettings() {
         return new ArrayList<>(List.of(
                 "clear    ",
-                format("setColor %d,%d,%d,%.3f",
-                        color.r, color.g, color.b, color.alpha / 255.0),
+                format("setColor %d,%d,%d,%.3f", color.r, color.g, color.b, color.alpha / 255.0),
                 format("setStkW  %.1f", strokeWidth),
                 format("setRdStk %b", roundStroke),
+                format("setFont  %d,%b", fontSize, bold),
+                format("setTxtAl %s", textAlign.name().toLowerCase(ROOT)),
+                format("setLnSpc %.3f", lineSpacing),
                 format("setAlpha %.3f", alpha)));
     }
 
@@ -137,25 +139,25 @@ public class WebGui extends GuiBase {
     @Override
     public void setFontSize(int fontSize) {
         super.setFontSize(fontSize);
-        throw new UnsupportedOperationException();
+        drawCommands.add(format("setFont  %d,%b", fontSize, bold));
     }
 
     @Override
     public void setBold(boolean bold) {
         super.setBold(bold);
-        throw new UnsupportedOperationException();
+        drawCommands.add(format("setFont  %d,%b", fontSize, bold));
     }
 
     @Override
     public void setTextAlign(int textAlign) {
         super.setTextAlign(textAlign);
-        throw new UnsupportedOperationException();
+        drawCommands.add(format("setTxtAl %s", this.textAlign.name().toLowerCase(ROOT)));
     }
 
     @Override
     public void setLineSpacing(double lineSpacing) {
         super.setLineSpacing(lineSpacing);
-        throw new UnsupportedOperationException();
+        drawCommands.add(format("setLnSpc %.3f", lineSpacing));
     }
 
     @Override
@@ -257,7 +259,9 @@ public class WebGui extends GuiBase {
 
     @Override
     public void drawString(String string, double x, double y) {
-        throw new UnsupportedOperationException();
+        // need escape newlines, as these are used as command separators
+        var escaped = string.replace("\\", "\\\\").replace("\n", "\\n");
+        drawCommands.add(format("drawStr  %.1f,%.1f,%s", x, y, escaped));
     }
 
     @Override
