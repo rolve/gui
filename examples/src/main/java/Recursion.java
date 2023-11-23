@@ -3,10 +3,15 @@ import gui.Gui;
 public class Recursion {
 
     private static final int SIZE = 500;
-    private static final Gui gui = Gui.create("Recursion", SIZE, SIZE);
-    private static int time;
 
     public static void main(String[] args) {
+        new Recursion().run();
+    }
+
+    private final Gui gui = Gui.create("Recursion", SIZE, SIZE);
+    private int time;
+
+    private void run() {
         gui.open();
 
         time = 0;
@@ -17,7 +22,7 @@ public class Recursion {
         }
     }
 
-    public static void drawTree(double x, double y, double len, double angle) {
+    public void drawTree(double x, double y, double len, double angle) {
         if (len < 3) {
             gui.setColor(0, 200, 0);
             gui.fillCircle(x, y, 1.5);

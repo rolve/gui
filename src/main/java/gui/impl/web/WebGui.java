@@ -34,7 +34,8 @@ public class WebGui extends GuiBase {
     private List<String> applyCurrentSettings() {
         return new ArrayList<>(List.of(
                 "clear    ",
-                "setColor " + color.r + "," + color.g + "," + color.b));
+                "setColor " + color.r + "," + color.g + "," + color.b,
+                format("setStrkW %.1f", strokeWidth)));
     }
 
     void initialize(WebGuiSocket socket) {
@@ -123,7 +124,7 @@ public class WebGui extends GuiBase {
     @Override
     public void setStrokeWidth(double strokeWidth) {
         super.setStrokeWidth(strokeWidth);
-        throw new UnsupportedOperationException();
+        drawCommands.add(format("setStrkW %.1f", strokeWidth));
     }
 
     @Override
@@ -179,17 +180,17 @@ public class WebGui extends GuiBase {
 
     @Override
     public void drawOval(double x, double y, double width, double height) {
-        throw new UnsupportedOperationException();
+        drawCommands.add(format("drawOval %.1f,%.1f,%.1f,%.1f", x, y, width, height));
     }
 
     @Override
     public void fillOval(double x, double y, double width, double height) {
-        throw new UnsupportedOperationException();
+        drawCommands.add(format("fillOval %.1f,%.1f,%.1f,%.1f", x, y, width, height));
     }
 
     @Override
     public void drawLine(double x1, double y1, double x2, double y2) {
-        throw new UnsupportedOperationException();
+        drawCommands.add(format("drawLine %.1f,%.1f,%.1f,%.1f", x1, y1, x2, y2));
     }
 
     @Override

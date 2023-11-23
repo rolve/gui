@@ -25,11 +25,12 @@
             case 'setTitle':
                 document.title = args;
                 break;
-            case 'setSize ':
+            case 'setSize ': {
                 let parts = args.split(',');
                 canvas.width = parts[0];
                 canvas.height = parts[1];
                 break;
+            }
             case 'clear   ':
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
                 break;
@@ -37,12 +38,39 @@
                 ctx.fillStyle = 'rgb(' + args + ')';
                 ctx.strokeStyle = 'rgb(' + args + ')';
                 break;
+            case 'setStrkW':
+                ctx.lineWidth = args;
+                break;
             case 'drawRect':
                 ctx.strokeRect(...args.split(','));
                 break;
             case 'fillRect':
                 ctx.fillRect(...args.split(','));
                 break;
+            case 'drawOval':
+            case 'fillOval': {
+                let parts = args.split(',');
+                let radiusX = parts[2] / 2;
+                let radiusY = parts[3] / 2;
+                let x = parseFloat(parts[0]) + radiusX;
+                let y = parseFloat(parts[1]) + radiusY;
+                ctx.beginPath();
+                ctx.ellipse(x, y, radiusX, radiusY, 0, 0, 2 * Math.PI);
+                if (name === 'drawOval') {
+                    ctx.stroke();
+                } else {
+                    ctx.fill();
+                }
+                break;
+            }
+            case 'drawLine': {
+                let parts = args.split(',');
+                ctx.beginPath();
+                ctx.moveTo(parts[0], parts[1]);
+                ctx.lineTo(parts[2], parts[3]);
+                ctx.stroke();
+                break;
+            }
             case 'drawImg ': {
                 let parts = args.split(',', 5);
                 let scale = parts[2];
@@ -59,7 +87,7 @@
                 let scale = parts[2];
                 let img = images[parts[4]];
                 ctx.translate(parts[0] - img.width / 2 * scale,
-                              parts[1] - img.height / 2 * scale);
+                    parts[1] - img.height / 2 * scale);
                 ctx.scale(scale, scale);
                 // TODO: rotate
                 ctx.drawImage(img, 0, 0);
