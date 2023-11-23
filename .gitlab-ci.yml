@@ -22,9 +22,9 @@ pages:
   stage: deploy
   script:
     - mvn javadoc:javadoc -f gui/pom.xml
+    - cp -r gui/target/site/apidocs public/apidocs
   artifacts:
     paths:
-      - gui/target/site/apidocs
-  publish: gui/target/site/apidocs
+      - public
   rules:
     - if: $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH
