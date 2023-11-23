@@ -22,6 +22,7 @@ pages:
   stage: deploy
   script:
     - mvn javadoc:javadoc -f gui/pom.xml
+    - mkdir public
     - cp -r gui/target/site/apidocs public/apidocs
   artifacts:
     paths:
