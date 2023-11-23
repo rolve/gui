@@ -267,13 +267,13 @@ public class WebGui extends GuiBase {
     @Override
     public void drawImage(String path, double x, double y, double scale, double angle) {
         ensureLoaded(path);
-        drawCommands.add(format("drawImg  %.1f,%.1f,%.1f,%.1f,%s", x, y, scale, angle, path));
+        drawCommands.add(format("drawImg  %.1f,%.1f,%.3f,%.3f,%s", x, y, scale, angle, path));
     }
 
     @Override
     public void drawImageCentered(String path, double x, double y, double scale, double angle) {
         ensureLoaded(path);
-        drawCommands.add(format("drawImgC %.1f,%.1f,%.1f,%.1f,%s", x, y, scale, angle, path));
+        drawCommands.add(format("drawImgC %.1f,%.1f,%.3f,%.3f,%s", x, y, scale, angle, path));
     }
 
     private void ensureLoaded(String imagePath) {

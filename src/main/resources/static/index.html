@@ -199,10 +199,13 @@
             case 'drawImg ': {
                 let parts = args.split(',', 5);
                 let scale = parts[2];
+                let angle = parts[3];
                 let img = images[parts[4]];
                 ctx.translate(parts[0], parts[1]);
                 ctx.scale(scale, scale);
-                // TODO: rotate
+                ctx.translate(img.width / 2, img.height / 2);
+                ctx.rotate(angle);
+                ctx.translate(-img.width / 2, -img.height / 2);
                 ctx.drawImage(img, 0, 0);
                 // reset transform
                 ctx.setTransform(baseScale, 0, 0, baseScale, 0, 0);
@@ -211,11 +214,14 @@
             case 'drawImgC': {
                 let parts = args.split(',', 5);
                 let scale = parts[2];
+                let angle = parts[3];
                 let img = images[parts[4]];
                 ctx.translate(parts[0] - img.width / 2 * scale,
                     parts[1] - img.height / 2 * scale);
                 ctx.scale(scale, scale);
-                // TODO: rotate
+                ctx.translate(img.width / 2, img.height / 2);
+                ctx.rotate(angle);
+                ctx.translate(-img.width / 2, -img.height / 2);
                 ctx.drawImage(img, 0, 0);
                 // reset transform
                 ctx.setTransform(baseScale, 0, 0, baseScale, 0, 0);
