@@ -1,17 +1,16 @@
 <!DOCTYPE html>
 <html>
 <body>
-	<p>A library for creating simple GUIs in introduction-level
-		programming courses. The classes in this library use Swing classes
-		({@link javax.swing.JFrame}, {@link javax.swing.JPanel}, etc.) but do
-		not expose any Swing types or concepts directly. Instead, all
-		functionality is exposed using a simple, single-threaded, and mostly
-		primitive-type-based API.
-	<p>The base API uses a single object of type {@link
-		gui.Gui} and focuses on drawing operations and global user inputs.
-		An extended interface allows adding "{@link
-		gui.component.Component}s", which are objects that draw themselves on
-		the window and can react to local user inputs using simple callbacks.
-
+<p>A library for creating simple GUIs in introduction-level programming courses.
+    The default backend uses Swing to display the GUI in a window, but the
+    library does not expose any Swing types or concepts directly; instead, all
+    functionality is exposed using a simple, single-threaded, and mostly
+    primitive-type-based API. In addition, there is an experimental backend that
+    exposes the GUI as a web page using an HTML5 canvas.
+<p>The base API uses a single object of type {@link gui.Gui} and focuses on
+    drawing operations and global user inputs. An extended interface allows
+    adding "{@link gui.component.Component}s", which are objects that draw
+    themselves on the GUI and can react to local user inputs using simple
+    callbacks.
 </body>
 </html>
