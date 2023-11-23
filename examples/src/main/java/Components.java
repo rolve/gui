@@ -11,7 +11,6 @@ public class Components {
 
     public static void main(String[] args) {
         Gui gui = Gui.create("Components", 700, 300);
-        gui.setResizable(true);
 
         gui.addComponent(new GreenCircle(220, 60));
         gui.addComponent(new ClickySquare(50, 50, 50));

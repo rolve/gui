@@ -7,7 +7,6 @@ public class Keys {
 
     public static void main(String[] args) {
         Gui gui = Gui.create("Keys", 700, 300);
-        gui.setResizable(true);
         gui.open();
 
         int speed = 5;
