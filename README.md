@@ -35,7 +35,7 @@ For Maven projects, add the following to your pom.xml file:
 <repositories>
     <repository>
         <id>gitlab-maven</id>
-        <url>https://gitlab.fhnw.ch/api/v4/projects/13172/packages/maven</url>
+        <url>https://gitlab.fhnw.ch/api/v4/projects/17730/packages/maven</url>
     </repository>
 </repositories>
 ```
@@ -46,7 +46,7 @@ For Gradle projects:
 repositories {
     mavenCentral()
     maven {
-        url "https://gitlab.fhnw.ch/api/v4/projects/13172/packages/maven"
+        url "https://gitlab.fhnw.ch/api/v4/projects/17730/packages/maven"
     }
 }
 dependencies {
@@ -59,5 +59,5 @@ dependencies {
 [2]: https://docs.oracle.com/javase/8/docs/api/javax/swing/JPanel.html?is-external=true
 [3]: https://rolve.github.io/gui/apidocs/gui/Gui.html
 [4]: https://rolve.github.io/gui/apidocs/gui/component/Component.html
-[5]: https://rolve.github.io/gui/apidocs/overview-summary.html
-[6]: https://gitlab.fhnw.ch/michael.faes/gui/-/packages
+[5]: https://gui.pages.fhnw.ch/gui/apidocs/
+[6]: https://gitlab.fhnw.ch/gui/gui/-/packages
