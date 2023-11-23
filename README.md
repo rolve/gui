@@ -55,6 +55,6 @@ dependencies {
 ```
 
 [1]: https://gui.pages.fhnw.ch/gui/apidocs/gui/Gui.html
-[2]: https://rolve.github.io/gui/apidocs/gui/component/Component.html
+[2]: https://gui.pages.fhnw.ch/gui/apidocs/gui/component/Component.html
 [3]: https://gui.pages.fhnw.ch/gui/apidocs/
 [4]: https://gitlab.fhnw.ch/gui/gui/-/packages
