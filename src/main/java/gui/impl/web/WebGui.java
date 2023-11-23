@@ -34,8 +34,10 @@ public class WebGui extends GuiBase {
     private List<String> applyCurrentSettings() {
         return new ArrayList<>(List.of(
                 "clear    ",
-                "setColor " + color.r + "," + color.g + "," + color.b,
-                format("setStrkW %.1f", strokeWidth)));
+                format("setColor %d,%d,%d,%.3f",
+                        color.r, color.g, color.b, color.alpha / 255.0),
+                format("setStrkW %.1f", strokeWidth),
+                format("setAlpha %.3f", alpha)));
     }
 
     void initialize(WebGuiSocket socket) {
@@ -118,7 +120,8 @@ public class WebGui extends GuiBase {
     @Override
     public void setColor(Color color) {
         super.setColor(color);
-        drawCommands.add("setColor " + color.r + "," + color.g + "," + color.b);
+        drawCommands.add(format("setColor %d,%d,%d,%.3f",
+                color.r, color.g, color.b, color.alpha / 255.0));
     }
 
     @Override
@@ -160,7 +163,7 @@ public class WebGui extends GuiBase {
     @Override
     public void setAlpha(double alpha) {
         super.setAlpha(alpha);
-        throw new UnsupportedOperationException();
+        drawCommands.add(format("setAlpha %.3f", alpha));
     }
 
     @Override

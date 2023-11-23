@@ -35,11 +35,14 @@
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
                 break;
             case 'setColor':
-                ctx.fillStyle = 'rgb(' + args + ')';
-                ctx.strokeStyle = 'rgb(' + args + ')';
+                ctx.fillStyle = 'rgba(' + args + ')';
+                ctx.strokeStyle = 'rgba(' + args + ')';
                 break;
             case 'setStrkW':
                 ctx.lineWidth = args;
+                break;
+            case 'setAlpha':
+                ctx.globalAlpha = args;
                 break;
             case 'drawRect':
                 ctx.strokeRect(...args.split(','));
