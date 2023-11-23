@@ -13,6 +13,7 @@ public class Recursion {
 
     private void run() {
         gui.open();
+        gui.setRoundStroke(true);
 
         time = 0;
         while (gui.isOpen()) {

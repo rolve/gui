@@ -21,6 +21,48 @@
 
     let images = {};
 
+    socket.addEventListener('message', event => {
+        let data = event.data;
+        if (data instanceof ArrayBuffer) {
+            processImage(data);
+        } else {
+            let commands = data.split('\n').map(c => ({
+                name: c.substring(0, 8),
+                args: c.substring(9)
+            }));
+            processCommands(commands);
+        }
+    });
+
+    document.addEventListener('keydown', event => {
+        socket.send('keyDown  ' + event.key);
+    });
+    document.addEventListener('keyup', event => {
+        socket.send('keyUp    ' + event.key);
+    });
+    canvas.addEventListener('mousedown', event => {
+        socket.send('mouseDwn ' + event.button);
+    });
+    canvas.addEventListener('mouseup', event => {
+        socket.send('mouseUp  ' + event.button);
+    });
+    canvas.addEventListener('mousemove', event => {
+        socket.send('mouseMov ' + event.offsetX + ',' + event.offsetY);
+    });
+
+    function processCommands(commands) {
+        let allImagesComplete = commands
+            .filter(c => c.name === 'drawImg ' || c.name === 'drawImgC')
+            .map(c => c.args.split(',', 5)[4])
+            .map(n => images[n].complete)
+            .reduce((a, b) => a && b, true);
+        if (allImagesComplete) {
+            commands.forEach(c => processCommand(c.name, c.args));
+        } else {
+            setTimeout(() => processCommands(commands), 0);
+        }
+    }
+
     function processCommand(name, args) {
         switch (name) {
             case 'setTitle':
@@ -42,8 +84,12 @@
                 ctx.fillStyle = 'rgba(' + args + ')';
                 ctx.strokeStyle = 'rgba(' + args + ')';
                 break;
-            case 'setStrkW':
+            case 'setStkW ':
                 ctx.lineWidth = args;
+                break;
+            case 'setRdStk':
+                ctx.lineCap = args === 'true' ? 'round' : 'butt';
+                ctx.lineJoin = args === 'true' ? 'round' : 'miter';
                 break;
             case 'setAlpha':
                 ctx.globalAlpha = args;
@@ -78,6 +124,46 @@
                 ctx.stroke();
                 break;
             }
+            case 'drawPath': {
+                ctx.beginPath();
+                path(args.split(','));
+                ctx.stroke();
+                break;
+            }
+            case 'drawPoly': {
+                ctx.beginPath();
+                path(args.split(','));
+                ctx.closePath();
+                ctx.stroke();
+                break;
+            }
+            case 'fillPoly': {
+                ctx.beginPath();
+                path(args.split(','));
+                ctx.closePath();
+                ctx.fill("evenodd");
+                break;
+            }
+            case 'drawMPly': {
+                let rings = args.split(' ');
+                ctx.beginPath();
+                for (let ring of rings) {
+                    path(ring.split(','));
+                    ctx.closePath();
+                }
+                ctx.stroke();
+                break;
+            }
+            case 'fillMPly': {
+                let rings = args.split(' ');
+                ctx.beginPath();
+                for (let ring of rings) {
+                    path(ring.split(','));
+                    ctx.closePath();
+                }
+                ctx.fill("evenodd");
+                break;
+            }
             case 'drawImg ': {
                 let parts = args.split(',', 5);
                 let scale = parts[2];
@@ -108,16 +194,10 @@
         }
     }
 
-    function processCommands(commands) {
-        let allImagesComplete = commands
-            .filter(c => c.name === 'drawImg ' || c.name === 'drawImgC')
-            .map(c => c.args.split(',', 5)[4])
-            .map(n => images[n].complete)
-            .reduce((a, b) => a && b, true);
-        if (allImagesComplete) {
-            commands.forEach(c => processCommand(c.name, c.args));
-        } else {
-            setTimeout(() => processCommands(commands), 0);
+    function path(parts) {
+        ctx.moveTo(parts[0], parts[1]);
+        for (let i = 2; i < parts.length; i += 2) {
+            ctx.lineTo(parts[i], parts[i + 1]);
         }
     }
 
@@ -129,35 +209,6 @@
         img.src = url;
         images[name] = img;
     }
-
-    socket.addEventListener('message', event => {
-        let data = event.data;
-        if (data instanceof ArrayBuffer) {
-            processImage(data);
-        } else {
-            let commands = data.split('\n').map(c => ({
-                name: c.substring(0, 8),
-                args: c.substring(9)
-            }));
-            processCommands(commands);
-        }
-    });
-
-    document.addEventListener('keydown', event => {
-        socket.send('keyDown  ' + event.key);
-    });
-    document.addEventListener('keyup', event => {
-        socket.send('keyUp    ' + event.key);
-    });
-    canvas.addEventListener('mousedown', event => {
-        socket.send('mouseDwn ' + event.button);
-    });
-    canvas.addEventListener('mouseup', event => {
-        socket.send('mouseUp  ' + event.button);
-    });
-    canvas.addEventListener('mousemove', event => {
-        socket.send('mouseMov ' + event.offsetX + ',' + event.offsetY);
-    });
 </script>
 </body>
 </html>

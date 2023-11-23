@@ -6,10 +6,7 @@ import gui.impl.GuiBase;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import static java.lang.Double.parseDouble;
 import static java.lang.String.format;
@@ -22,7 +19,7 @@ import static java.util.Locale.ROOT;
 public class WebGui extends GuiBase {
 
     private WebGuiSocket socket;
-    private List<String> drawCommands;
+    private List<CharSequence> drawCommands;
     private final Set<String> loadedImages = new HashSet<>();
 
     public WebGui(String title, int width, int height) {
@@ -31,12 +28,13 @@ public class WebGui extends GuiBase {
         WebGuiSocket.register(this);
     }
 
-    private List<String> applyCurrentSettings() {
+    private List<CharSequence> applyCurrentSettings() {
         return new ArrayList<>(List.of(
                 "clear    ",
                 format("setColor %d,%d,%d,%.3f",
                         color.r, color.g, color.b, color.alpha / 255.0),
-                format("setStrkW %.1f", strokeWidth),
+                format("setStkW  %.1f", strokeWidth),
+                format("setRdStk %b", roundStroke),
                 format("setAlpha %.3f", alpha)));
     }
 
@@ -47,7 +45,7 @@ public class WebGui extends GuiBase {
     @Override
     public void open() {
         super.open();
-        var commands = new ArrayList<>(List.of(
+        var commands = new ArrayList<CharSequence>(List.of(
                 "setTitle " + title,
                 "setSize  " + width + "," + height));
         commands.addAll(drawCommands);
@@ -127,13 +125,13 @@ public class WebGui extends GuiBase {
     @Override
     public void setStrokeWidth(double strokeWidth) {
         super.setStrokeWidth(strokeWidth);
-        drawCommands.add(format("setStrkW %.1f", strokeWidth));
+        drawCommands.add(format("setStkW  %.1f", strokeWidth));
     }
 
     @Override
     public void setRoundStroke(boolean roundStroke) {
         super.setRoundStroke(roundStroke);
-        throw new UnsupportedOperationException();
+        drawCommands.add(format("setRdStk %b", roundStroke));
     }
 
     @Override
@@ -198,27 +196,63 @@ public class WebGui extends GuiBase {
 
     @Override
     public void drawPath(double[] coordinates) {
-        throw new UnsupportedOperationException();
+        if (coordinates.length >= 2) {
+            var command = new StringBuilder("drawPath ");
+            append(command, coordinates);
+            drawCommands.add(command);
+        }
     }
 
     @Override
     public void drawPolygon(double[] coordinates) {
-        throw new UnsupportedOperationException();
+        if (coordinates.length >= 2) {
+            var command = new StringBuilder("drawPoly ");
+            append(command, coordinates);
+            drawCommands.add(command);
+        }
     }
 
     @Override
     public void fillPolygon(double[] coordinates) {
-        throw new UnsupportedOperationException();
+        if (coordinates.length >= 2) {
+            var command = new StringBuilder("fillPoly ");
+            append(command, coordinates);
+            drawCommands.add(command);
+        }
     }
 
     @Override
     public void drawMultiPolygon(double[][] rings) {
-        throw new UnsupportedOperationException();
+        var command = new StringBuilder("drawMPly ");
+        append(command, rings);
+        drawCommands.add(command);
     }
 
     @Override
     public void fillMultiPolygon(double[][] rings) {
-        throw new UnsupportedOperationException();
+        var command = new StringBuilder("fillMPly ");
+        append(command, rings);
+        drawCommands.add(command);
+    }
+
+    private static void append(StringBuilder command, double[][] rings) {
+        for (var ring : rings) {
+            if (ring.length >= 2) {
+                append(command, ring);
+                command.append(" ");
+            }
+        }
+        if (command.length() > 0) {
+            command.setLength(command.length() - 1);
+        }
+    }
+
+    private static void append(StringBuilder command, double[] coordinates) {
+        var formatter = new Formatter(command, null);
+        for (int i = 0; i < coordinates.length; i += 2) {
+            formatter.format("%.1f,%.1f,", coordinates[i], coordinates[i + 1]);
+        }
+        command.setLength(command.length() - 1);
     }
 
     @Override

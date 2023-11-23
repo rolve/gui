@@ -79,7 +79,7 @@ public class WebGuiSocket extends WebSocketAdapter {
         getSession().close();
     }
 
-    void send(List<String> commands) {
+    void send(Iterable<? extends CharSequence> commands) {
         try {
             getSession().getRemote().sendString(join("\n", commands));
         } catch (WebSocketException e) {
