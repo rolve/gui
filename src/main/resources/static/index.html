@@ -10,6 +10,7 @@
     Your browser does not support the HTML5 canvas tag.
 </canvas>
 <script type="module">
+    let baseScale = window.devicePixelRatio;
     let canvas = document.getElementById("canvas");
     let ctx = canvas.getContext("2d");
 
@@ -27,8 +28,11 @@
                 break;
             case 'setSize ': {
                 let parts = args.split(',');
-                canvas.width = parts[0];
-                canvas.height = parts[1];
+                canvas.width = parts[0] * baseScale;
+                canvas.height = parts[1] * baseScale;
+                canvas.style.width = parts[0] + 'px';
+                canvas.style.height = parts[1] + 'px';
+                ctx.scale(baseScale, baseScale);
                 break;
             }
             case 'clear   ':
@@ -82,7 +86,8 @@
                 ctx.scale(scale, scale);
                 // TODO: rotate
                 ctx.drawImage(img, 0, 0);
-                ctx.setTransform(1, 0, 0, 1, 0, 0);
+                // reset transform
+                ctx.setTransform(baseScale, 0, 0, baseScale, 0, 0);
                 break;
             }
             case 'drawImgC': {
@@ -94,7 +99,8 @@
                 ctx.scale(scale, scale);
                 // TODO: rotate
                 ctx.drawImage(img, 0, 0);
-                ctx.setTransform(1, 0, 0, 1, 0, 0);
+                // reset transform
+                ctx.setTransform(baseScale, 0, 0, baseScale, 0, 0);
                 break;
             }
             default:
