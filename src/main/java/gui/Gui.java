@@ -514,22 +514,6 @@ public interface Gui {
     void drawString(String string, double x, double y);
 
     /**
-     * Draws the given string with the current {@linkplain #getColor() color},
-     * {@linkplain #getFontSize() font size}, and
-     * {@linkplain #isBold() boldness}. The <em>center</em> of the baseline is
-     * at position (<code>x</code>,
-     * <code>y</code>).
-     *
-     * @deprecated Provided for backwards compatibility. The methods
-     * {@link #setTextAlignCenter()} and {@link #setTextAlignRight()}, etc.
-     * provide more flexibility and consistency. This method ignores the text
-     * alignment setting defined using those methods and does not support
-     * multi-line text.
-     */
-    @Deprecated
-    void drawStringCentered(String string, double x, double y);
-
-    /**
      * Draws the image found at the given <code>path</code> with the upper-left
      * corner at position (<code>x</code>, <code>y</code>).
      */

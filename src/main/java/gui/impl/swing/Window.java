@@ -431,15 +431,6 @@ public class Window extends GuiBase {
     }
 
     @Override
-    public void drawStringCentered(String string, double x, double y) {
-        drawCommands.add(g -> {
-            var metrics = g.getFontMetrics();
-            var width = metrics.stringWidth(string);
-            g.drawString(string, (float) x - width / 2f, (float) y);
-        });
-    }
-
-    @Override
     public void drawImage(String path, double x, double y, double scale, double angle) {
         ensureLoaded(path);
         var image = images.get(path);

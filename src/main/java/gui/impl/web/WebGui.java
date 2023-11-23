@@ -261,11 +261,6 @@ public class WebGui extends GuiBase {
     }
 
     @Override
-    public void drawStringCentered(String string, double x, double y) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
     public void drawImage(String path, double x, double y, double scale, double angle) {
         ensureLoaded(path);
         drawCommands.add(format("drawImg  %.1f,%.1f,%.1f,%.1f,%s", x, y, scale, angle, path));
