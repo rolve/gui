@@ -213,7 +213,6 @@ public class Window extends GuiBase {
 
     @Override
     public void open() {
-        super.open();
         drawSnapshot.addAll(drawCommands);
         run(() -> {
             frame.pack();
@@ -223,6 +222,7 @@ public class Window extends GuiBase {
             frame.toFront();
             frame.setAlwaysOnTop(false);
         });
+        super.open();
     }
 
     @Override

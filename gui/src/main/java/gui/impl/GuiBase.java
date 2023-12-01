@@ -23,7 +23,7 @@ public abstract class GuiBase implements Gui {
     protected volatile double width;
     protected volatile double height;
 
-    protected long lastRefreshTime = 0;
+    protected long lastRefreshTime; // nanoseconds
     private volatile boolean open;
 
     protected Color color = new Color(0, 0, 0);
@@ -94,7 +94,7 @@ public abstract class GuiBase implements Gui {
     @Override
     public void open() {
         open = true;
-        lastRefreshTime = System.currentTimeMillis();
+        lastRefreshTime = System.nanoTime();
     }
 
     @Override
@@ -151,18 +151,18 @@ public abstract class GuiBase implements Gui {
     private void refresh(int waitTime, boolean clear) {
         runComponents();
 
-        while (true) {
-            var sleepTime = (waitTime - (System.currentTimeMillis() - lastRefreshTime)) / 2;
-            try {
-                if (sleepTime > 1) {
-                    Thread.sleep(sleepTime);
-                } else {
-                    break;
-                }
-            } catch (InterruptedException ignored) {
+        var targetTime = lastRefreshTime + waitTime * 1_000_000L; // nanos
+        while (System.nanoTime() < targetTime) {
+            var diff = (targetTime - System.nanoTime()) / 1_000_000; // millis
+            if (diff >= 2) { // account for Thread.sleep() inaccuracy
+                try {
+                    Thread.sleep(diff - 2);
+                } catch (InterruptedException ignored) {}
+            } else {
+                Thread.onSpinWait();
             }
         }
-        lastRefreshTime = System.currentTimeMillis();
+        lastRefreshTime = System.nanoTime();
 
         repaint(clear);
 

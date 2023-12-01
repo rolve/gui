@@ -46,12 +46,12 @@ public class WebGui extends GuiBase {
 
     @Override
     public void open() {
-        super.open();
         var commands = new ArrayList<CharSequence>(List.of(
                 "setTitle " + title,
                 "setSize  " + width + "," + height));
         commands.addAll(drawCommands);
         socket.send(commands);
+        super.open();
     }
 
     @Override

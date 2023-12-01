@@ -5,7 +5,6 @@ public class RefreshMix {
     public static void main(String[] args) {
         Gui gui = Gui.create("Refresh Mix", 200, 200);
         gui.open();
-        gui.refreshAndClear(1000);
 
         // expected result:
         // .
