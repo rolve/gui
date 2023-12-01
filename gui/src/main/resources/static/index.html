@@ -22,7 +22,7 @@
     let ctx = canvas.getContext("2d");
 
     let protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
-    let url = protocol + "//" + window.location.host + "/ws/";
+    let url = protocol + "//" + window.location.host + "/ws";
     let socket = new WebSocket(url);
     socket.binaryType = 'arraybuffer';
 

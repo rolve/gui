@@ -1,24 +1,22 @@
 package gui.impl.web;
 
-import org.eclipse.jetty.websocket.api.Session;
-import org.eclipse.jetty.websocket.api.WebSocketAdapter;
-import org.eclipse.jetty.websocket.api.WebSocketException;
+import jakarta.websocket.*;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.nio.ByteBuffer;
-import java.util.List;
+import java.nio.channels.ClosedChannelException;
 
 import static java.lang.String.join;
 import static java.lang.Thread.currentThread;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
-public class WebGuiSocket extends WebSocketAdapter {
+public class WebGuiEndpoint extends Endpoint implements MessageHandler.Whole<String> {
 
     private static Method mainMethod;
-    private static final ThreadLocal<WebGuiSocket> current = new ThreadLocal<>();
+    private static final ThreadLocal<WebGuiEndpoint> current = new ThreadLocal<>();
 
     static void register(WebGui gui) {
         if (mainMethod == null) {
@@ -51,10 +49,12 @@ public class WebGuiSocket extends WebSocketAdapter {
     }
 
     private WebGui gui;
+    private Session session;
 
     @Override
-    public void onWebSocketConnect(Session session) {
-        super.onWebSocketConnect(session);
+    public void onOpen(Session session, EndpointConfig config) {
+        this.session = session;
+        session.addMessageHandler(this);
         new Thread(() -> {
             current.set(this);
             try {
@@ -66,28 +66,30 @@ public class WebGuiSocket extends WebSocketAdapter {
     }
 
     @Override
-    public void onWebSocketText(String event) {
-        gui.onEvent(event);
+    public void onMessage(String message) {
+        gui.onEvent(message);
     }
 
     @Override
-    public void onWebSocketClose(int statusCode, String reason) {
+    public void onClose(Session session, CloseReason closeReason) {
         gui.close();
     }
 
     void close() {
-        getSession().close();
+        try {
+            session.close();
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
     }
 
     void send(Iterable<? extends CharSequence> commands) {
         try {
-            getSession().getRemote().sendString(join("\n", commands));
-        } catch (WebSocketException e) {
-            if (!e.getMessage().contains("Session closed")) {
-                throw e;
-            }
+            session.getBasicRemote().sendText(join("\n", commands));
         } catch (IOException e) {
-            throw new UncheckedIOException(e);
+            if (!(e.getCause() instanceof ClosedChannelException)) {
+                throw new UncheckedIOException(e);
+            }
         }
     }
 
@@ -99,13 +101,11 @@ public class WebGuiSocket extends WebSocketAdapter {
             buffer.put(nameBytes);
             buffer.put(image);
             buffer.flip();
-            getSession().getRemote().sendBytes(buffer);
-        } catch (WebSocketException e) {
-            if (!e.getMessage().contains("Session closed")) {
-                throw e;
-            }
+            session.getBasicRemote().sendBinary(buffer);
         } catch (IOException e) {
-            throw new UncheckedIOException(e);
+            if (!(e.getCause() instanceof ClosedChannelException)) {
+                throw new UncheckedIOException(e);
+            }
         }
     }
 }

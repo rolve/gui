@@ -18,14 +18,14 @@ import static java.util.Locale.ROOT;
  */
 public class WebGui extends GuiBase {
 
-    private WebGuiSocket socket;
+    private WebGuiEndpoint socket;
     private List<CharSequence> drawCommands;
     private final Set<String> loadedImages = new HashSet<>();
 
     public WebGui(String title, int width, int height) {
         super(title, width, height);
         drawCommands = applyCurrentSettings();
-        WebGuiSocket.register(this);
+        WebGuiEndpoint.register(this);
     }
 
     private List<CharSequence> applyCurrentSettings() {
@@ -40,7 +40,7 @@ public class WebGui extends GuiBase {
                 format("setAlpha %.3f", alpha)));
     }
 
-    void initialize(WebGuiSocket socket) {
+    void initialize(WebGuiEndpoint socket) {
         this.socket = socket;
     }
 
