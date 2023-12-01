@@ -34,7 +34,6 @@ public class WebGuiServer {
 
     void start() throws Exception {
         server.start();
-        server.dump(System.err);
         server.join();
     }
 

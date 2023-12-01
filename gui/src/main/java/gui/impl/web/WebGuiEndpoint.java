@@ -1,6 +1,7 @@
 package gui.impl.web;
 
 import jakarta.websocket.*;
+import org.slf4j.Logger;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -12,8 +13,11 @@ import java.nio.channels.ClosedChannelException;
 import static java.lang.String.join;
 import static java.lang.Thread.currentThread;
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.slf4j.LoggerFactory.getLogger;
 
 public class WebGuiEndpoint extends Endpoint implements MessageHandler.Whole<String> {
+
+    private static final Logger log = getLogger(WebGuiEndpoint.class);
 
     private static Method mainMethod;
     private static final ThreadLocal<WebGuiEndpoint> current = new ThreadLocal<>();
@@ -53,6 +57,7 @@ public class WebGuiEndpoint extends Endpoint implements MessageHandler.Whole<Str
 
     @Override
     public void onOpen(Session session, EndpointConfig config) {
+        log.info("Connection opened");
         this.session = session;
         session.addMessageHandler(this);
         new Thread(() -> {
@@ -72,6 +77,7 @@ public class WebGuiEndpoint extends Endpoint implements MessageHandler.Whole<Str
 
     @Override
     public void onClose(Session session, CloseReason closeReason) {
+        log.info("Connection closed: {}", closeReason.getCloseCode());
         gui.close();
     }
 
@@ -88,7 +94,7 @@ public class WebGuiEndpoint extends Endpoint implements MessageHandler.Whole<Str
             session.getBasicRemote().sendText(join("\n", commands));
         } catch (IOException e) {
             if (!(e.getCause() instanceof ClosedChannelException)) {
-                throw new UncheckedIOException(e);
+                log.error("Error sending message", e);
             }
         }
     }
@@ -104,7 +110,7 @@ public class WebGuiEndpoint extends Endpoint implements MessageHandler.Whole<Str
             session.getBasicRemote().sendBinary(buffer);
         } catch (IOException e) {
             if (!(e.getCause() instanceof ClosedChannelException)) {
-                throw new UncheckedIOException(e);
+                log.error("Error sending image", e);
             }
         }
     }
