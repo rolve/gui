@@ -24,6 +24,8 @@ public class WebGuiEndpoint extends Endpoint implements MessageHandler.Whole<Str
 
     static void register(WebGui gui) {
         if (mainMethod == null) {
+            // TODO: Implement the following using StackWalker instead
+
             // first call on the main thread: register main method
             var stackTrace = new Throwable().getStackTrace();
             var mainClass = stackTrace[stackTrace.length - 1].getClassName();

@@ -8,6 +8,8 @@ import org.eclipse.jetty.servlet.ServletContextHandler;
 
 import java.io.IOException;
 
+import static jakarta.servlet.http.HttpServletResponse.SC_NOT_FOUND;
+import static jakarta.servlet.http.HttpServletResponse.SC_OK;
 import static jakarta.websocket.server.ServerEndpointConfig.Builder.create;
 import static java.lang.Integer.parseInt;
 import static org.eclipse.jetty.websocket.jakarta.server.config.JakartaWebSocketServletContainerInitializer.configure;
@@ -22,8 +24,7 @@ public class WebGuiServer {
     private final Server server;
 
     WebGuiServer() {
-        var port = port();
-        server = new Server(port);
+        server = new Server(port());
         var handler = new ServletContextHandler(null, "/");
         handler.addServlet(IndexServlet.class, "/");
         server.setHandler(handler);
@@ -40,10 +41,10 @@ public class WebGuiServer {
     public static class IndexServlet extends HttpServlet {
         protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
             if (!req.getRequestURI().equals("/")) {
-                resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
+                resp.setStatus(SC_NOT_FOUND);
                 return;
             }
-            resp.setStatus(HttpServletResponse.SC_OK);
+            resp.setStatus(SC_OK);
             resp.setContentType("text/html");
             try (var in = IndexServlet.class.getResourceAsStream("/static/index.html")) {
                 in.transferTo(resp.getOutputStream());
