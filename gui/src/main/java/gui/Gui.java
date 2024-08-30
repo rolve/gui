@@ -31,7 +31,8 @@ import java.util.List;
  * Gui gui = Gui.create("Hello", width, height);
  * gui.drawString("Hello, World!", x, y);
  * gui.open();
- * window.waitUntilClosed();</pre>
+ * gui.waitUntilClosed();
+ * </pre>
  *
  * <p>
  * The second way is for displaying dynamic and possibly interactive content.
@@ -43,7 +44,8 @@ import java.util.List;
  * while (gui.isOpen()) {
  *     gui.drawString("Hello, World!", x, y);
  *     gui.refresh(20);
- * }</pre>
+ * }
+ * </pre>
  *
  * <p>
  * All methods of this interface use a pixel-based coordinate system with the
