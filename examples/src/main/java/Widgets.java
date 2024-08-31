@@ -20,7 +20,7 @@ public class Widgets {
 
         var textFieldLabel = new Label("Size of new buttons:", 10, 10, 30);
         var textField = new TextField(10, 10 + textFieldLabel.getHeight(), 200, 30) {
-            protected void onTextChanged(String text) {
+            protected void onTextChange(String text) {
                 try {
                     var size = parseDouble(text);
                     if (size < 0 || size > 100) {
