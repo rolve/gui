@@ -119,7 +119,6 @@ public class TextField extends Widget implements EventListener {
     public void onKeyRelease(String key) {
         var oldText = text;
         if (focussed) {
-            System.out.println(key);
             if (key.length() == 1) {
                 text += shiftDown ? key.toUpperCase(ROOT) : key;
             } else if (key.equals("space")) {
