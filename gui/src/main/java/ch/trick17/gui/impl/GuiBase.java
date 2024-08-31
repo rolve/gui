@@ -149,8 +149,6 @@ public abstract class GuiBase implements Gui {
     }
 
     private void refresh(int waitTime, boolean clear) {
-        runComponents();
-
         var targetTime = lastRefreshTime + waitTime * 1_000_000L; // nanos
         while (System.nanoTime() < targetTime) {
             var diff = (targetTime - System.nanoTime()) / 1_000_000; // millis
@@ -164,8 +162,6 @@ public abstract class GuiBase implements Gui {
         }
         lastRefreshTime = System.nanoTime();
 
-        repaint(clear);
-
         pressedSnapshot.clear();
         releasedSnapshot.clear();
         synchronized (inputLock) {
@@ -173,6 +169,9 @@ public abstract class GuiBase implements Gui {
             releasedSnapshot.addAll(releasedInputs);
             releasedInputs.clear();
         }
+
+        runComponents();
+        repaint(clear);
     }
 
     protected abstract void repaint(boolean clear);
