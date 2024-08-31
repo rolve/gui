@@ -91,7 +91,7 @@ class GuiBaseTest {
         }
         protected void repaint(boolean clear) {}
         public void setResizable(boolean resizable) {}
-        public double stringWidth(String string) { return 0; }
+        public double stringWidth(String string, int fontSize, boolean bold) { return 0; }
         public void drawRect(double x, double y, double width, double height) {}
         public void fillRect(double x, double y, double width, double height) {}
         public void drawOval(double x, double y, double width, double height) {}
