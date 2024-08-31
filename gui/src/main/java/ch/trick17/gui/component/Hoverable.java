@@ -1,6 +1,6 @@
-package gui.component;
+package ch.trick17.gui.component;
 
-import gui.Gui;
+import ch.trick17.gui.Gui;
 
 /**
  * A {@link Component} that may react when the user moves the mouse over it. The

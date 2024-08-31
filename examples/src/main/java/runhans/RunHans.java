@@ -1,7 +1,7 @@
 package runhans;
 
-import gui.Gui;
-import gui.component.Drawable;
+import ch.trick17.gui.Gui;
+import ch.trick17.gui.component.Drawable;
 
 import java.util.ArrayList;
 

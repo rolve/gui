@@ -2,7 +2,7 @@ import static java.lang.Math.PI;
 import static java.lang.Math.cos;
 import static java.lang.Math.sin;
 
-import gui.Gui;
+import ch.trick17.gui.Gui;
 
 public class Loop {
 

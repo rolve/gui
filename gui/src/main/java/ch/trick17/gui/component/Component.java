@@ -1,6 +1,6 @@
-package gui.component;
+package ch.trick17.gui.component;
 
-import gui.Gui;
+import ch.trick17.gui.Gui;
 
 /**
  * A component is an object that can be drawn and/or interacted with in a

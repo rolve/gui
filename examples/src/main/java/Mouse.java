@@ -1,6 +1,6 @@
 import static java.lang.Math.max;
 
-import gui.Gui;
+import ch.trick17.gui.Gui;
 
 public class Mouse {
 

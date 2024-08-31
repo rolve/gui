@@ -1,8 +1,8 @@
-package gui.impl.web;
+package ch.trick17.gui.impl.web;
 
-import gui.Color;
-import gui.Gui;
-import gui.impl.GuiBase;
+import ch.trick17.gui.Color;
+import ch.trick17.gui.Gui;
+import ch.trick17.gui.impl.GuiBase;
 
 import java.io.IOException;
 import java.nio.file.Path;

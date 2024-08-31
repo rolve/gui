@@ -1,12 +1,12 @@
-package gui;
+package ch.trick17.gui;
 
-import gui.component.Component;
-import gui.component.Drawable;
-import gui.component.Hoverable;
-import gui.component.Interactive;
-import gui.impl.swing.Window;
-import gui.impl.web.WebGui;
-import gui.impl.web.WebGuiServer;
+import ch.trick17.gui.component.Component;
+import ch.trick17.gui.component.Drawable;
+import ch.trick17.gui.component.Hoverable;
+import ch.trick17.gui.component.Interactive;
+import ch.trick17.gui.impl.swing.Window;
+import ch.trick17.gui.impl.web.WebGui;
+import ch.trick17.gui.impl.web.WebGuiServer;
 
 import java.util.List;
 

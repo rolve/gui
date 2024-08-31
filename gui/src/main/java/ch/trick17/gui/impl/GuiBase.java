@@ -1,11 +1,11 @@
-package gui.impl;
+package ch.trick17.gui.impl;
 
-import gui.Color;
-import gui.Gui;
-import gui.component.Clickable;
-import gui.component.Component;
-import gui.component.Drawable;
-import gui.component.Hoverable;
+import ch.trick17.gui.Color;
+import ch.trick17.gui.Gui;
+import ch.trick17.gui.component.Clickable;
+import ch.trick17.gui.component.Component;
+import ch.trick17.gui.component.Drawable;
+import ch.trick17.gui.component.Hoverable;
 
 import java.util.*;
 

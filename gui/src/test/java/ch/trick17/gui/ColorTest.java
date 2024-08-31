@@ -1,4 +1,4 @@
-package gui;
+package ch.trick17.gui;
 
 import org.junit.jupiter.api.Test;
 

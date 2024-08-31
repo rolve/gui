@@ -54,7 +54,7 @@ dependencies {
 }
 ```
 
-[1]: https://gui.pages.fhnw.ch/gui/apidocs/gui/Gui.html
-[2]: https://gui.pages.fhnw.ch/gui/apidocs/gui/component/Component.html
+[1]: https://gui.pages.fhnw.ch/gui/apidocs/ch/trick17/gui/Gui.html
+[2]: https://gui.pages.fhnw.ch/gui/apidocs/ch/trick17/gui/component/Component.html
 [3]: https://gui.pages.fhnw.ch/gui/apidocs/
 [4]: https://gitlab.fhnw.ch/gui/gui/-/packages

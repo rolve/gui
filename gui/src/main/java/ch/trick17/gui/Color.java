@@ -1,4 +1,4 @@
-package gui;
+package ch.trick17.gui;
 
 import static java.lang.Integer.parseInt;
 import static java.lang.Math.max;

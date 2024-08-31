@@ -1,6 +1,6 @@
-package gui.component;
+package ch.trick17.gui.component;
 
-import gui.Gui;
+import ch.trick17.gui.Gui;
 
 /**
  * A shape that defines the interactive area of a component. Used by

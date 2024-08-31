@@ -1,11 +1,11 @@
 import static java.lang.Math.max;
 
-import gui.Color;
-import gui.Gui;
-import gui.component.Clickable;
-import gui.component.Drawable;
-import gui.component.Hoverable;
-import gui.component.Rectangle;
+import ch.trick17.gui.Color;
+import ch.trick17.gui.Gui;
+import ch.trick17.gui.component.Clickable;
+import ch.trick17.gui.component.Drawable;
+import ch.trick17.gui.component.Hoverable;
+import ch.trick17.gui.component.Rectangle;
 
 public class Components {
 

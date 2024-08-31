@@ -1,4 +1,4 @@
-package gui.impl.web;
+package ch.trick17.gui.impl.web;
 
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;

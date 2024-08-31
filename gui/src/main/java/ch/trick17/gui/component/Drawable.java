@@ -1,6 +1,6 @@
-package gui.component;
+package ch.trick17.gui.component;
 
-import gui.Gui;
+import ch.trick17.gui.Gui;
 
 /**
  * A {@link Component} that can be drawn on a {@link Gui}. It has a single

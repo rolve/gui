@@ -1,4 +1,4 @@
-import gui.Gui;
+import ch.trick17.gui.Gui;
 
 public class HelloTextAlign {
     private static final int WIDTH = 300;

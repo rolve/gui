@@ -1,7 +1,8 @@
-package gui.impl.swing;
+package ch.trick17.gui.impl.swing;
 
-import gui.Gui;
-import gui.impl.GuiBase;
+import ch.trick17.gui.Color;
+import ch.trick17.gui.Gui;
+import ch.trick17.gui.impl.GuiBase;
 
 import javax.imageio.ImageIO;
 import javax.swing.JFrame;
@@ -256,7 +257,7 @@ public class Window extends GuiBase {
      */
 
     @Override
-    public void setColor(gui.Color color) {
+    public void setColor(Color color) {
         super.setColor(color);
         drawCommands.add(g -> g.setColor(new java.awt.Color(color.r, color.g, color.b, color.alpha)));
     }

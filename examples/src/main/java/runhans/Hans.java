@@ -1,6 +1,6 @@
 package runhans;
 
-import gui.Gui;
+import ch.trick17.gui.Gui;
 
 import static runhans.RunHans.FRAME_RATE;
 

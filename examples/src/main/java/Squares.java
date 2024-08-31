@@ -1,4 +1,4 @@
-import gui.Gui;
+import ch.trick17.gui.Gui;
 
 import java.util.ArrayList;
 

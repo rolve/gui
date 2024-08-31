@@ -1,4 +1,4 @@
-import gui.Gui;
+import ch.trick17.gui.Gui;
 
 public class Pixels {
     public static void main(String[] args) {

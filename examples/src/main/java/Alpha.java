@@ -1,5 +1,5 @@
-import gui.Color;
-import gui.Gui;
+import ch.trick17.gui.Color;
+import ch.trick17.gui.Gui;
 
 public class Alpha {
 

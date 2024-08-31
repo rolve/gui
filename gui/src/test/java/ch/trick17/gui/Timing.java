@@ -1,4 +1,4 @@
-package gui;
+package ch.trick17.gui;
 
 import java.util.List;
 
