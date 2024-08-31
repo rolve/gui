@@ -41,9 +41,11 @@
 
     document.addEventListener('keydown', event => {
         socket.send('keyDown  ' + event.code + ',' + event.key);
+        event.preventDefault();
     });
     document.addEventListener('keyup', event => {
         socket.send('keyUp    ' + event.code + ',' + event.key);
+        event.preventDefault();
     });
     canvas.addEventListener('mousedown', event => {
         socket.send('mouseDwn ' + event.button);
