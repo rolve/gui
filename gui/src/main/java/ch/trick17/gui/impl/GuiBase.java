@@ -87,9 +87,12 @@ public abstract class GuiBase implements Gui {
         for (var comp : componentsSnapshot) {
             if (comp instanceof Drawable) {
                 var d = (Drawable) comp;
+                resetSettings();
                 d.draw(this);
             }
         }
+        // for consistency, reset settings also if there are no components
+        resetSettings();
     }
 
     @Override

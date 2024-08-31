@@ -322,6 +322,14 @@ public interface Gui {
     double stringWidth(String string);
 
     /**
+     * Sets the alignment for subsequent
+     * {@link #drawString(String, double, double)} operations. A negative value
+     * means left aligned, zero means centered, and a positive value means right
+     * aligned. The default alignment is left.
+     */
+    void setTextAlign(int textAlign);
+
+    /**
      * Subsequent {@link #drawString(String, double, double)} operations will
      * draw the text left aligned.
      */
@@ -346,14 +354,6 @@ public interface Gui {
     }
 
     /**
-     * Sets the alignment for subsequent
-     * {@link #drawString(String, double, double)} operations. A negative value
-     * means left aligned, zero means centered, and a positive value means right
-     * aligned. The default alignment is left.
-     */
-    void setTextAlign(int textAlign);
-
-    /**
      * Returns the current text alignment, as an int. Left aligned is
      * represented as -1, centered as 0, and right aligned as +1.
      */
@@ -370,9 +370,28 @@ public interface Gui {
 
     double getLineSpacing();
 
+    /**
+     * Sets the alpha value for subsequent drawing operations. The alpha value
+     * is a double in the 0&ndash;1 range, where 0 means fully transparent and 1
+     * means fully opaque. The default alpha value is 1.
+     */
     void setAlpha(double alpha);
 
     double getAlpha();
+
+    /**
+     * Resets all settings (color, font size, etc.) to their default values.
+     */
+    default void resetSettings() {
+        setColor(0, 0, 0);
+        setStrokeWidth(1);
+        setRoundStroke(false);
+        setFontSize(11);
+        setBold(false);
+        setTextAlignLeft();
+        setLineSpacing(1);
+        setAlpha(1);
+    }
 
     /**
      * Draws the outline of a rectangle with the upper-left corner at
