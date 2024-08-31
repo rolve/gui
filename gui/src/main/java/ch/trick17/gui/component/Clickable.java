@@ -6,7 +6,7 @@ import ch.trick17.gui.Gui;
  * A {@link Component} that may react when the user clicks on it. The methods
  * {@link #onLeftClick(double, double)} and/or
  * {@link #onRightClick(double, double)} are called with the precise mouse
- * coordinates when a click occurs inside the area define by
+ * coordinates when a click occurs inside the area defined by
  * {@link #getInteractiveArea(Gui)}.
  */
 public interface Clickable extends Interactive {
