@@ -17,6 +17,11 @@
             <artifactId>gui</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>ch.trick17.gui</groupId>
+            <artifactId>widgets</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 
     <build>
