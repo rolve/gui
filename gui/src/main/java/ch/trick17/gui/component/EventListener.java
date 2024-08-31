@@ -8,8 +8,8 @@ import ch.trick17.gui.Gui;
  * simpler {@link Clickable} or {@link Hoverable} instead.
  */
 public interface EventListener extends Component {
-    default void onKeyPress(String key) {}
-    default void onKeyRelease(String key) {}
+    default void onKeyPress(String keyName, char keyChar) {}
+    default void onKeyRelease(String keyName, char keyChar) {}
     default void onMouseButtonPress(double x, double y, boolean left) {}
     default void onMouseButtonRelease(double x, double y, boolean left) {}
     // TODO: onMouseMove

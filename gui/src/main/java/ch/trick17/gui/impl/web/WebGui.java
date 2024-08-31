@@ -7,6 +7,7 @@ import ch.trick17.gui.impl.GuiBase;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.regex.Pattern;
 
 import static java.lang.Double.parseDouble;
 import static java.lang.String.format;
@@ -17,6 +18,8 @@ import static java.util.Locale.ROOT;
  * Web-based implementation of {@link Gui}.
  */
 public class WebGui extends GuiBase {
+
+    private static final Pattern ARG_SPLITTER = Pattern.compile(",");
 
     private WebGuiEndpoint socket;
     private List<CharSequence> drawCommands;
@@ -79,12 +82,12 @@ public class WebGui extends GuiBase {
         switch (name) {
             case "keyDown ":
                 synchronized (inputLock) {
-                    pressedInputs.add(new KeyInput(toKeyName(args)));
+                    pressedInputs.add(toKeyInput(args));
                 }
                 break;
             case "keyUp   ":
                 synchronized (inputLock) {
-                    var input = new KeyInput(toKeyName(args));
+                    var input = toKeyInput(args);
                     pressedInputs.remove(input);
                     releasedInputs.add(input);
                 }
@@ -111,10 +114,20 @@ public class WebGui extends GuiBase {
         }
     }
 
-    private String toKeyName(String keyCode) {
-        return keyCode.toLowerCase(ROOT)
-                .replace(" ", "space")
-                .replace("arrow", "");
+    private KeyInput toKeyInput(String args) {
+        var parts = ARG_SPLITTER.split(args, 2);
+        // TODO: More complete mapping from Web key names to Java key names
+        var keyName = parts[0]
+                .replace("Key", "")
+                .replace("Digit", "")
+                .replace("Arrow", "")
+                .replaceAll("([^A-Z])([A-Z])", "$1_$2")
+                .replace("_Left", "")   // ShiftLeft, etc.
+                .replace("_Right", "")
+                .replace("Backspace", "back_space")
+                .toLowerCase(ROOT);
+        var keyChar = parts[1].length() == 1 ? parts[1].charAt(0) : CHAR_UNDEFINED;
+        return new KeyInput(keyName, keyChar);
     }
 
     @Override

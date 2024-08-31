@@ -40,10 +40,10 @@
     });
 
     document.addEventListener('keydown', event => {
-        socket.send('keyDown  ' + event.key);
+        socket.send('keyDown  ' + event.code + ',' + event.key);
     });
     document.addEventListener('keyup', event => {
-        socket.send('keyUp    ' + event.key);
+        socket.send('keyUp    ' + event.code + ',' + event.key);
     });
     canvas.addEventListener('mousedown', event => {
         socket.send('mouseDwn ' + event.button);

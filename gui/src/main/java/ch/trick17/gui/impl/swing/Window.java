@@ -145,13 +145,13 @@ public class Window extends GuiBase {
             @Override
             public void keyPressed(KeyEvent e) {
                 synchronized (inputLock) {
-                    pressedInputs.add(new KeyInput(toKeyName(e)));
+                    pressedInputs.add(toKeyInput(e));
                 }
             }
 
             @Override
             public void keyReleased(KeyEvent e) {
-                var input = new KeyInput(toKeyName(e));
+                var input = toKeyInput(e);
                 synchronized (inputLock) {
                     pressedInputs.remove(input);
                     releasedInputs.add(input);
@@ -182,12 +182,12 @@ public class Window extends GuiBase {
         }).start();
     }
 
-    private String toKeyName(KeyEvent e) {
-        var keyText = CODE_TO_NAME.get(e.getKeyCode());
-        if (!LEGAL_KEY_NAMES.contains(keyText.toLowerCase())) {
-            throw new IllegalArgumentException("key \"" + keyText + "\" does not exist");
+    private KeyInput toKeyInput(KeyEvent e) {
+        var keyName = CODE_TO_NAME.get(e.getKeyCode());
+        if (!LEGAL_KEY_NAMES.contains(keyName.toLowerCase())) {
+            throw new IllegalArgumentException("key \"" + keyName + "\" does not exist");
         }
-        return keyText;
+        return new KeyInput(keyName, e.getKeyChar());
     }
 
     private Consumer<Graphics2D> applyCurrentSettings() {

@@ -8,6 +8,7 @@ import ch.trick17.gui.component.Drawable;
 import ch.trick17.gui.component.EventListener;
 import ch.trick17.gui.component.Hoverable;
 
+import java.awt.event.KeyEvent;
 import java.util.*;
 
 import static java.lang.Double.isFinite;
@@ -19,6 +20,8 @@ import static java.util.Locale.ROOT;
 import static java.util.stream.Collectors.toList;
 
 public abstract class GuiBase implements Gui {
+
+    public static final char CHAR_UNDEFINED = KeyEvent.CHAR_UNDEFINED;
 
     protected final String title;
     protected volatile double width;
@@ -84,14 +87,14 @@ public abstract class GuiBase implements Gui {
                 var e = (EventListener) comp;
                 for (var input : pressedSnapshot) {
                     if (input instanceof KeyInput) {
-                        e.onKeyPress(((KeyInput) input).keyName);
+                        e.onKeyPress(((KeyInput) input).keyName, ((KeyInput) input).keyChar);
                     } else if (input instanceof MouseInput) {
                         e.onMouseButtonPress(mx, my, ((MouseInput) input).left);
                     }
                 }
                 for (var input : releasedSnapshot) {
                     if (input instanceof KeyInput) {
-                        e.onKeyRelease(((KeyInput) input).keyName);
+                        e.onKeyRelease(((KeyInput) input).keyName, ((KeyInput) input).keyChar);
                     } else if (input instanceof MouseInput) {
                         e.onMouseButtonRelease(mx, my, ((MouseInput) input).left);
                     }
@@ -306,12 +309,14 @@ public abstract class GuiBase implements Gui {
 
     @Override
     public boolean isKeyPressed(String keyName) {
-        return pressedSnapshot.contains(new KeyInput(keyName));
+        return pressedSnapshot.stream()
+                .anyMatch(i -> i instanceof KeyInput && ((KeyInput) i).keyName.equals(keyName));
     }
 
     @Override
     public boolean wasKeyTyped(String keyName) {
-        return releasedSnapshot.contains(new KeyInput(keyName));
+        return releasedSnapshot.stream()
+                .anyMatch(i -> i instanceof KeyInput && ((KeyInput) i).keyName.equals(keyName));
     }
 
     @Override
@@ -360,20 +365,27 @@ public abstract class GuiBase implements Gui {
 
     protected static final class KeyInput extends Input {
         private final String keyName;
+        private final char keyChar;
 
-        public KeyInput(String keyName) {
+        public KeyInput(String keyName, char keyChar) {
             this.keyName = keyName.toLowerCase(ROOT);
+            this.keyChar = keyChar;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) {
+                return true;
+            } else if (!(o instanceof KeyInput)) {
+                return false;
+            }
+            var keyInput = (KeyInput) o;
+            return keyChar == keyInput.keyChar && keyName.equals(keyInput.keyName);
         }
 
         @Override
         public int hashCode() {
-            return 31 + keyName.hashCode();
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            return this == obj
-                   || obj instanceof KeyInput && keyName.equals(((KeyInput) obj).keyName);
+            return Objects.hash(keyName, keyChar);
         }
     }
 

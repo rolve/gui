@@ -5,7 +5,7 @@ import ch.trick17.gui.Gui;
 import ch.trick17.gui.component.EventListener;
 import ch.trick17.gui.component.Rectangle;
 
-import static java.util.Locale.ROOT;
+import static ch.trick17.gui.impl.GuiBase.CHAR_UNDEFINED;
 import static java.util.Objects.requireNonNull;
 
 public class TextField extends Widget implements EventListener {
@@ -25,7 +25,6 @@ public class TextField extends Widget implements EventListener {
     private Color focussedBorderColor = DEFAULT_FOCUSSED_BORDER_COLOR;
 
     private boolean focussed = false;
-    private boolean shiftDown = false;
 
     public TextField(double x, double y, double width, double height) {
         super(x, y);
@@ -109,24 +108,15 @@ public class TextField extends Widget implements EventListener {
     }
 
     @Override
-    public void onKeyPress(String key) {
-        if (focussed && key.equals("shift")) {
-            shiftDown = true;
-        }
-    }
-
-    @Override
-    public void onKeyRelease(String key) {
+    public void onKeyRelease(String keyName, char keyChar) {
         var oldText = text;
         if (focussed) {
-            if (key.length() == 1) {
-                text += shiftDown ? key.toUpperCase(ROOT) : key;
-            } else if (key.equals("space")) {
-                text += " ";
-            } else if (key.equals("back_space") && !text.isEmpty()) {
-                text = text.substring(0, text.length() - 1);
-            } else if (key.equals("shift")) {
-                shiftDown = false;
+            if (keyName.equals("back_space")) {
+                if (!text.isEmpty()) {
+                    text = text.substring(0, text.length() - 1);
+                }
+            } else if (keyChar != CHAR_UNDEFINED) {
+                text += keyChar;
             }
         }
         if (!text.equals(oldText)) {
