@@ -17,7 +17,7 @@ public class TextField extends Widget implements EventListener {
 
     private double width;
     private double height;
-    private String text;
+    private String text = "";
 
     private Color backgroundColor = DEFAULT_BACKGROUND_COLOR;
     private Color textColor = DEFAULT_TEXT_COLOR;
@@ -41,7 +41,7 @@ public class TextField extends Widget implements EventListener {
 
     public void setText(String text) {
         this.text = requireNonNull(text);
-        onTextChanged(text);
+        onTextChange(text);
     }
 
     public double getWidth() {
@@ -120,11 +120,11 @@ public class TextField extends Widget implements EventListener {
             }
         }
         if (!text.equals(oldText)) {
-            onTextChanged(text);
+            onTextChange(text);
         }
     }
 
-    protected void onTextChanged(String text) {
+    protected void onTextChange(String text) {
         // do nothing by default; subclasses can override
     }
 
