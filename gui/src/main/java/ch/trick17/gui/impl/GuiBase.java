@@ -84,14 +84,14 @@ public abstract class GuiBase implements Gui {
                 var e = (EventListener) comp;
                 for (var input : pressedSnapshot) {
                     if (input instanceof KeyInput) {
-                        e.onKeyPress(((KeyInput) input).keyText);
+                        e.onKeyPress(((KeyInput) input).keyName);
                     } else if (input instanceof MouseInput) {
                         e.onMouseButtonPress(mx, my, ((MouseInput) input).left);
                     }
                 }
                 for (var input : releasedSnapshot) {
                     if (input instanceof KeyInput) {
-                        e.onKeyRelease(((KeyInput) input).keyText);
+                        e.onKeyRelease(((KeyInput) input).keyName);
                     } else if (input instanceof MouseInput) {
                         e.onMouseButtonRelease(mx, my, ((MouseInput) input).left);
                     }
@@ -292,7 +292,7 @@ public abstract class GuiBase implements Gui {
     public List<String> getPressedKeys() {
         return pressedSnapshot.stream()
                 .filter(i -> i instanceof KeyInput)
-                .map(i -> ((KeyInput) i).keyText)
+                .map(i -> ((KeyInput) i).keyName)
                 .collect(toList());
     }
 
@@ -300,7 +300,7 @@ public abstract class GuiBase implements Gui {
     public List<String> getTypedKeys() {
         return releasedSnapshot.stream()
                 .filter(i -> i instanceof KeyInput)
-                .map(i -> ((KeyInput) i).keyText)
+                .map(i -> ((KeyInput) i).keyName)
                 .collect(toList());
     }
 
@@ -359,21 +359,21 @@ public abstract class GuiBase implements Gui {
     protected static class Input {}
 
     protected static final class KeyInput extends Input {
-        private final String keyText;
+        private final String keyName;
 
-        public KeyInput(String keyText) {
-            this.keyText = keyText.toLowerCase(ROOT);
+        public KeyInput(String keyName) {
+            this.keyName = keyName.toLowerCase(ROOT);
         }
 
         @Override
         public int hashCode() {
-            return 31 + keyText.hashCode();
+            return 31 + keyName.hashCode();
         }
 
         @Override
         public boolean equals(Object obj) {
             return this == obj
-                   || obj instanceof KeyInput && keyText.equals(((KeyInput) obj).keyText);
+                   || obj instanceof KeyInput && keyName.equals(((KeyInput) obj).keyName);
         }
     }
 

@@ -79,12 +79,12 @@ public class WebGui extends GuiBase {
         switch (name) {
             case "keyDown ":
                 synchronized (inputLock) {
-                    pressedInputs.add(new KeyInput(toKeyText(args)));
+                    pressedInputs.add(new KeyInput(toKeyName(args)));
                 }
                 break;
             case "keyUp   ":
                 synchronized (inputLock) {
-                    var input = new KeyInput(toKeyText(args));
+                    var input = new KeyInput(toKeyName(args));
                     pressedInputs.remove(input);
                     releasedInputs.add(input);
                 }
@@ -111,7 +111,7 @@ public class WebGui extends GuiBase {
         }
     }
 
-    private String toKeyText(String keyCode) {
+    private String toKeyName(String keyCode) {
         return keyCode.toLowerCase(ROOT)
                 .replace(" ", "space")
                 .replace("arrow", "");

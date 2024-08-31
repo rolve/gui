@@ -33,18 +33,18 @@ import static javax.swing.SwingUtilities.*;
  */
 public class Window extends GuiBase {
 
-    private static final Set<String> LEGAL_KEY_TEXTS = new HashSet<>();
-    private static final Map<Integer, String> CODE_TO_TEXT = new HashMap<>();
+    private static final Set<String> LEGAL_KEY_NAMES = new HashSet<>();
+    private static final Map<Integer, String> CODE_TO_NAME = new HashMap<>();
 
     static {
         for (var field : KeyEvent.class.getFields()) {
-            var name = field.getName();
-            if (name.startsWith("VK_")) {
+            var fieldName = field.getName();
+            if (fieldName.startsWith("VK_")) {
                 try {
                     var code = field.getInt(KeyEvent.class);
-                    var text = name.substring(3).toLowerCase();
-                    LEGAL_KEY_TEXTS.add(text);
-                    CODE_TO_TEXT.put(code, text);
+                    var name = fieldName.substring(3).toLowerCase();
+                    LEGAL_KEY_NAMES.add(name);
+                    CODE_TO_NAME.put(code, name);
                 } catch (Exception ignored) {
                 }
             }
@@ -145,13 +145,13 @@ public class Window extends GuiBase {
             @Override
             public void keyPressed(KeyEvent e) {
                 synchronized (inputLock) {
-                    pressedInputs.add(new KeyInput(toKeyText(e)));
+                    pressedInputs.add(new KeyInput(toKeyName(e)));
                 }
             }
 
             @Override
             public void keyReleased(KeyEvent e) {
-                var input = new KeyInput(toKeyText(e));
+                var input = new KeyInput(toKeyName(e));
                 synchronized (inputLock) {
                     pressedInputs.remove(input);
                     releasedInputs.add(input);
@@ -182,9 +182,9 @@ public class Window extends GuiBase {
         }).start();
     }
 
-    private String toKeyText(KeyEvent e) {
-        var keyText = CODE_TO_TEXT.get(e.getKeyCode());
-        if (!LEGAL_KEY_TEXTS.contains(keyText.toLowerCase())) {
+    private String toKeyName(KeyEvent e) {
+        var keyText = CODE_TO_NAME.get(e.getKeyCode());
+        if (!LEGAL_KEY_NAMES.contains(keyText.toLowerCase())) {
             throw new IllegalArgumentException("key \"" + keyText + "\" does not exist");
         }
         return keyText;
