@@ -41,6 +41,14 @@ public class Label extends Widget {
         this.height = height;
     }
 
+    public int getFontSize() {
+        return (int) (getHeight() / 2);
+    }
+
+    public double getWidth(Gui gui) {
+        return gui.stringWidth(text, getFontSize(), false);
+    }
+
     public Color getTextColor() {
         return textColor;
     }
@@ -52,7 +60,7 @@ public class Label extends Widget {
     @Override
     public void draw(Gui gui) {
         gui.setColor(textColor);
-        gui.setFontSize((int) (getHeight() / 2));
+        gui.setFontSize(getFontSize());
         gui.drawString(text, getX(), getY() + height * 0.65);
     }
 }
