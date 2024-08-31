@@ -6,6 +6,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.verify;
 
@@ -18,16 +20,22 @@ class ButtonTest {
     @Test
     void hover() {
         var button = new Button("Test", 0, 0, 100, 50) {};
+        assertFalse(button.isHovered());
+
         button.draw(gui);
         verify(gui, atLeastOnce()).setColor(button.getBackgroundColor());
         verify(gui, atLeastOnce()).fillRect(0, 0, 100, 50);
 
         button.onMouseEnter();
+        assertTrue(button.isHovered());
+
         button.draw(gui);
-        verify(gui, atLeastOnce()).setColor(button.getHoverBackgroundColor());
+        verify(gui, atLeastOnce()).setColor(button.getHoveredBackgroundColor());
         verify(gui, atLeastOnce()).fillRect(0, 0, 100, 50);
 
         button.onMouseExit();
+        assertFalse(button.isHovered());
+
         button.draw(gui);
         verify(gui, atLeastOnce()).setColor(button.getBackgroundColor());
         verify(gui, atLeastOnce()).fillRect(0, 0, 100, 50);

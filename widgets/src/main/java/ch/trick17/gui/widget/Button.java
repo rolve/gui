@@ -12,8 +12,8 @@ public abstract class Button extends Widget implements Hoverable, Clickable {
 
     public static final Color DEFAULT_BACKGROUND_COLOR = new Color(41, 127, 213);
     public static final Color DEFAULT_TEXT_COLOR = new Color(255, 255, 255);
-    public static final Color DEFAULT_HOVER_BACKGROUND_COLOR = new Color(31, 95, 160);
-    public static final Color DEFAULT_HOVER_TEXT_COLOR = DEFAULT_TEXT_COLOR;
+    public static final Color DEFAULT_HOVERED_BACKGROUND_COLOR = new Color(31, 95, 160);
+    public static final Color DEFAULT_HOVERED_TEXT_COLOR = DEFAULT_TEXT_COLOR;
 
     private String text;
     private double width;
@@ -21,10 +21,10 @@ public abstract class Button extends Widget implements Hoverable, Clickable {
 
     private Color backgroundColor = DEFAULT_BACKGROUND_COLOR;
     private Color textColor = DEFAULT_TEXT_COLOR;
-    private Color hoverBackgroundColor = DEFAULT_HOVER_BACKGROUND_COLOR;
-    private Color hoverTextColor = DEFAULT_HOVER_TEXT_COLOR;
+    private Color hoveredBackgroundColor = DEFAULT_HOVERED_BACKGROUND_COLOR;
+    private Color hoveredTextColor = DEFAULT_HOVERED_TEXT_COLOR;
 
-    private boolean hover = false;
+    private boolean hovered = false;
 
     protected Button(String text, double x, double y,
                      double width, double height) {
@@ -83,24 +83,24 @@ public abstract class Button extends Widget implements Hoverable, Clickable {
         this.textColor = textColor;
     }
 
-    public Color getHoverBackgroundColor() {
-        return hoverBackgroundColor;
+    public Color getHoveredBackgroundColor() {
+        return hoveredBackgroundColor;
     }
 
-    public void setHoverBackgroundColor(Color hoverBackgroundColor) {
-        this.hoverBackgroundColor = hoverBackgroundColor;
+    public void setHoveredBackgroundColor(Color hoveredBackgroundColor) {
+        this.hoveredBackgroundColor = hoveredBackgroundColor;
     }
 
-    public Color getHoverTextColor() {
-        return hoverTextColor;
+    public Color getHoveredTextColor() {
+        return hoveredTextColor;
     }
 
-    public void setHoverTextColor(Color hoverTextColor) {
-        this.hoverTextColor = hoverTextColor;
+    public void setHoveredTextColor(Color hoveredTextColor) {
+        this.hoveredTextColor = hoveredTextColor;
     }
 
-    public boolean isHover() {
-        return hover;
+    public boolean isHovered() {
+        return hovered;
     }
 
     public Rectangle getInteractiveArea(Gui gui) {
@@ -109,12 +109,12 @@ public abstract class Button extends Widget implements Hoverable, Clickable {
 
     @Override
     public void onMouseEnter() {
-        hover = true;
+        hovered = true;
     }
 
     @Override
     public void onMouseExit() {
-        hover = false;
+        hovered = false;
     }
 
     @Override
@@ -129,10 +129,10 @@ public abstract class Button extends Widget implements Hoverable, Clickable {
 
     @Override
     public void draw(Gui gui) {
-        gui.setColor(hover ? hoverBackgroundColor : backgroundColor);
+        gui.setColor(hovered ? hoveredBackgroundColor : backgroundColor);
         gui.fillRect(getX(), getY(), getWidth(), getHeight());
 
-        gui.setColor(hover ? hoverTextColor : textColor);
+        gui.setColor(hovered ? hoveredTextColor : textColor);
         gui.setFontSize((int) (getHeight() / 2));
         gui.setTextAlignCenter();
         gui.drawString(text, getX() + getWidth() / 2.0, getY() + getHeight() * 0.65);
