@@ -56,7 +56,8 @@ public abstract class GuiBase implements Gui {
     protected void runComponents() {
         var mx = mouseX;
         var my = mouseY;
-        for (var comp : components) {
+        var componentsSnapshot = List.copyOf(components);
+        for (var comp : componentsSnapshot) {
             if (comp instanceof Hoverable) {
                 var h = (Hoverable) comp;
                 if (h.getInteractiveArea(this).contains(mx, my) && hovered.add(h)) {
@@ -69,7 +70,7 @@ public abstract class GuiBase implements Gui {
         var leftClicked = wasLeftMouseButtonClicked();
         var rightClicked = wasRightMouseButtonClicked();
         if (leftClicked || rightClicked) {
-            for (var comp : components) {
+            for (var comp : componentsSnapshot) {
                 if (comp instanceof Clickable) {
                     var c = (Clickable) comp;
                     if (c.getInteractiveArea(this).contains(mx, my)) {
@@ -83,7 +84,7 @@ public abstract class GuiBase implements Gui {
                 }
             }
         }
-        for (var comp : components) {
+        for (var comp : componentsSnapshot) {
             if (comp instanceof Drawable) {
                 var d = (Drawable) comp;
                 d.draw(this);

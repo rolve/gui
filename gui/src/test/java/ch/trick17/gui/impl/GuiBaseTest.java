@@ -2,6 +2,7 @@ package ch.trick17.gui.impl;
 
 import ch.trick17.gui.Gui;
 import ch.trick17.gui.component.Clickable;
+import ch.trick17.gui.component.Component;
 import ch.trick17.gui.component.Rectangle;
 import ch.trick17.gui.component.Shape;
 import ch.trick17.gui.impl.GuiBase.MouseInput;
@@ -9,8 +10,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.HashSet;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 class GuiBaseTest {
 
@@ -56,6 +56,33 @@ class GuiBaseTest {
         gui.refresh();
         assertEquals(1, clicked.size());
         assertTrue(clicked.contains("right: 75.0, 75.0"));
+    }
+
+    @Test
+    void addComponentInEventHandler() {
+        var gui = new TestGui();
+
+        gui.addComponent(new Clickable() {
+            @Override
+            public void onLeftClick(double x, double y) {
+                gui.addComponent(new Component() {}); // used to throw ConcurrentModificationException
+            }
+
+            @Override
+            public void onRightClick(double x, double y) {
+                // Do nothing
+            }
+
+            @Override
+            public Shape getInteractiveArea(Gui gui) {
+                return new Rectangle(0, 0, 100, 100);
+            }
+        });
+
+        gui.mouseX = 50;
+        gui.mouseY = 50;
+        gui.releasedInputs.add(new MouseInput(true));
+        assertDoesNotThrow(() -> gui.refresh());
     }
 
     static class TestGui extends GuiBase {
