@@ -19,7 +19,7 @@ public class Widgets {
         var random = new Random();
 
         var textFieldLabel = new Label("Size of new buttons:", 10, 10, 30);
-        var textField = new TextField(textFieldLabel.getWidth(gui) + 20, 10, 200, 30) {
+        var textField = new TextField(10, 10 + textFieldLabel.getHeight(), 200, 30) {
             protected void onTextChanged(String text) {
                 try {
                     var size = parseDouble(text);
