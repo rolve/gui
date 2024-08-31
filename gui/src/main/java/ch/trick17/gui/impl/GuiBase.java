@@ -5,6 +5,7 @@ import ch.trick17.gui.Gui;
 import ch.trick17.gui.component.Clickable;
 import ch.trick17.gui.component.Component;
 import ch.trick17.gui.component.Drawable;
+import ch.trick17.gui.component.EventListener;
 import ch.trick17.gui.component.Hoverable;
 
 import java.util.*;
@@ -56,6 +57,8 @@ public abstract class GuiBase implements Gui {
     protected void runComponents() {
         var mx = mouseX;
         var my = mouseY;
+        var leftClicked = wasLeftMouseButtonClicked();
+        var rightClicked = wasRightMouseButtonClicked();
         var componentsSnapshot = List.copyOf(components);
         for (var comp : componentsSnapshot) {
             if (comp instanceof Hoverable) {
@@ -66,32 +69,41 @@ public abstract class GuiBase implements Gui {
                     h.onMouseExit();
                 }
             }
-        }
-        var leftClicked = wasLeftMouseButtonClicked();
-        var rightClicked = wasRightMouseButtonClicked();
-        if (leftClicked || rightClicked) {
-            for (var comp : componentsSnapshot) {
-                if (comp instanceof Clickable) {
-                    var c = (Clickable) comp;
-                    if (c.getInteractiveArea(this).contains(mx, my)) {
-                        if (leftClicked) {
-                            c.onLeftClick(mx, my);
-                        }
-                        if (rightClicked) {
-                            c.onRightClick(mx, my);
-                        }
+            if (comp instanceof Clickable) {
+                var c = (Clickable) comp;
+                if (c.getInteractiveArea(this).contains(mx, my)) {
+                    if (leftClicked) {
+                        c.onLeftClick(mx, my);
+                    }
+                    if (rightClicked) {
+                        c.onRightClick(mx, my);
                     }
                 }
             }
-        }
-        for (var comp : componentsSnapshot) {
+            if (comp instanceof EventListener) {
+                var e = (EventListener) comp;
+                for (var input : pressedSnapshot) {
+                    if (input instanceof KeyInput) {
+                        e.onKeyPress(((KeyInput) input).keyText);
+                    } else if (input instanceof MouseInput) {
+                        e.onMouseButtonPress(mx, my, ((MouseInput) input).left);
+                    }
+                }
+                for (var input : releasedSnapshot) {
+                    if (input instanceof KeyInput) {
+                        e.onKeyRelease(((KeyInput) input).keyText);
+                    } else if (input instanceof MouseInput) {
+                        e.onMouseButtonRelease(mx, my, ((MouseInput) input).left);
+                    }
+                }
+            }
             if (comp instanceof Drawable) {
                 var d = (Drawable) comp;
                 resetSettings();
                 d.draw(this);
             }
         }
-        // for consistency, reset settings also if there are no components
+        // for consistency, reset settings also if there are no Drawable components
         resetSettings();
     }
 
