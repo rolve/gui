@@ -315,7 +315,7 @@ public class Window extends GuiBase {
     }
 
     @Override
-    public double stringWidth(String string) {
+    public double stringWidth(String string, int fontSize, boolean bold) {
         var font = panel.getFont().deriveFont(bold ? BOLD : PLAIN, fontSize);
         var metrics = panel.getFontMetrics(font);
         return string.lines()

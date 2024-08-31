@@ -167,7 +167,7 @@ public class WebGui extends GuiBase {
     }
 
     @Override
-    public double stringWidth(String string) {
+    public double stringWidth(String string, int fontSize, boolean bold) {
         throw new UnsupportedOperationException();
     }
 

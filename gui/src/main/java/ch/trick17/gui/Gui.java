@@ -226,6 +226,12 @@ public interface Gui {
      */
     void addComponent(Component component);
 
+    default void addComponents(Component... components) {
+        for (var c : components) {
+            addComponent(c);
+        }
+    }
+
     /**
      * Removes <code>component</code> from this GUI.
      *
@@ -234,6 +240,12 @@ public interface Gui {
      * @see #addComponent(Component)
      */
     void removeComponent(Component component);
+
+    default void removeComponents(Component... components) {
+        for (var c : components) {
+            removeComponent(c);
+        }
+    }
 
     /*
      * Paint settings
@@ -319,7 +331,17 @@ public interface Gui {
      * {@linkplain #isBold() boldness}. If the text contains multiple lines, the
      * width of the widest line is returned.
      */
-    double stringWidth(String string);
+    default double stringWidth(String string) {
+        return stringWidth(string, getFontSize(), isBold());
+    }
+
+    /**
+     * Measures the width that the given text would have if it was
+     * {@linkplain #drawString(String, double, double) drawn} with the given
+     * font size and boldness. If the text contains multiple lines, the width
+     * of the widest line is returned.
+     */
+    double stringWidth(String string, int fontSize, boolean bold);
 
     /**
      * Sets the alignment for subsequent

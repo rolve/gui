@@ -67,6 +67,10 @@ public abstract class Button extends Widget implements Hoverable, Clickable {
         this.height = height;
     }
 
+    public int getFontSize() {
+        return (int) (getHeight() / 2);
+    }
+
     public Color getBackgroundColor() {
         return backgroundColor;
     }
@@ -133,7 +137,7 @@ public abstract class Button extends Widget implements Hoverable, Clickable {
         gui.fillRect(getX(), getY(), getWidth(), getHeight());
 
         gui.setColor(hovered ? hoveredTextColor : textColor);
-        gui.setFontSize((int) (getHeight() / 2));
+        gui.setFontSize(getFontSize());
         gui.setTextAlignCenter();
         gui.drawString(text, getX() + getWidth() / 2.0, getY() + getHeight() * 0.65);
     }
