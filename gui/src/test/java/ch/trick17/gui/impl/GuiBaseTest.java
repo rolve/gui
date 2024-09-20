@@ -5,14 +5,40 @@ import ch.trick17.gui.component.Clickable;
 import ch.trick17.gui.component.Component;
 import ch.trick17.gui.component.Rectangle;
 import ch.trick17.gui.component.Shape;
+import ch.trick17.gui.impl.GuiBase.KeyInput;
 import ch.trick17.gui.impl.GuiBase.MouseInput;
 import org.junit.jupiter.api.Test;
 
 import java.util.HashSet;
 
+import static ch.trick17.gui.impl.GuiBase.CHAR_UNDEFINED;
 import static org.junit.jupiter.api.Assertions.*;
 
 class GuiBaseTest {
+
+    @Test
+    void isKeyPressed() {
+        var gui = new TestGui();
+        gui.pressedInputs.add(new KeyInput("left", CHAR_UNDEFINED));
+        gui.refresh();
+
+        assertTrue(gui.isKeyPressed("left"));
+        assertTrue(gui.isKeyPressed("LEFT"));
+        assertFalse(gui.isKeyPressed("right"));
+        assertFalse(gui.isKeyPressed("RIGHT"));
+    }
+
+    @Test
+    void wasKeyTyped() {
+        var gui = new TestGui();
+        gui.releasedInputs.add(new KeyInput("a", 'a'));
+        gui.refresh();
+
+        assertTrue(gui.wasKeyTyped("a"));
+        assertTrue(gui.wasKeyTyped("A"));
+        assertFalse(gui.wasKeyTyped("b"));
+        assertFalse(gui.wasKeyTyped("B"));
+    }
 
     @Test
     void addComponent() {

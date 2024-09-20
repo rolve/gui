@@ -310,13 +310,15 @@ public abstract class GuiBase implements Gui {
     @Override
     public boolean isKeyPressed(String keyName) {
         return pressedSnapshot.stream()
-                .anyMatch(i -> i instanceof KeyInput && ((KeyInput) i).keyName.equals(keyName));
+                .anyMatch(i -> i instanceof KeyInput &&
+                               ((KeyInput) i).keyName.equalsIgnoreCase(keyName));
     }
 
     @Override
     public boolean wasKeyTyped(String keyName) {
         return releasedSnapshot.stream()
-                .anyMatch(i -> i instanceof KeyInput && ((KeyInput) i).keyName.equals(keyName));
+                .anyMatch(i -> i instanceof KeyInput &&
+                               ((KeyInput) i).keyName.equalsIgnoreCase(keyName));
     }
 
     @Override
