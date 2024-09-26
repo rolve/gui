@@ -1066,10 +1066,15 @@ public class Window {
         drawCommands.add(g -> g.drawImage(image, transform, null));
     }
 
-    private void ensureLoaded(String imagePath) throws Error {
+    private void ensureLoaded(String imagePath) {
         if (!images.containsKey(imagePath)) {
-            try {
-                var image = ImageIO.read(new File(imagePath));
+            try (var res = getClass().getClassLoader().getResourceAsStream(imagePath)) {
+                BufferedImage image;
+                if (res != null) {
+                    image = ImageIO.read(res);
+                } else {
+                    image = ImageIO.read(new File(imagePath));
+                }
                 if (image == null) {
                     throw new Error("could not load image \"" + imagePath + "\"");
                 }
