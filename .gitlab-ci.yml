@@ -16,4 +16,4 @@ deploy:
   script:
     - mvn deploy -B -DskipTests -s ci_settings.xml -Dmaven.repo.local=$MVN_REPO
   only:
-    - master
+    - v1
