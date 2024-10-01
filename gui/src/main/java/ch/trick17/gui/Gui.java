@@ -195,13 +195,17 @@ public interface Gui {
     void refreshAndClear(int waitTime);
 
     /**
-     * If <code>resizable</code> is <code>true</code>, this window can be
-     * resized by the user. By default, windows are non-resizable.
+     * If <code>resizable</code> is <code>true</code>, this GUI can be resized
+     * by the user. By default, GUIs are non-resizable.
      * <p>
-     * For resizable windows, use {@link #getWidth()} and {@link #getHeight()}
-     * to get the current window size.
+     * For resizable GUIs, use {@link #getWidth()} and {@link #getHeight()} to
+     * get the current GUI size.
+     *
+     * @throws UnsupportedOperationException if the GUI implementation does not
+     *                                       support resizability. This is
+     *                                       currently the case for Web GUIs.
      */
-    void setResizable(boolean resizable);
+    void setResizable(boolean resizable) throws UnsupportedOperationException;
 
     /**
      * Returns the current canvas width.
@@ -330,18 +334,28 @@ public interface Gui {
      * {@linkplain #getFontSize() font size} and
      * {@linkplain #isBold() boldness}. If the text contains multiple lines, the
      * width of the widest line is returned.
+     *
+     * @throws UnsupportedOperationException if the GUI implementation does not
+     *                                       support measuring string widths.
+     *                                       This is currently the case for Web
+     *                                       GUIs.
      */
-    default double stringWidth(String string) {
+    default double stringWidth(String string) throws UnsupportedOperationException {
         return stringWidth(string, getFontSize(), isBold());
     }
 
     /**
      * Measures the width that the given text would have if it was
      * {@linkplain #drawString(String, double, double) drawn} with the given
-     * font size and boldness. If the text contains multiple lines, the width
-     * of the widest line is returned.
+     * font size and boldness. If the text contains multiple lines, the width of
+     * the widest line is returned.
+     *
+     * @throws UnsupportedOperationException if the GUI implementation does not
+     *                                       support measuring string widths.
+     *                                       This is currently the case for Web
+     *                                       GUIs.
      */
-    double stringWidth(String string, int fontSize, boolean bold);
+    double stringWidth(String string, int fontSize, boolean bold) throws UnsupportedOperationException;
 
     /**
      * Sets the alignment for subsequent
