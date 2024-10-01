@@ -111,6 +111,22 @@ public interface Gui {
     void setResizable(boolean resizable) throws UnsupportedOperationException;
 
     /**
+     * If <code>fullScreen</code> is <code>true</code>, the GUI will be
+     * displayed in full screen mode. By default, GUIs are not full screen.
+     *
+     * @throws UnsupportedOperationException if the GUI implementation does not
+     *                                       support full screen mode. This is
+     *                                       currently the case for Web GUIs.
+     */
+    void setFullScreen(boolean fullScreen) throws UnsupportedOperationException;
+
+    /**
+     * Returns <code>true</code> if the GUI is currently displayed in full
+     * screen mode, <code>false</code> otherwise.
+     */
+    boolean isFullScreen();
+
+    /**
      * This method waits until the GUI is closed by the user (or if it was not
      * open in the first place). More precisely, this method returns as soon as
      * {@link #isOpen()} returns <code>true</code>.

@@ -117,6 +117,8 @@ class GuiBaseTest {
         }
         protected void repaint(boolean clear) {}
         public void setResizable(boolean resizable) {}
+        public void setFullScreen(boolean fullScreen) {}
+        public boolean isFullScreen() { return false; }
         public double stringWidth(String string, int fontSize, boolean bold) { return 0; }
         public void drawRect(double x, double y, double width, double height) {}
         public void fillRect(double x, double y, double width, double height) {}

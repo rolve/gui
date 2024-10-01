@@ -76,6 +76,16 @@ public class WebGui extends GuiBase {
         throw new UnsupportedOperationException();
     }
 
+    @Override
+    public void setFullScreen(boolean fullScreen) throws UnsupportedOperationException {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public boolean isFullScreen() {
+        return false;
+    }
+
     void onEvent(String event) {
         var name = event.substring(0, 8);
         var args = event.substring(9);

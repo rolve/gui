@@ -56,6 +56,14 @@ public class Bill {
                 lives = -1;
             }
 
+            if (gui.wasKeyTyped("f")) {
+                try {
+                    gui.setFullScreen(!gui.isFullScreen());
+                } catch (UnsupportedOperationException e) {
+                    // ignore
+                }
+            }
+
             if (x < BILL_SIZE / 2 || x + BILL_SIZE / 2 >= WIDTH) {
                 vx = -vx;
                 lives--;

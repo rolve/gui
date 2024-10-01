@@ -7,6 +7,9 @@ public class Mouse {
     public static void main(String[] args) {
         Gui gui = Gui.create("Mouse", 700, 300);
         gui.setColor(0, 128, 0);
+        try {
+            gui.setResizable(true);
+        } catch (UnsupportedOperationException ignored) {}
         gui.open();
 
         double x = 50;
@@ -18,6 +21,14 @@ public class Mouse {
             }
             if (gui.isRightMouseButtonPressed()) {
                 size = max(size / 2, 1);
+            }
+
+            if (gui.wasKeyTyped("f")) {
+                try {
+                    gui.setFullScreen(!gui.isFullScreen());
+                } catch (UnsupportedOperationException e) {
+                    // ignore
+                }
             }
 
             double xDiff = x - gui.getMouseX();

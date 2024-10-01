@@ -19,9 +19,11 @@ import java.util.*;
 import java.util.function.Consumer;
 
 import static java.awt.BasicStroke.*;
+import static java.awt.Color.BLACK;
 import static java.awt.Color.WHITE;
 import static java.awt.Font.BOLD;
 import static java.awt.Font.PLAIN;
+import static java.awt.GraphicsEnvironment.getLocalGraphicsEnvironment;
 import static java.awt.RenderingHints.*;
 import static java.awt.geom.Path2D.WIND_EVEN_ODD;
 import static java.lang.Math.max;
@@ -67,6 +69,8 @@ public class Window extends GuiBase {
 
     private final JFrame frame;
     private final JPanel panel;
+    private final GraphicsDevice device = getLocalGraphicsEnvironment().getDefaultScreenDevice();
+    private boolean fullScreen;
 
     private List<Consumer<Graphics2D>> drawCommands;
     private List<Consumer<Graphics2D>> drawSnapshot;
@@ -164,7 +168,13 @@ public class Window extends GuiBase {
                 Window.super.close();
             }
         });
-        frame.setContentPane(panel);
+        frame.getContentPane().setBackground(BLACK);
+        frame.getContentPane().setLayout(new GridBagLayout());
+
+        var constraints = new GridBagConstraints();
+        constraints.weightx = 1;
+        constraints.weighty = 1;
+        frame.getContentPane().add(panel, constraints);
 
         drawCommands = new ArrayList<>(List.of(applyCurrentSettings()));
         drawSnapshot = new ArrayList<>();
@@ -234,7 +244,37 @@ public class Window extends GuiBase {
 
     @Override
     public void setResizable(boolean resizable) {
-        run(() -> frame.setResizable(resizable));
+        run(() -> {
+            var layout = (GridBagLayout) frame.getContentPane().getLayout();
+            var constraints = layout.getConstraints(panel);
+            constraints.fill = resizable
+                    ? GridBagConstraints.BOTH
+                    : GridBagConstraints.CENTER;
+            layout.setConstraints(panel, constraints);
+            frame.setResizable(resizable);
+        });
+    }
+
+    @Override
+    public void setFullScreen(boolean fullScreen) {
+        this.fullScreen = fullScreen;
+        run(() -> {
+            if (fullScreen) {
+                frame.dispose();
+                frame.setUndecorated(true);
+                device.setFullScreenWindow(frame);
+            } else {
+                device.setFullScreenWindow(null);
+                frame.dispose();
+                frame.setUndecorated(false);
+            }
+            frame.setVisible(true);
+        });
+    }
+
+    @Override
+    public boolean isFullScreen() {
+        return fullScreen;
     }
 
     @Override
