@@ -127,27 +127,6 @@ public abstract class GuiBase implements Gui {
     }
 
     @Override
-    public void addComponent(Component component) {
-        if (component == null) {
-            throw new IllegalArgumentException("component must not be null");
-        }
-        if (components.stream().anyMatch(c -> c == component)) {
-            throw new IllegalArgumentException("component already added");
-        }
-        components.add(component);
-    }
-
-    @Override
-    public void removeComponent(Component component) {
-        if (component == null) {
-            throw new IllegalArgumentException("component must not be null");
-        }
-        if (!components.remove(component)) {
-            throw new IllegalArgumentException("component not present");
-        }
-    }
-
-    @Override
     public double getWidth() {
         return width;
     }
@@ -194,6 +173,27 @@ public abstract class GuiBase implements Gui {
     }
 
     protected abstract void repaint(boolean clear);
+
+    @Override
+    public void addComponent(Component component) {
+        if (component == null) {
+            throw new IllegalArgumentException("component must not be null");
+        }
+        if (components.stream().anyMatch(c -> c == component)) {
+            throw new IllegalArgumentException("component already added");
+        }
+        components.add(component);
+    }
+
+    @Override
+    public void removeComponent(Component component) {
+        if (component == null) {
+            throw new IllegalArgumentException("component must not be null");
+        }
+        if (!components.remove(component)) {
+            throw new IllegalArgumentException("component not present");
+        }
+    }
 
     /*
      * Paint settings

@@ -88,6 +88,29 @@ public interface Gui {
     boolean isOpen();
 
     /**
+     * Returns the current canvas width.
+     */
+    double getWidth();
+
+    /**
+     * Returns the current canvas height.
+     */
+    double getHeight();
+
+    /**
+     * If <code>resizable</code> is <code>true</code>, this GUI can be resized
+     * by the user. By default, GUIs are non-resizable.
+     * <p>
+     * For resizable GUIs, use {@link #getWidth()} and {@link #getHeight()} to
+     * get the current GUI size.
+     *
+     * @throws UnsupportedOperationException if the GUI implementation does not
+     *                                       support resizability. This is
+     *                                       currently the case for Web GUIs.
+     */
+    void setResizable(boolean resizable) throws UnsupportedOperationException;
+
+    /**
      * This method waits until the GUI is closed by the user (or if it was not
      * open in the first place). More precisely, this method returns as soon as
      * {@link #isOpen()} returns <code>true</code>.
@@ -193,29 +216,6 @@ public interface Gui {
      * milliseconds) has elapsed since the last refresh.
      */
     void refreshAndClear(int waitTime);
-
-    /**
-     * If <code>resizable</code> is <code>true</code>, this GUI can be resized
-     * by the user. By default, GUIs are non-resizable.
-     * <p>
-     * For resizable GUIs, use {@link #getWidth()} and {@link #getHeight()} to
-     * get the current GUI size.
-     *
-     * @throws UnsupportedOperationException if the GUI implementation does not
-     *                                       support resizability. This is
-     *                                       currently the case for Web GUIs.
-     */
-    void setResizable(boolean resizable) throws UnsupportedOperationException;
-
-    /**
-     * Returns the current canvas width.
-     */
-    double getWidth();
-
-    /**
-     * Returns the current canvas height.
-     */
-    double getHeight();
 
     /**
      * Adds <code>component</code> to this GUI. Whenever one of the
@@ -526,8 +526,8 @@ public interface Gui {
      * indices correspond to the x coordinates, the even indices to the y
      * coordinates of the corners of the polygon. For example, if the array
      * <code>{1.0, 2.0, 3.0, 4.0, 5.0, 6.0}</code> is given, the polygon is a
-     * triangle with the corners at the points (1.0, 2.0), (3.0, 4.0), and (5.0,
-     * 6.0).
+     * triangle with the corners at the points (1.0, 2.0), (3.0, 4.0), and
+     * (5.0, 6.0).
      */
     void fillPolygon(double[] coordinates);
 

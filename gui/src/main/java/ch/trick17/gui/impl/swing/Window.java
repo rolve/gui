@@ -233,6 +233,11 @@ public class Window extends GuiBase {
     }
 
     @Override
+    public void setResizable(boolean resizable) {
+        run(() -> frame.setResizable(resizable));
+    }
+
+    @Override
     protected void repaint(boolean clear) {
         frame.repaint();
         if (clear) {
@@ -245,11 +250,6 @@ public class Window extends GuiBase {
                 drawSnapshot = new ArrayList<>(drawCommands);
             }
         }
-    }
-
-    @Override
-    public void setResizable(boolean resizable) {
-        run(() -> frame.setResizable(resizable));
     }
 
     /*
