@@ -73,12 +73,16 @@ public class WebGui extends GuiBase {
 
     @Override
     public void setResizable(boolean resizable) {
-        throw new UnsupportedOperationException();
+        if (resizable) {
+            throw new UnsupportedOperationException();
+        }
     }
 
     @Override
     public void setFullScreen(boolean fullScreen) throws UnsupportedOperationException {
-        throw new UnsupportedOperationException();
+        if (fullScreen) {
+            throw new UnsupportedOperationException();
+        }
     }
 
     @Override

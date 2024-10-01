@@ -225,15 +225,25 @@ public class Window extends GuiBase {
     @Override
     public void open() {
         drawSnapshot.addAll(drawCommands);
-        run(() -> {
+        run(() -> openFrame());
+        super.open();
+    }
+
+    private void openFrame() {
+        if (fullScreen) {
+            frame.setUndecorated(true);
+            device.setFullScreenWindow(frame);
+            frame.setVisible(true);
+        } else {
+            device.setFullScreenWindow(null);
+            frame.setUndecorated(false);
             frame.pack();
             frame.setLocationRelativeTo(null); // center
             frame.setVisible(true);
             frame.setAlwaysOnTop(true);
             frame.toFront();
             frame.setAlwaysOnTop(false);
-        });
-        super.open();
+        }
     }
 
     @Override
@@ -257,19 +267,15 @@ public class Window extends GuiBase {
 
     @Override
     public void setFullScreen(boolean fullScreen) {
-        this.fullScreen = fullScreen;
-        run(() -> {
-            if (fullScreen) {
-                frame.dispose();
-                frame.setUndecorated(true);
-                device.setFullScreenWindow(frame);
-            } else {
-                device.setFullScreenWindow(null);
-                frame.dispose();
-                frame.setUndecorated(false);
+        if (this.fullScreen != fullScreen) {
+            this.fullScreen = fullScreen;
+            if (isOpen()) {
+                run(() -> {
+                    frame.dispose();
+                    openFrame();
+                });
             }
-            frame.setVisible(true);
-        });
+        }
     }
 
     @Override

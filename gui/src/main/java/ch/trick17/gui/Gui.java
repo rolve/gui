@@ -98,31 +98,45 @@ public interface Gui {
     double getHeight();
 
     /**
-     * If <code>resizable</code> is <code>true</code>, this GUI can be resized
-     * by the user. By default, GUIs are non-resizable.
+     * If <code>resizable</code> is <code>true</code>, sets this GUI (and the
+     * canvas) to be resizable by the user; otherwise, the GUI is set to be
+     * non-resizable and the canvas is fixed in size (the default).
      * <p>
      * For resizable GUIs, use {@link #getWidth()} and {@link #getHeight()} to
-     * get the current GUI size.
+     * get the current canvas size.
      *
-     * @throws UnsupportedOperationException if the GUI implementation does not
-     *                                       support resizability. This is
-     *                                       currently the case for Web GUIs.
+     * @throws UnsupportedOperationException if <code>resizable</code> is
+     *                                       <code>true</code> and the GUI
+     *                                       implementation does not support
+     *                                       resizing. This is currently the
+     *                                       case for Web GUIs.
      */
     void setResizable(boolean resizable) throws UnsupportedOperationException;
 
     /**
-     * If <code>fullScreen</code> is <code>true</code>, the GUI will be
-     * displayed in full screen mode. By default, GUIs are not full screen.
+     * If <code>fullScreen</code> is <code>true</code>, sets this GUI to be
+     * displayed in full screen mode; otherwise, the GUI is set to be displayed
+     * in "normal mode" (the default). If the GUI is already open, it will
+     * switch to full screen mode (or normal mode) immediately. Otherwise, the
+     * GUI will enter full screen mode (or normal mode) when it is next opened.
+     * <p>
+     * If the GUI has been set to be
+     * {@linkplain #setResizable(boolean) resizable}, the canvas will be resized
+     * to fit the screen. Otherwise, the canvas will keep its original size and
+     * be centered on the screen, surrounded by a black border as needed.
      *
-     * @throws UnsupportedOperationException if the GUI implementation does not
-     *                                       support full screen mode. This is
-     *                                       currently the case for Web GUIs.
+     * @throws UnsupportedOperationException if <code>fullScreen</code> is
+     *                                       <code>true</code> and the GUI
+     *                                       implementation does not support
+     *                                       full screen mode. This is currently
+     *                                       the case for Web GUIs.
      */
     void setFullScreen(boolean fullScreen) throws UnsupportedOperationException;
 
     /**
-     * Returns <code>true</code> if the GUI is currently displayed in full
-     * screen mode, <code>false</code> otherwise.
+     * Returns <code>true</code> if the GUI is currently set to be displayed in
+     * full screen mode, <code>false</code> otherwise. This is independent of
+     * whether the GUI is currently open.
      */
     boolean isFullScreen();
 
@@ -543,7 +557,8 @@ public interface Gui {
      * coordinates of the corners of the polygon. For example, if the array
      * <code>{1.0, 2.0, 3.0, 4.0, 5.0, 6.0}</code> is given, the polygon is a
      * triangle with the corners at the points (1.0, 2.0), (3.0, 4.0), and
-     * (5.0, 6.0).
+     * (5.0,
+     * 6.0).
      */
     void fillPolygon(double[] coordinates);
 
