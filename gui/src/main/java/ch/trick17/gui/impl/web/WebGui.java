@@ -164,15 +164,26 @@ public class WebGui extends GuiBase {
     }
 
     @Override
+    public void setFontFamily(String fontFamily) throws UnsupportedOperationException {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
     public void setFontSize(int fontSize) {
         super.setFontSize(fontSize);
-        drawCommands.add(format("setFont  %d,%b", fontSize, bold));
+        drawCommands.add(format("setFont  %d,%b,%b", fontSize, bold, italic));
     }
 
     @Override
     public void setBold(boolean bold) {
         super.setBold(bold);
-        drawCommands.add(format("setFont  %d,%b", fontSize, bold));
+        drawCommands.add(format("setFont  %d,%b,%b", fontSize, bold, italic));
+    }
+
+    @Override
+    public void setItalic(boolean italic) {
+        super.setItalic(italic);
+        drawCommands.add(format("setFont  %d,%b,%b", fontSize, bold, italic));
     }
 
     @Override
@@ -194,7 +205,8 @@ public class WebGui extends GuiBase {
     }
 
     @Override
-    public double stringWidth(String string, int fontSize, boolean bold) {
+    public double stringWidth(String string, String fontFamily, int fontSize,
+                              boolean bold, boolean italic) {
         throw new UnsupportedOperationException();
     }
 

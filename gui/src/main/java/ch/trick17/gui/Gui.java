@@ -333,6 +333,30 @@ public interface Gui {
     boolean isRoundStroke();
 
     /**
+     * Sets the font family to be used for subsequent
+     * {@link #drawString(String, double, double)} operations. This can be the
+     * family name of a physical font family, like "Arial" or one of the
+     * following "logical" fonts:
+     * <ul>
+     *     <li>"sansserif"</li>
+     *     <li>"serif"</li>
+     *     <li>"monospaced"</li>
+     * </ul>
+     * The font family name is case-insensitive. The default is "sansserif".
+     *
+     * @throws UnsupportedOperationException if the GUI implementation does not
+     *                                       support setting the font family.
+     *                                       This is currently the case for Web
+     *                                       GUIs.
+     */
+    void setFontFamily(String fontFamily) throws UnsupportedOperationException;
+
+    /**
+     * Returns the name of the current font family.
+     */
+    String getFontFamily();
+
+    /**
      * Sets the font size for subsequent
      * {@link #drawString(String, double, double)} operations, in points. The
      * default font size is 11 points.
@@ -347,37 +371,35 @@ public interface Gui {
     /**
      * If <code>bold</code> is <code>true</code>, subsequent
      * {@link #drawString(String, double, double)} operations will use a bold
-     * font.
+     * font. The default is <code>false</code>.
      */
     void setBold(boolean bold);
 
     /**
      * Returns a boolean value indicating whether a bold font is used to
-     * {@linkplain #drawString(String, double, double) draw strings}. The
-     * default is <code>false</code>.
+     * {@linkplain #drawString(String, double, double) draw strings}.
      */
     boolean isBold();
 
     /**
-     * Measures the width that the given text would have if it was
-     * {@linkplain #drawString(String, double, double) drawn} with the current
-     * {@linkplain #getFontSize() font size} and
-     * {@linkplain #isBold() boldness}. If the text contains multiple lines, the
-     * width of the widest line is returned.
-     *
-     * @throws UnsupportedOperationException if the GUI implementation does not
-     *                                       support measuring string widths.
-     *                                       This is currently the case for Web
-     *                                       GUIs.
+     * If <code>italic</code> is <code>true</code>, subsequent
+     * {@link #drawString(String, double, double)} operations will use an italic
+     * font. The default is <code>false</code>.
      */
-    default double stringWidth(String string) throws UnsupportedOperationException {
-        return stringWidth(string, getFontSize(), isBold());
-    }
+    void setItalic(boolean italic);
+
+    /**
+     * Returns a boolean value indicating whether an italic font is used to
+     * {@linkplain #drawString(String, double, double) draw strings}.
+     */
+    boolean isItalic();
 
     /**
      * Measures the width that the given text would have if it was
-     * {@linkplain #drawString(String, double, double) drawn} with the given
-     * font size and boldness. If the text contains multiple lines, the width of
+     * {@linkplain #drawString(String, double, double) drawn} with the current
+     * {@linkplain #getFontFamily() font family},
+     * {@linkplain #getFontSize() font size}, and style ({@link #isBold()},
+     * {@link #isItalic()}). If the text contains multiple lines, the width of
      * the widest line is returned.
      *
      * @throws UnsupportedOperationException if the GUI implementation does not
@@ -385,7 +407,45 @@ public interface Gui {
      *                                       This is currently the case for Web
      *                                       GUIs.
      */
-    double stringWidth(String string, int fontSize, boolean bold) throws UnsupportedOperationException;
+    default double stringWidth(String string) throws UnsupportedOperationException {
+        return stringWidth(string, getFontFamily(), getFontSize(), isBold(), isItalic());
+    }
+
+    /**
+     * Measures the width that the given text would have if it was
+     * {@linkplain #drawString(String, double, double) drawn} with the current
+     * {@linkplain #getFontFamily() font family} and
+     * {@linkplain #isItalic() italicness} and the given font size and boldness.
+     * If the text contains multiple lines, the width of the widest line is
+     * returned.
+     *
+     * @throws UnsupportedOperationException if the GUI implementation does not
+     *                                       support measuring string widths.
+     *                                       This is currently the case for Web
+     *                                       GUIs.
+     * @deprecated Use
+     * {@link #stringWidth(String, String, int, boolean, boolean)} that includes
+     * all font attributes as parameters or {@link #stringWidth(String)} that
+     * includes none.
+     */
+    @Deprecated(forRemoval = true)
+    default double stringWidth(String string, int fontSize, boolean bold) throws UnsupportedOperationException {
+        return stringWidth(string, getFontFamily(), fontSize, bold, isItalic());
+    }
+
+    /**
+     * Measures the width that the given text would have if it was
+     * {@linkplain #drawString(String, double, double) drawn} with the given
+     * font family, font size, and style. If the text contains multiple lines,
+     * the width of the widest line is returned.
+     *
+     * @throws UnsupportedOperationException if the GUI implementation does not
+     *                                       support measuring string widths.
+     *                                       This is currently the case for Web
+     *                                       GUIs.
+     */
+    double stringWidth(String string, String fontFamily, int fontSize,
+                       boolean bold, boolean italic) throws UnsupportedOperationException;
 
     /**
      * Sets the alignment for subsequent

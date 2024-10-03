@@ -46,7 +46,7 @@ public class Label extends Widget {
     }
 
     public double getWidth(Gui gui) {
-        return gui.stringWidth(text, getFontSize(), false);
+        return gui.stringWidth(text, gui.getFontFamily(), getFontSize(), false, false);
     }
 
     public Color getTextColor() {

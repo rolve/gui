@@ -21,8 +21,7 @@ import java.util.function.Consumer;
 import static java.awt.BasicStroke.*;
 import static java.awt.Color.BLACK;
 import static java.awt.Color.WHITE;
-import static java.awt.Font.BOLD;
-import static java.awt.Font.PLAIN;
+import static java.awt.Font.*;
 import static java.awt.GraphicsEnvironment.getLocalGraphicsEnvironment;
 import static java.awt.RenderingHints.*;
 import static java.awt.geom.Path2D.WIND_EVEN_ODD;
@@ -204,15 +203,14 @@ public class Window extends GuiBase {
         var currentColor = new java.awt.Color(color.r, color.g, color.b, color.alpha);
         var currentStroke = new BasicStroke((float) strokeWidth, roundStroke ? CAP_ROUND : CAP_BUTT,
                 roundStroke ? JOIN_ROUND : JOIN_MITER);
-        var currentStyle = bold ? BOLD : PLAIN;
-        var currentSize = fontSize;
+        var currentFont = currentFont();
         var currentTextAlign = textAlign;
         var currentLineHeight = lineSpacing;
         var currentComposite = AlphaComposite.SrcOver.derive((float) alpha);
         return g -> {
             g.setColor(currentColor);
             g.setStroke(currentStroke);
-            g.setFont(g.getFont().deriveFont(currentStyle, currentSize));
+            g.setFont(currentFont);
             // Text alignment and line height are stored as a "rendering hints"
             // inside the Graphics2D object. Somewhat hacky, but consistent with
             // all other settings, which are supported by Graphics2D directly.
@@ -220,6 +218,11 @@ public class Window extends GuiBase {
             g.addRenderingHints(Map.of(LINE_SPACING, currentLineHeight));
             g.setComposite(currentComposite);
         };
+    }
+
+    private Font currentFont() {
+        var style = (bold ? BOLD : PLAIN) | (italic ? ITALIC : PLAIN);
+        return new Font(fontFamily, style, fontSize);
     }
 
     @Override
@@ -331,15 +334,31 @@ public class Window extends GuiBase {
     }
 
     @Override
+    public void setFontFamily(String fontFamily) {
+        super.setFontFamily(fontFamily);
+        var currentFont = currentFont();
+        drawCommands.add(g -> g.setFont(currentFont));
+    }
+
+    @Override
     public void setFontSize(int fontSize) {
         super.setFontSize(fontSize);
-        drawCommands.add(g -> g.setFont(g.getFont().deriveFont((float) fontSize)));
+        var currentFont = currentFont();
+        drawCommands.add(g -> g.setFont(currentFont));
     }
 
     @Override
     public void setBold(boolean bold) {
         super.setBold(bold);
-        drawCommands.add(g -> g.setFont(g.getFont().deriveFont(bold ? BOLD : PLAIN)));
+        var currentFont = currentFont();
+        drawCommands.add(g -> g.setFont(currentFont));
+    }
+
+    @Override
+    public void setItalic(boolean italic) {
+        super.setItalic(italic);
+        var currentFont = currentFont();
+        drawCommands.add(g -> g.setFont(currentFont));
     }
 
     @Override
@@ -361,8 +380,10 @@ public class Window extends GuiBase {
     }
 
     @Override
-    public double stringWidth(String string, int fontSize, boolean bold) {
-        var font = panel.getFont().deriveFont(bold ? BOLD : PLAIN, fontSize);
+    public double stringWidth(String string, String fontFamily, int fontSize,
+                              boolean bold, boolean italic) {
+        var style = (bold ? BOLD : PLAIN) | (italic ? ITALIC : PLAIN);
+        var font = new Font(fontFamily, style, fontSize);
         var metrics = panel.getFontMetrics(font);
         return string.lines()
                 .mapToInt(metrics::stringWidth)

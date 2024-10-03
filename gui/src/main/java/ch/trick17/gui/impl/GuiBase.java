@@ -2,11 +2,8 @@ package ch.trick17.gui.impl;
 
 import ch.trick17.gui.Color;
 import ch.trick17.gui.Gui;
-import ch.trick17.gui.component.Clickable;
-import ch.trick17.gui.component.Component;
-import ch.trick17.gui.component.Drawable;
 import ch.trick17.gui.component.EventListener;
-import ch.trick17.gui.component.Hoverable;
+import ch.trick17.gui.component.*;
 
 import java.awt.event.KeyEvent;
 import java.util.*;
@@ -33,8 +30,10 @@ public abstract class GuiBase implements Gui {
     protected Color color = new Color(0, 0, 0);
     protected double strokeWidth = 1;
     protected boolean roundStroke = false;
+    protected String fontFamily = "sansserif";
     protected int fontSize = 11;
     protected boolean bold = false;
+    protected boolean italic = false;
     protected TextAlign textAlign = TextAlign.LEFT;
     protected double lineSpacing = 1.0;
     protected double alpha = 1;
@@ -230,6 +229,16 @@ public abstract class GuiBase implements Gui {
     }
 
     @Override
+    public void setFontFamily(String fontFamily) throws UnsupportedOperationException {
+        this.fontFamily = fontFamily;
+    }
+
+    @Override
+    public String getFontFamily() {
+        return fontFamily;
+    }
+
+    @Override
     public void setFontSize(int fontSize) {
         this.fontSize = fontSize;
     }
@@ -247,6 +256,16 @@ public abstract class GuiBase implements Gui {
     @Override
     public boolean isBold() {
         return bold;
+    }
+
+    @Override
+    public void setItalic(boolean italic) {
+        this.italic = italic;
+    }
+
+    @Override
+    public boolean isItalic() {
+        return italic;
     }
 
     @Override
