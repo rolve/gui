@@ -281,6 +281,11 @@ public interface Gui {
         }
     }
 
+    /**
+     * TODO
+     */
+    void loadFont(String path) throws UnsupportedOperationException;
+
     /*
      * Paint settings
      */

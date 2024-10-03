@@ -60,7 +60,7 @@ public class Bill {
                 try {
                     gui.setFullScreen(!gui.isFullScreen());
                 } catch (UnsupportedOperationException e) {
-                    // ignore
+                    // not supported by Web GUI
                 }
             }
 

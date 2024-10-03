@@ -27,7 +27,7 @@ public class Mouse {
                 try {
                     gui.setFullScreen(!gui.isFullScreen());
                 } catch (UnsupportedOperationException e) {
-                    // ignore
+                    // not supported by Web GUI
                 }
             }
 

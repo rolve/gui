@@ -145,6 +145,11 @@ public class WebGui extends GuiBase {
     }
 
     @Override
+    public void loadFont(String path) throws UnsupportedOperationException {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
     public void setColor(Color color) {
         super.setColor(color);
         drawCommands.add(format("setColor %d,%d,%d,%.3f",

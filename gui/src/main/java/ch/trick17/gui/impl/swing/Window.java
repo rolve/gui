@@ -13,7 +13,10 @@ import java.awt.geom.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.*;
 import java.util.function.Consumer;
@@ -298,6 +301,20 @@ public class Window extends GuiBase {
             synchronized (this) {
                 drawSnapshot = new ArrayList<>(drawCommands);
             }
+        }
+    }
+
+    @Override
+    public void loadFont(String path) {
+        try (var res = getClass().getClassLoader().getResourceAsStream(path);
+             var stream = res != null ? res : Files.newInputStream(Path.of(path))) {
+            var font = Font.createFont(TRUETYPE_FONT, stream);
+            var success = getLocalGraphicsEnvironment().registerFont(font);
+            if (!success) {
+                throw new Error("could not register font \"" + font.getFontName() + "\" (conflicting name?)");
+            }
+        } catch (IOException | FontFormatException e) {
+            throw new Error("could not load font \"" + path + "\"", e);
         }
     }
 
