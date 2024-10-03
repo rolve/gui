@@ -50,7 +50,7 @@ repositories {
     }
 }
 dependencies {
-    implementation 'ch.trick17.gui:gui:2.1.1-SNAPSHOT'
+    implementation 'ch.trick17.gui:gui:2.4.0-SNAPSHOT'
 }
 ```
 
