@@ -282,7 +282,19 @@ public interface Gui {
     }
 
     /**
-     * TODO
+     * Loads a font from the given <code>path</code>. Afterward, the font can be
+     * used by setting the corresponding font family
+     * ({@link #setFontFamily(String)}) and style ({@link #setBold(boolean)},
+     * {@link #setItalic(boolean)}).
+     * <p>
+     * First, <code>path</code> is interpreted as an absolute resource name and
+     * an attempt is made to load the font from the classpath. If such a
+     * resource does not exist, <code>path</code> is interpreted as a file path
+     * instead and the font is loaded from the file system.
+     *
+     * @throws UnsupportedOperationException if the GUI implementation does not
+     *                                       support loading fonts. This is
+     *                                       currently the case for Web GUIs.
      */
     void loadFont(String path) throws UnsupportedOperationException;
 
@@ -340,14 +352,18 @@ public interface Gui {
     /**
      * Sets the font family to be used for subsequent
      * {@link #drawString(String, double, double)} operations. This can be the
-     * family name of a physical font family, like "Arial" or one of the
-     * following "logical" fonts:
+     * family name of a physical font, like "Arial" or one of the following
+     * "logical" fonts, for which a suitable physical font is chosen
+     * automatically:
      * <ul>
      *     <li>"sansserif"</li>
      *     <li>"serif"</li>
      *     <li>"monospaced"</li>
      * </ul>
-     * The font family name is case-insensitive. The default is "sansserif".
+     * The physical fonts that are available are the ones that have previously
+     * been loaded with {@link #loadFont(String)}, plus a number of
+     * platform-dependent system fonts. The font family name is
+     * case-insensitive. The default is "sansserif".
      *
      * @throws UnsupportedOperationException if the GUI implementation does not
      *                                       support setting the font family.
@@ -499,6 +515,9 @@ public interface Gui {
      */
     void setLineSpacing(double lineSpacing);
 
+    /**
+     * Returns the current line spacing multiplier.
+     */
     double getLineSpacing();
 
     /**
@@ -508,6 +527,9 @@ public interface Gui {
      */
     void setAlpha(double alpha);
 
+    /**
+     * Returns the current alpha value.
+     */
     double getAlpha();
 
     /**
@@ -669,16 +691,21 @@ public interface Gui {
     /**
      * Draws the image found at the given <code>path</code> with the upper-left
      * corner at position (<code>x</code>, <code>y</code>).
+     * <p>
+     * First, <code>path</code> is interpreted as an absolute resource name and
+     * an attempt is made to load the image from the classpath. If such a
+     * resource does not exist, <code>path</code> is interpreted as a file path
+     * instead and the image is loaded from the file system.
      */
     default void drawImage(String path, double x, double y) {
         drawImage(path, x, y, 1);
     }
 
     /**
-     * Draws the image found at the given path with the center at position
-     * (<code>x</code>, <code>y</code>).
-     * <p>
-     * Also, see {@link #drawImage(String, double, double)}.
+     * Draws the image found at the given <code>path</code> with the center at
+     * position (<code>x</code>, <code>y</code>).
+     *
+     * @see #drawImage(String, double, double)
      */
     default void drawImageCentered(String path, double x, double y) {
         drawImageCentered(path, x, y, 1);
@@ -689,20 +716,20 @@ public interface Gui {
      * corner at position (<code>x</code>, <code>y</code>) and scales it by the
      * given <code>scale</code>. For example, a scale of 2.0 doubles the size of
      * the image.
-     * <p>
-     * Also, see {@link #drawImage(String, double, double)}.
+     *
+     * @see #drawImage(String, double, double)
      */
     default void drawImage(String path, double x, double y, double scale) {
         drawImage(path, x, y, scale, 0);
     }
 
     /**
-     * Draws the image found at the given path with the center at position
-     * (<code>x</code>, <code>y</code>) and scales it by the given
+     * Draws the image found at the given <code>path</code> with the center at
+     * position (<code>x</code>, <code>y</code>) and scales it by the given
      * <code>scale</code>. For example, a scale of 2.0 doubles the size of the
      * image.
-     * <p>
-     * Also, see {@link #drawImage(String, double, double)}.
+     *
+     * @see #drawImage(String, double, double)
      */
     default void drawImageCentered(String path, double x, double y, double scale) {
         drawImageCentered(path, x, y, scale, 0);
@@ -711,12 +738,12 @@ public interface Gui {
     void drawImage(String path, double x, double y, double scale, double angle);
 
     /**
-     * Draws the image found at the given path with the center at position
-     * (<code>x</code>, <code>y</code>), scales it by the given
+     * Draws the image found at the given <code>path</code> with the center at
+     * position (<code>x</code>, <code>y</code>), scales it by the given
      * <code>scale</code> and rotates it by the given <code>angle</code>, in
      * radians (0&ndash;2&times;{@linkplain Math#PI &pi;}).
-     * <p>
-     * Also, see {@link #drawImage(String, double, double)}.
+     *
+     * @see #drawImage(String, double, double)
      */
     void drawImageCentered(String path, double x, double y, double scale, double angle);
 
