@@ -57,6 +57,22 @@ public abstract class GuiBase implements Gui {
     }
 
     protected void runComponents() {
+        if (components.isEmpty()) {
+            return;
+        }
+
+        // components are run with default settings, so save current settings
+        var prevColor = color;
+        var prevStrokeWidth = strokeWidth;
+        var prevRoundStroke = roundStroke;
+        var prevFontFamily = fontFamily;
+        var prevFontSize = fontSize;
+        var prevBold = bold;
+        var prevItalic = italic;
+        var prevTextAlign = textAlign;
+        var prevLineSpacing = lineSpacing;
+        var prevAlpha = alpha;
+
         var mx = mouseX;
         var my = mouseY;
         var leftClicked = wasLeftMouseButtonClicked();
@@ -105,8 +121,18 @@ public abstract class GuiBase implements Gui {
                 d.draw(this);
             }
         }
-        // for consistency, reset settings also if there are no Drawable components
-        resetSettings();
+
+        // restore settings
+        setColor(prevColor);
+        setStrokeWidth(prevStrokeWidth);
+        setRoundStroke(prevRoundStroke);
+        setFontFamily(prevFontFamily);
+        setFontSize(prevFontSize);
+        setBold(prevBold);
+        setItalic(prevItalic);
+        setTextAlign(prevTextAlign.toInt());
+        setLineSpacing(prevLineSpacing);
+        setAlpha(prevAlpha);
     }
 
     @Override
