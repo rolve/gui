@@ -5,15 +5,12 @@ import ch.trick17.gui.Gui;
 import ch.trick17.gui.impl.GuiBase;
 
 import javax.imageio.ImageIO;
-import javax.swing.JFrame;
-import javax.swing.JPanel;
+import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.*;
-import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -77,7 +74,7 @@ public class Window extends GuiBase {
     private List<Consumer<Graphics2D>> drawCommands;
     private List<Consumer<Graphics2D>> drawSnapshot;
 
-    private final Map<String, BufferedImage> images = new HashMap<>();
+    private final Map<String, Image> images = new HashMap<>();
 
     public Window(String title, int width, int height) {
         super(title, width, height);
@@ -522,7 +519,7 @@ public class Window extends GuiBase {
         var transform = new AffineTransform();
         transform.translate(x, y);
         transform.scale(scale, scale);
-        transform.rotate(angle, image.getWidth() / 2.0, image.getHeight() / 2.0);
+        transform.rotate(angle, image.getWidth(null) / 2.0, image.getHeight(null) / 2.0);
         drawCommands.add(g -> g.drawImage(image, transform, null));
     }
 
@@ -531,21 +528,23 @@ public class Window extends GuiBase {
         ensureLoaded(path);
         var image = images.get(path);
         var transform = new AffineTransform();
-        transform.translate(x - image.getWidth() / 2.0 * scale,
-                y - image.getHeight() / 2.0 * scale);
+        int imgWidth = image.getWidth(null);
+        int imgHeight = image.getHeight(null);
+        transform.translate(x - imgWidth / 2.0 * scale, y - imgHeight / 2.0 * scale);
         transform.scale(scale, scale);
-        transform.rotate(angle, image.getWidth() / 2.0, image.getHeight() / 2.0);
+        transform.rotate(angle, imgWidth / 2.0, imgHeight / 2.0);
         drawCommands.add(g -> g.drawImage(image, transform, null));
     }
 
     private void ensureLoaded(String imagePath) {
         if (!images.containsKey(imagePath)) {
             try (var res = getClass().getClassLoader().getResourceAsStream(imagePath)) {
-                BufferedImage image;
+                Image image;
+                boolean isGif = imagePath.toLowerCase().endsWith(".gif");
                 if (res != null) {
-                    image = ImageIO.read(res);
+                    image = isGif ? new ImageIcon(res.readAllBytes()).getImage() : ImageIO.read(res);
                 } else {
-                    image = ImageIO.read(new File(imagePath));
+                    image = isGif ? new ImageIcon(imagePath).getImage() : ImageIO.read(new File(imagePath));
                 }
                 if (image == null) {
                     throw new Error("could not load image \"" + imagePath + "\"");
