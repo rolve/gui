@@ -41,6 +41,8 @@ public class Window extends GuiBase {
     private static final Map<Integer, String> CODE_TO_NAME = new HashMap<>();
 
     static {
+        System.setProperty("sun.java2d.opengl", "true");
+
         for (var field : KeyEvent.class.getFields()) {
             var fieldName = field.getName();
             if (fieldName.startsWith("VK_")) {
