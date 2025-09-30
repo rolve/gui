@@ -540,11 +540,10 @@ public class Window extends GuiBase {
         if (!images.containsKey(imagePath)) {
             try (var res = getClass().getClassLoader().getResourceAsStream(imagePath)) {
                 Image image;
-                boolean isGif = imagePath.toLowerCase().endsWith(".gif");
                 if (res != null) {
-                    image = isGif ? new ImageIcon(res.readAllBytes()).getImage() : ImageIO.read(res);
+                    image = new ImageIcon(res.readAllBytes()).getImage();
                 } else {
-                    image = isGif ? new ImageIcon(imagePath).getImage() : ImageIO.read(new File(imagePath));
+                    image = new ImageIcon(imagePath).getImage();
                 }
                 if (image == null) {
                     throw new Error("could not load image \"" + imagePath + "\"");
