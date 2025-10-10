@@ -4,12 +4,10 @@ import ch.trick17.gui.Color;
 import ch.trick17.gui.Gui;
 import ch.trick17.gui.impl.GuiBase;
 
-import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.*;
-import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Files;
@@ -320,6 +318,16 @@ public class Window extends GuiBase {
     /*
      * Paint settings
      */
+
+    /**
+     * Add a custom command to be executed in the next frame. Note that this is an escape hatch. Only use it as a last
+     * resort.
+     *
+     * @param command command to be added
+     */
+    public void addCustomCommand(Consumer<Graphics2D> command) {
+        drawCommands.add(command);
+    }
 
     @Override
     public void setColor(Color color) {
