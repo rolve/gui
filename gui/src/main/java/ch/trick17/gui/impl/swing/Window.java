@@ -319,16 +319,6 @@ public class Window extends GuiBase {
      * Paint settings
      */
 
-    /**
-     * Add a custom command to be executed in the next frame. Note that this is an escape hatch. Only use it as a last
-     * resort.
-     *
-     * @param command command to be added
-     */
-    public void addCustomCommand(Consumer<Graphics2D> command) {
-        drawCommands.add(command);
-    }
-
     @Override
     public void setColor(Color color) {
         super.setColor(color);
@@ -563,6 +553,16 @@ public class Window extends GuiBase {
                 throw new Error("could not load image \"" + imagePath + "\"", e);
             }
         }
+    }
+
+    /**
+     * Adds a custom command to be executed in the next frame. Note that this is an escape hatch. Only use it as a last
+     * resort.
+     *
+     * @param command command to be added
+     */
+    public void addCustomCommand(Consumer<Graphics2D> command) {
+        drawCommands.add(command);
     }
 
     private void run(Runnable run) {

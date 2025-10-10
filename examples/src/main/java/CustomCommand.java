@@ -5,11 +5,9 @@ import ch.trick17.gui.Color;
 import ch.trick17.gui.impl.swing.Window;
 
 public class CustomCommand {
-    private static final int WINDOW_WIDTH = 500;
-    private static final int WINDOW_HEIGHT = 300;
 
     public static void main(String[] args) throws NoninvertibleTransformException {
-        var gui = new Window("Custom Command", WINDOW_WIDTH, WINDOW_HEIGHT);
+        var gui = new Window("Custom Command", 500, 300);
         gui.open();
 
         double rotationAngle = Math.PI / 4;
