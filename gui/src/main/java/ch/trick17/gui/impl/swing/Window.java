@@ -556,8 +556,15 @@ public class Window extends GuiBase {
     }
 
     /**
-     * Adds a custom command to be executed in the next frame. Note that this is an escape hatch. Only use it as a last
-     * resort.
+     * Adds a custom command to be executed in the next frame. The command has
+     * direct access to the {@link Graphics2D} object used internally for
+     * drawing, allowing for advanced operations like applying transformations.
+     * <p>
+     * Note that any transformation applied will only affect subsequent drawing
+     * commands <em>until the next {@linkplain Gui#refreshAndClear(int) clear}
+     * command</em>, so it is better to think of this method as a drawing method
+     * (like {@link #drawRect(double, double, double, double) drawRect}) rather
+     * than a setter method (like {@link #setColor(Color) setColor}).
      *
      * @param command command to be added
      */

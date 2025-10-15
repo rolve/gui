@@ -27,8 +27,10 @@ public class CustomCommand {
             gui.setColor(new Color(100, 100, 255));
             gui.fillRect(blueRectX, blueRectY, blueRectWidth, blueRectHeight);
 
-            // Create the inverse of the rotation matrix to reverse this
-            // rotation and draw the next rectangle normally
+            // For demonstration, create the inverse of the rotation matrix to
+            // reverse this rotation and to draw the next rectangle normally.
+            // (Of course, a simpler way would be to just draw the unrotated
+            // rectangle before applying the transformation.)
             var inverse = transform.createInverse();
             gui.addCustomCommand(g -> g.transform(inverse));
             gui.setColor(new Color(255, 100, 100));
