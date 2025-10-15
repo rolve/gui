@@ -13,20 +13,22 @@ public class CustomCommand {
         double rotationAngle = Math.PI / 4;
 
         while (gui.isOpen()) {
-            if (rotationAngle < 2 * Math.PI) rotationAngle += 0.05;
-            else rotationAngle = 0;
+            rotationAngle += 0.05;
 
             int blueRectWidth = 100;
             int blueRectHeight = 100;
             int blueRectX = 100;
             int blueRectY = 100;
 
-            var transform = AffineTransform.getRotateInstance(rotationAngle, blueRectX + blueRectWidth / 2.0, blueRectY + blueRectHeight / 2.0);
+            var transform = AffineTransform.getRotateInstance(rotationAngle,
+                    blueRectX + blueRectWidth / 2.0,
+                    blueRectY + blueRectHeight / 2.0);
             gui.addCustomCommand(g -> g.transform(transform));
             gui.setColor(new Color(100, 100, 255));
             gui.fillRect(blueRectX, blueRectY, blueRectWidth, blueRectHeight);
 
-            // Create the inverse of the rotation matrix to reverse this rotation and draw the next rectangle normally
+            // Create the inverse of the rotation matrix to reverse this
+            // rotation and draw the next rectangle normally
             var inverse = transform.createInverse();
             gui.addCustomCommand(g -> g.transform(inverse));
             gui.setColor(new Color(255, 100, 100));
