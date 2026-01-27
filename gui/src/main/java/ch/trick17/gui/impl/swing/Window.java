@@ -89,6 +89,7 @@ public class Window extends GuiBase {
             public void paintComponent(Graphics graphics) {
                 var g = (Graphics2D) graphics;
                 g.addRenderingHints(Map.of(
+                        KEY_RENDERING, VALUE_RENDER_QUALITY,
                         KEY_STROKE_CONTROL, VALUE_STROKE_PURE,
                         KEY_ANTIALIASING, VALUE_ANTIALIAS_ON));
                 // white background
