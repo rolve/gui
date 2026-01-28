@@ -26,12 +26,28 @@ public class Rectangle implements Shape {
         return px >= x && py >= y && px <= x + width && py <= y + height;
     }
 
-    public double getX() {
+    public double getLeftX() {
         return x;
     }
 
-    public double getY() {
+    public double getCenterX() {
+        return x + width / 2;
+    }
+
+    public double getRightX() {
+        return x + width;
+    }
+
+    public double getTopY() {
         return y;
+    }
+
+    public double getCenterY() {
+        return y + height / 2;
+    }
+
+    public double getBottomY() {
+        return y + height;
     }
 
     public double getWidth() {
