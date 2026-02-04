@@ -7,9 +7,7 @@ public class Mouse {
     public static void main(String[] args) {
         Gui gui = Gui.create("Mouse", 700, 300);
         gui.setColor(0, 128, 0);
-        try {
-            gui.setResizable(true);
-        } catch (UnsupportedOperationException ignored) {}
+        gui.setResizable(true);
         gui.open();
 
         double x = 50;
@@ -24,11 +22,7 @@ public class Mouse {
             }
 
             if (gui.wasKeyTyped("f")) {
-                try {
-                    gui.setFullScreen(!gui.isFullScreen());
-                } catch (UnsupportedOperationException e) {
-                    // not supported by Web GUI
-                }
+                gui.setFullScreen(!gui.isFullScreen());
             }
 
             double xDiff = x - gui.getMouseX();

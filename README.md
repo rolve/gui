@@ -1,11 +1,9 @@
-# GUI Library for "Intro to Java" Courses
+# GUI Library for _Intro to Java_ Courses
 
 A library for creating simple GUIs in introduction-level programming courses.
-The default backend uses Swing to display the GUI in a window, but the
-library does not expose any Swing types or concepts directly; instead, all
-functionality is exposed using a simple, single-threaded, and mostly
-primitive-type-based API. In addition, there is an experimental backend that
-exposes the GUI as a web page using an HTML5 canvas.
+The library uses Swing to display the GUI in a window, but it does not expose
+any Swing types or concepts directly; instead, all functionality is exposed
+using a simple, single-threaded, and mostly primitive-type-based API.
 
 The base API uses a single object of type [Gui][1] and focuses on
 drawing operations and global user inputs. An extended interface allows
@@ -28,7 +26,7 @@ For Maven projects, add the following to your pom.xml file:
     <dependency>
         <groupId>ch.trick17.gui</groupId>
         <artifactId>gui</artifactId>
-        <version>2.9.0-SNAPSHOT</version>
+        <version>3.0.0-SNAPSHOT</version>
     </dependency>
 </dependencies>
 
@@ -50,7 +48,7 @@ repositories {
     }
 }
 dependencies {
-    implementation 'ch.trick17.gui:gui:2.9.0-SNAPSHOT'
+    implementation 'ch.trick17.gui:gui:3.0.0-SNAPSHOT'
 }
 ```
 

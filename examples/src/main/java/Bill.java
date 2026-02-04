@@ -57,11 +57,7 @@ public class Bill {
             }
 
             if (gui.wasKeyTyped("f")) {
-                try {
-                    gui.setFullScreen(!gui.isFullScreen());
-                } catch (UnsupportedOperationException e) {
-                    // not supported by Web GUI
-                }
+                gui.setFullScreen(!gui.isFullScreen());
             }
 
             if (x < BILL_SIZE / 2 || x + BILL_SIZE / 2 >= WIDTH) {

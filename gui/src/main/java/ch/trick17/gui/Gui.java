@@ -5,8 +5,6 @@ import ch.trick17.gui.component.Drawable;
 import ch.trick17.gui.component.Hoverable;
 import ch.trick17.gui.component.Interactive;
 import ch.trick17.gui.impl.swing.Window;
-import ch.trick17.gui.impl.web.WebGui;
-import ch.trick17.gui.impl.web.WebGuiServer;
 
 import java.util.List;
 
@@ -55,19 +53,11 @@ import java.util.List;
 public interface Gui {
 
     /**
-     * Create a new GUI with the specified title, width, and height. By default,
-     * the GUI is displayed in a window. If the system property
-     * "<code>gui.port</code>" is set, the GUI can be accessed using a web
-     * browser instead. For example, when running the program with
-     * <code>-Dgui.port=8080</code>, the GUI can be accessed at
-     * <a href="http://localhost:8080">http://localhost:8080</a>.
+     * Create a new GUI with the specified title, width, and height. The GUI is
+     * displayed in a window.
      */
     static Gui create(String title, int width, int height) {
-        if (WebGuiServer.port() != null) {
-            return new WebGui(title, width, height);
-        } else {
-            return new Window(title, width, height);
-        }
+        return new Window(title, width, height);
     }
 
     /**
@@ -104,14 +94,8 @@ public interface Gui {
      * <p>
      * For resizable GUIs, use {@link #getWidth()} and {@link #getHeight()} to
      * get the current canvas size.
-     *
-     * @throws UnsupportedOperationException if <code>resizable</code> is
-     *                                       <code>true</code> and the GUI
-     *                                       implementation does not support
-     *                                       resizing. This is currently the
-     *                                       case for Web GUIs.
      */
-    void setResizable(boolean resizable) throws UnsupportedOperationException;
+    void setResizable(boolean resizable);
 
     /**
      * If <code>fullScreen</code> is <code>true</code>, sets this GUI to be
@@ -124,14 +108,8 @@ public interface Gui {
      * {@linkplain #setResizable(boolean) resizable}, the canvas will be resized
      * to fit the screen. Otherwise, the canvas will keep its original size and
      * be centered on the screen, surrounded by a black border as needed.
-     *
-     * @throws UnsupportedOperationException if <code>fullScreen</code> is
-     *                                       <code>true</code> and the GUI
-     *                                       implementation does not support
-     *                                       full screen mode. This is currently
-     *                                       the case for Web GUIs.
      */
-    void setFullScreen(boolean fullScreen) throws UnsupportedOperationException;
+    void setFullScreen(boolean fullScreen);
 
     /**
      * Returns <code>true</code> if the GUI is currently set to be displayed in
@@ -291,12 +269,8 @@ public interface Gui {
      * an attempt is made to load the font from the classpath. If such a
      * resource does not exist, <code>path</code> is interpreted as a file path
      * instead and the font is loaded from the file system.
-     *
-     * @throws UnsupportedOperationException if the GUI implementation does not
-     *                                       support loading fonts. This is
-     *                                       currently the case for Web GUIs.
      */
-    void loadFont(String path) throws UnsupportedOperationException;
+    void loadFont(String path);
 
     /*
      * Paint settings
@@ -364,13 +338,8 @@ public interface Gui {
      * been loaded with {@link #loadFont(String)}, plus a number of
      * platform-dependent system fonts. The font family name is
      * case-insensitive. The default is "sansserif".
-     *
-     * @throws UnsupportedOperationException if the GUI implementation does not
-     *                                       support setting the font family.
-     *                                       This is currently the case for Web
-     *                                       GUIs.
      */
-    void setFontFamily(String fontFamily) throws UnsupportedOperationException;
+    void setFontFamily(String fontFamily);
 
     /**
      * Returns the name of the current font family.
@@ -422,13 +391,8 @@ public interface Gui {
      * {@linkplain #getFontSize() font size}, and style ({@link #isBold()},
      * {@link #isItalic()}). If the text contains multiple lines, the width of
      * the widest line is returned.
-     *
-     * @throws UnsupportedOperationException if the GUI implementation does not
-     *                                       support measuring string widths.
-     *                                       This is currently the case for Web
-     *                                       GUIs.
      */
-    default double stringWidth(String string) throws UnsupportedOperationException {
+    default double stringWidth(String string) {
         return stringWidth(string, getFontFamily(), getFontSize(), isBold(), isItalic());
     }
 
@@ -440,17 +404,13 @@ public interface Gui {
      * If the text contains multiple lines, the width of the widest line is
      * returned.
      *
-     * @throws UnsupportedOperationException if the GUI implementation does not
-     *                                       support measuring string widths.
-     *                                       This is currently the case for Web
-     *                                       GUIs.
      * @deprecated Use
      * {@link #stringWidth(String, String, int, boolean, boolean)} that includes
      * all font attributes as parameters or {@link #stringWidth(String)} that
      * includes none.
      */
     @Deprecated(forRemoval = true)
-    default double stringWidth(String string, int fontSize, boolean bold) throws UnsupportedOperationException {
+    default double stringWidth(String string, int fontSize, boolean bold) {
         return stringWidth(string, getFontFamily(), fontSize, bold, isItalic());
     }
 
@@ -459,14 +419,9 @@ public interface Gui {
      * {@linkplain #drawString(String, double, double) drawn} with the given
      * font family, font size, and style. If the text contains multiple lines,
      * the width of the widest line is returned.
-     *
-     * @throws UnsupportedOperationException if the GUI implementation does not
-     *                                       support measuring string widths.
-     *                                       This is currently the case for Web
-     *                                       GUIs.
      */
     double stringWidth(String string, String fontFamily, int fontSize,
-                       boolean bold, boolean italic) throws UnsupportedOperationException;
+                       boolean bold, boolean italic);
 
     /**
      * Sets the alignment for subsequent

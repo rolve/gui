@@ -255,7 +255,7 @@ public abstract class GuiBase implements Gui {
     }
 
     @Override
-    public void setFontFamily(String fontFamily) throws UnsupportedOperationException {
+    public void setFontFamily(String fontFamily) {
         this.fontFamily = fontFamily;
     }
 
