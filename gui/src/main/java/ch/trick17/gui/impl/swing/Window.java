@@ -208,6 +208,8 @@ public class Window extends GuiBase {
         var currentTextAlign = textAlign;
         var currentLineHeight = lineSpacing;
         var currentComposite = AlphaComposite.SrcOver.derive((float) alpha);
+        var currentInterpolation = nearestNeighborInterpolation ?
+                VALUE_INTERPOLATION_NEAREST_NEIGHBOR : VALUE_INTERPOLATION_BICUBIC;
         return g -> {
             g.setColor(currentColor);
             g.setStroke(currentStroke);
@@ -215,8 +217,10 @@ public class Window extends GuiBase {
             // Text alignment and line height are stored as a "rendering hints"
             // inside the Graphics2D object. Somewhat hacky, but consistent with
             // all other settings, which are supported by Graphics2D directly.
-            g.addRenderingHints(Map.of(TEXT_ALIGN, currentTextAlign));
-            g.addRenderingHints(Map.of(LINE_SPACING, currentLineHeight));
+            g.addRenderingHints(Map.of(
+                    TEXT_ALIGN, currentTextAlign,
+                    LINE_SPACING, currentLineHeight,
+                    KEY_INTERPOLATION, currentInterpolation));
             g.setComposite(currentComposite);
         };
     }
@@ -392,6 +396,14 @@ public class Window extends GuiBase {
     public void setAlpha(double alpha) {
         super.setAlpha(alpha);
         drawCommands.add(g -> g.setComposite(AlphaComposite.SrcOver.derive((float) max(0, min(1, alpha)))));
+    }
+
+    @Override
+    public void setNearestNeighborInterpolation(boolean nearestNeighborInterpolation) {
+        super.setNearestNeighborInterpolation(nearestNeighborInterpolation);
+        var interpolation = nearestNeighborInterpolation
+                ? VALUE_INTERPOLATION_NEAREST_NEIGHBOR : VALUE_INTERPOLATION_BICUBIC;
+        drawCommands.add(g -> g.addRenderingHints(Map.of(KEY_INTERPOLATION, interpolation)));
     }
 
     @Override

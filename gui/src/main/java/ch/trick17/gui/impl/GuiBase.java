@@ -37,6 +37,7 @@ public abstract class GuiBase implements Gui {
     protected TextAlign textAlign = TextAlign.LEFT;
     protected double lineSpacing = 1.0;
     protected double alpha = 1;
+    protected boolean nearestNeighborInterpolation = false;
 
     protected volatile double mouseX = 0;
     protected volatile double mouseY = 0;
@@ -72,6 +73,7 @@ public abstract class GuiBase implements Gui {
         var prevTextAlign = textAlign;
         var prevLineSpacing = lineSpacing;
         var prevAlpha = alpha;
+        var prevNearestNeighborInterpolation = nearestNeighborInterpolation;
 
         var mx = mouseX;
         var my = mouseY;
@@ -133,6 +135,7 @@ public abstract class GuiBase implements Gui {
         setTextAlign(prevTextAlign.toInt());
         setLineSpacing(prevLineSpacing);
         setAlpha(prevAlpha);
+        setNearestNeighborInterpolation(prevNearestNeighborInterpolation);
     }
 
     @Override
@@ -330,6 +333,16 @@ public abstract class GuiBase implements Gui {
     @Override
     public double getAlpha() {
         return alpha;
+    }
+
+    @Override
+    public void setNearestNeighborInterpolation(boolean nearestNeighborInterpolation) {
+        this.nearestNeighborInterpolation = nearestNeighborInterpolation;
+    }
+
+    @Override
+    public boolean isNearestNeighborInterpolation() {
+        return nearestNeighborInterpolation;
     }
 
     /*

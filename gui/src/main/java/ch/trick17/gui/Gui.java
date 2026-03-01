@@ -488,6 +488,20 @@ public interface Gui {
     double getAlpha();
 
     /**
+     * If <code>nearestNeighborInterpolation</code> is <code>true</code>,
+     * subsequent image drawing operations will use nearest neighbor
+     * interpolation; otherwise, a smoother interpolation method will be used
+     * (the default).
+     */
+    void setNearestNeighborInterpolation(boolean nearestNeighborInterpolation);
+
+    /**
+     * Returns a boolean value indicating whether nearest neighbor interpolation
+     * is used for image drawing operations.
+     */
+    boolean isNearestNeighborInterpolation();
+
+    /**
      * Resets all settings (color, font size, etc.) to their default values.
      */
     default void resetSettings() {
@@ -499,6 +513,7 @@ public interface Gui {
         setTextAlignLeft();
         setLineSpacing(1);
         setAlpha(1);
+        setNearestNeighborInterpolation(false);
     }
 
     /**
