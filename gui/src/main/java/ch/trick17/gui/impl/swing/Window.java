@@ -209,7 +209,7 @@ public class Window extends GuiBase {
         var currentLineHeight = lineSpacing;
         var currentComposite = AlphaComposite.SrcOver.derive((float) alpha);
         var currentInterpolation = nearestNeighborInterpolation ?
-                VALUE_INTERPOLATION_NEAREST_NEIGHBOR : VALUE_INTERPOLATION_BICUBIC;
+                VALUE_INTERPOLATION_NEAREST_NEIGHBOR : VALUE_INTERPOLATION_BILINEAR;
         return g -> {
             g.setColor(currentColor);
             g.setStroke(currentStroke);
@@ -402,7 +402,7 @@ public class Window extends GuiBase {
     public void setNearestNeighborInterpolation(boolean nearestNeighborInterpolation) {
         super.setNearestNeighborInterpolation(nearestNeighborInterpolation);
         var interpolation = nearestNeighborInterpolation
-                ? VALUE_INTERPOLATION_NEAREST_NEIGHBOR : VALUE_INTERPOLATION_BICUBIC;
+                ? VALUE_INTERPOLATION_NEAREST_NEIGHBOR : VALUE_INTERPOLATION_BILINEAR;
         drawCommands.add(g -> g.addRenderingHints(Map.of(KEY_INTERPOLATION, interpolation)));
     }
 

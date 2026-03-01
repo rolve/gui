@@ -26,7 +26,7 @@ For Maven projects, add the following to your pom.xml file:
     <dependency>
         <groupId>ch.trick17.gui</groupId>
         <artifactId>gui</artifactId>
-        <version>3.1.0-SNAPSHOT</version>
+        <version>3.1.1-SNAPSHOT</version>
     </dependency>
 </dependencies>
 
@@ -48,7 +48,7 @@ repositories {
     }
 }
 dependencies {
-    implementation 'ch.trick17.gui:gui:3.1.0-SNAPSHOT'
+    implementation 'ch.trick17.gui:gui:3.1.1-SNAPSHOT'
 }
 ```
 
