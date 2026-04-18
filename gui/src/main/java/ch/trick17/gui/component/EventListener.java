@@ -1,7 +1,5 @@
 package ch.trick17.gui.component;
 
-import ch.trick17.gui.Gui;
-
 /**
  * A {@link Component} that can react to any event that occurs in the GUI. If
  * you only want to react to local mouse events, consider implementing the
