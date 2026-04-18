@@ -24,8 +24,8 @@ public class Components {
 
 class GreenCircle implements Drawable {
 
-    private double x;
-    private double y;
+    private final double x;
+    private final double y;
 
     public GreenCircle(double x, double y) {
         this.x = x;
@@ -43,7 +43,7 @@ class Greeting implements Drawable, Hoverable {
 
     private String text = "Hello";
     private double x;
-    private double y;
+    private final double y;
 
     public Greeting(double x, double y) {
         this.x = x;
@@ -80,8 +80,8 @@ class Greeting implements Drawable, Hoverable {
 
 class ClickySquare implements Drawable, Hoverable, Clickable {
 
-    private double x;
-    private double y;
+    private final double x;
+    private final double y;
     private double size;
 
     private Color color = new Color(0, 0, 0);
