@@ -10,5 +10,5 @@ public interface EventListener extends Component {
     default void onKeyRelease(String keyName, char keyChar) {}
     default void onMouseButtonPress(double x, double y, boolean left) {}
     default void onMouseButtonRelease(double x, double y, boolean left) {}
-    // TODO: onMouseMove
+    default void onMouseMove(double x, double y, double prevX, double prevY) {}
 }

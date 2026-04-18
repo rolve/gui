@@ -52,6 +52,8 @@ public abstract class GuiBase implements Gui {
     protected final Set<Input> releasedSnapshot = new HashSet<>();
     protected int mouseXSnapshot = 0;
     protected int mouseYSnapshot = 0;
+    protected int prevMouseX = 0;
+    protected int prevMouseY = 0;
 
     private final Set<Hoverable> hovered = newSetFromMap(new IdentityHashMap<>());
     private final List<Component> components = new ArrayList<>();
@@ -120,6 +122,9 @@ public abstract class GuiBase implements Gui {
                     } else if (input instanceof MouseInput) {
                         e.onMouseButtonRelease(mx, my, ((MouseInput) input).left);
                     }
+                }
+                if (mx != prevMouseX || my != prevMouseY) {
+                    e.onMouseMove(mx, my, prevMouseX, prevMouseY);
                 }
             }
             if (comp instanceof Drawable) {
@@ -195,6 +200,8 @@ public abstract class GuiBase implements Gui {
 
         pressedSnapshot.clear();
         releasedSnapshot.clear();
+        prevMouseX = mouseXSnapshot;
+        prevMouseY = mouseYSnapshot;
         synchronized (inputLock) {
             pressedSnapshot.addAll(pressedInputs);
             releasedSnapshot.addAll(releasedInputs);
