@@ -39,8 +39,8 @@ public abstract class GuiBase implements Gui {
     protected double alpha = 1;
     protected boolean nearestNeighborInterpolation = false;
 
-    protected volatile double mouseX = 0;
-    protected volatile double mouseY = 0;
+    protected volatile int mouseX = 0;
+    protected volatile int mouseY = 0;
 
     protected final Object inputLock = new Object();
     protected final Set<Input> pressedInputs = new HashSet<>();
