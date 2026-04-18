@@ -39,14 +39,19 @@ public abstract class GuiBase implements Gui {
     protected double alpha = 1;
     protected boolean nearestNeighborInterpolation = false;
 
-    protected volatile int mouseX = 0;
-    protected volatile int mouseY = 0;
-
     protected final Object inputLock = new Object();
+    // the following variables are accessed both by the GUI thread and the main
+    // thread, always inside synchronized(inputLock) blocks
     protected final Set<Input> pressedInputs = new HashSet<>();
     protected final Set<Input> releasedInputs = new HashSet<>();
+    protected int mouseX = 0;
+    protected int mouseY = 0;
+
+    // the following snapshots are only accessed in the main thread
     protected final Set<Input> pressedSnapshot = new HashSet<>();
     protected final Set<Input> releasedSnapshot = new HashSet<>();
+    protected int mouseXSnapshot = 0;
+    protected int mouseYSnapshot = 0;
 
     private final Set<Hoverable> hovered = newSetFromMap(new IdentityHashMap<>());
     private final List<Component> components = new ArrayList<>();
@@ -75,8 +80,8 @@ public abstract class GuiBase implements Gui {
         var prevAlpha = alpha;
         var prevNearestNeighborInterpolation = nearestNeighborInterpolation;
 
-        var mx = mouseX;
-        var my = mouseY;
+        var mx = mouseXSnapshot;
+        var my = mouseYSnapshot;
         var leftClicked = wasLeftMouseButtonClicked();
         var rightClicked = wasRightMouseButtonClicked();
         var componentsSnapshot = List.copyOf(components);
@@ -194,6 +199,9 @@ public abstract class GuiBase implements Gui {
             pressedSnapshot.addAll(pressedInputs);
             releasedSnapshot.addAll(releasedInputs);
             releasedInputs.clear();
+
+            mouseXSnapshot = mouseX;
+            mouseYSnapshot = mouseY;
         }
 
         runComponents();
@@ -401,12 +409,12 @@ public abstract class GuiBase implements Gui {
 
     @Override
     public double getMouseX() {
-        return mouseX;
+        return mouseXSnapshot;
     }
 
     @Override
     public double getMouseY() {
-        return mouseY;
+        return mouseYSnapshot;
     }
 
     protected enum TextAlign {

@@ -124,8 +124,10 @@ public class Window extends GuiBase {
         panel.addMouseMotionListener(new MouseAdapter() {
             @Override
             public void mouseMoved(MouseEvent e) {
-                mouseX = e.getX();
-                mouseY = e.getY();
+                synchronized (inputLock) {
+                    mouseX = e.getX();
+                    mouseY = e.getY();
+                }
             }
 
             @Override
@@ -133,8 +135,10 @@ public class Window extends GuiBase {
                 var x = e.getX();
                 var y = e.getY();
                 if (x >= 0 && x < width && y >= 0 && y < height) {
-                    mouseX = x;
-                    mouseY = y;
+                    synchronized (inputLock) {
+                        mouseX = x;
+                        mouseY = y;
+                    }
                 }
             }
         });
@@ -233,7 +237,7 @@ public class Window extends GuiBase {
     @Override
     public void open() {
         drawSnapshot.addAll(drawCommands);
-        run(() -> openFrame());
+        run(this::openFrame);
         super.open();
     }
 
