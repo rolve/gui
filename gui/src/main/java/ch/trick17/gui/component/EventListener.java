@@ -10,5 +10,21 @@ public interface EventListener extends Component {
     default void onKeyRelease(String keyName, char keyChar) {}
     default void onMouseButtonPress(double x, double y, boolean left) {}
     default void onMouseButtonRelease(double x, double y, boolean left) {}
+
+    /**
+     * Called whenever the mouse moves. This method is never called with
+     * <code>x == prevX && y == prevY</code>.
+     *
+     * @param x     the new x coordinate of the mouse, where 0 ≤ x < width of
+     *              the GUI
+     * @param y     the new y coordinate of the mouse, where 0 ≤ y < height of
+     *              the GUI
+     * @param prevX the previous x coordinate of the mouse, guaranteed to be the
+     *              same as the <code>x</code> value of the last time this
+     *              method was called
+     * @param prevY the previous y coordinate of the mouse, guaranteed to be the
+     *              same as the <code>y</code> value of the last time this
+     *              method was called
+     */
     default void onMouseMove(double x, double y, double prevX, double prevY) {}
 }

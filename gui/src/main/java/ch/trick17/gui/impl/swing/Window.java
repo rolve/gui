@@ -131,8 +131,8 @@ public class Window extends GuiBase {
 
             @Override
             public void mouseDragged(MouseEvent e) {
-                var x = max(0, min(width, e.getX()));
-                var y = max(0, min(height, e.getY()));
+                var x = max(0, min(width - 1, e.getX()));
+                var y = max(0, min(height - 1, e.getY()));
                 synchronized (inputLock) {
                     mouseX = x;
                     mouseY = y;
