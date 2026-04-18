@@ -23,8 +23,7 @@ import static java.awt.Font.*;
 import static java.awt.GraphicsEnvironment.getLocalGraphicsEnvironment;
 import static java.awt.RenderingHints.*;
 import static java.awt.geom.Path2D.WIND_EVEN_ODD;
-import static java.lang.Math.max;
-import static java.lang.Math.min;
+import static java.lang.Math.*;
 import static javax.swing.SwingUtilities.*;
 
 /**
@@ -132,13 +131,11 @@ public class Window extends GuiBase {
 
             @Override
             public void mouseDragged(MouseEvent e) {
-                var x = e.getX();
-                var y = e.getY();
-                if (x >= 0 && x < width && y >= 0 && y < height) {
-                    synchronized (inputLock) {
-                        mouseX = x;
-                        mouseY = y;
-                    }
+                var x = max(0, min(width, e.getX()));
+                var y = max(0, min(height, e.getY()));
+                synchronized (inputLock) {
+                    mouseX = x;
+                    mouseY = y;
                 }
             }
         });
