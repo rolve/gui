@@ -13,11 +13,11 @@ public interface EventListener extends Component {
 
     /**
      * Called whenever the mouse moves. This method is never called with
-     * <code>x == prevX && y == prevY</code>.
+     * <code>x == prevX &amp;&amp; y == prevY</code>.
      *
-     * @param x     the new x coordinate of the mouse, where 0 ≤ x < width of
+     * @param x     the new x coordinate of the mouse, where 0 ≤ x &lt; width of
      *              the GUI
-     * @param y     the new y coordinate of the mouse, where 0 ≤ y < height of
+     * @param y     the new y coordinate of the mouse, where 0 ≤ y &lt; height of
      *              the GUI
      * @param prevX the previous x coordinate of the mouse, guaranteed to be the
      *              same as the <code>x</code> value of the last time this
